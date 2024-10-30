@@ -1193,7 +1193,7 @@ class PhenyxTools {
 
 				require_once _EPH_PLUGIN_DIR_ . $plugin . DIRECTORY_SEPARATOR . 'translations/' . $iso . '/front.php';
 
-				if (is_array($complementary_language)) {
+				if (is_array($_LANGFRONT)) {
 					$_LANGFRON = array_merge(
 						$_LANGFRON,
 						$_LANGFRONT
@@ -1210,7 +1210,7 @@ class PhenyxTools {
 
 				require_once _EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . DIRECTORY_SEPARATOR . 'translations/' . $iso . '/front.php';
 
-				if (is_array($complementary_language)) {
+				if (is_array($_LANGFRONT)) {
 					$_LANGFRON = array_merge(
 						$_LANGFRON,
 						$_LANGFRONT
@@ -1289,8 +1289,7 @@ class PhenyxTools {
 			if (file_exists(_EPH_PLUGIN_DIR_ . $plugin . DIRECTORY_SEPARATOR . 'translations/' . $iso . '/pdf.php')) {
 
 				@include _EPH_PLUGIN_DIR_ . $plugin . DIRECTORY_SEPARATOR . 'translations/' . $iso . '/pdf.php';
-				$complementary_language = $_LANGPDF;
-
+				
 				if (is_array($_LANGPDF)) {
 					$_LANGPD = array_merge(
 						$_LANGPD,

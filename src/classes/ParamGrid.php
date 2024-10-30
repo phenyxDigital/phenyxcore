@@ -627,8 +627,6 @@ class ParamGrid {
 	
 	public function generateParagridScript() {
 
-		$file = fopen("testgenerateParagridScrip.txt", "a");
-
 		$is_function = false;
 		$context = Context::getContext();
 
@@ -795,7 +793,7 @@ class ParamGrid {
 			$is_function = true;
 
 			foreach ($this->paragrid_option as $key => $value) {
-                fwrite($file,$key.PHP_EOL);
+               
 				if ($key == 'paragrids') {
 
 					foreach ($this->paragrid_option[$key] as $element => $values) {
