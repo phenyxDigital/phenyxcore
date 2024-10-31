@@ -4520,6 +4520,17 @@ FileETag none
         $mail_allowed = $phenyxConfig->get('EPH_ALLOW_SEND_EMAIL') ? 1 : 0;
         if($mail_allowed) {
             $context = Context::getContext();
+            if (!isset($context->phenyxConfig)) {
+                $context->phenyxConfig = Configuration::getInstance();
+            
+            }
+            if (!isset($context->company)) {
+                $context->company = new Company($context->phenyxConfig->get('EPH_COMPANY_ID'));
+            
+            }
+            if(!isset($context->theme)) {
+                $context->theme = new Theme((int) $context->company->id_theme);
+            }
 
             $htmlContent = $postfields['htmlContent'];
             $tpl = $context->smarty->createTemplate(_EPH_MAIL_DIR_ . 'header.tpl');
