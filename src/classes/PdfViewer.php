@@ -510,7 +510,7 @@ class PdfViewer {
     public $pageDragDisabled = "false";
     public $pageClickAreaWdith = '\'10%\''; // width of the page that behaves like next / previous page button
     
-    public $btnBackCourse = "false";
+    public $BtnPrintCourse = "false";
 
     public $strings = [];
 
