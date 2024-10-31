@@ -2385,7 +2385,7 @@ abstract class Plugin {
         if (is_array($tabs) && count($tabs)) {
 
             foreach ($tabs as $tab) {
-                $menu = New BackTab($tab['id_back_tab']);
+                $menu = new BackTab($tab['id_back_tab']);
                 $menu->delete();
             }
 
@@ -2514,7 +2514,7 @@ abstract class Plugin {
         if (is_array($tabs) && count($tabs)) {
 
             foreach ($tabs as $tab) {
-                $menu = New BackTab($tab['id_back_tab']);
+                $menu = new BackTab($tab['id_back_tab']);
                 $menu->active = false;
                 $menu->update();
             }

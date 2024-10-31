@@ -706,15 +706,14 @@ abstract class PhenyxController {
             $user->id_lang = $idLang;
             $user->update();
             $this->_user = $this->context->user = $user;
-            $this->processClearRedisCache;
+            $this->processClearCache();
         }
 
         die(true);
     }
 
-    public function processClearRedisCache() {
-
-        $currentDb = $this->context->cache_api->redis->getDbNum();
+    public function processClearCache() {
+        
         $result = $this->context->cache_api->cleanCache();
         die($result);
     }
