@@ -172,7 +172,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
                                         $selected = ' selected="selected"';
                                     }
                                }  
-                               $build_style_select .= '<option value="' . (is_array($value) ? $value['value'] : $value) . '" ' . $selected . '>' . $key . '</option>';
+                               $build_style_select .= '<option value="' . (is_array($value) ? $value['value'] : $value) . '" ' . $selected . '>' .(is_array($value) ? $value['value'] : $value) . '</option>';
                            }
                        }
                        $build_style_select .= '</optgroup>';
@@ -193,6 +193,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
                 $param_line .= '<script type="text/javascript">
                     $("#'.$selectId.'").selectmenu({
                         width: 300,
+                        icons: { button: "fa-duotone fa-bars" },
                         classes: {
                             "ui-selectmenu-menu": "selectComposer"
                         },
