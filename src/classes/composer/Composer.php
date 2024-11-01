@@ -65,6 +65,9 @@ class Composer {
         global $smarty;
         global $globalShortcodeHandler;
         $this->context = Context::getContext();
+        if (!isset($this->context->media)) {
+            $this->context->media = new Media();
+        }
 
         self::$sds_action_hooks['wpb_single_image_src'] = [ & $this, 'wpb_single_image_src'];
         self::$sds_action_hooks['wpb_gallery_html'] = ['ComposerBase', 'galleryHTML'];
@@ -867,10 +870,7 @@ class Composer {
         }      
 
     }
-    
-   
-   
-
+  
     public function vcmaps_init($base = '', $plugin_name = null, $vccaw = null) {
 
         $hooks = [];
@@ -1392,6 +1392,7 @@ class Composer {
                 'edit_layout'      => $edit_layout->render($this),
                 'shortCodes'       => ComposerMap::getShortCodes(),
                 'map'              => new ComposerMap(),
+                'media'            => $this->context->media,
                 'ephenyx_composer' => ephenyx_composer(),
             ]
         );
