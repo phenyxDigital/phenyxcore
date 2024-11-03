@@ -14,6 +14,18 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
 
 		return '';
 	}
+    
+    public function l($string, $idLang = null, Context $context = null) {
+
+        $class = 'ComposerShortCodeUniversalAdmin';
+
+        if(isset($this->context->translations)) {
+            return $this->context->translations->getClassTranslation($string, $class);
+        }
+        return $string;
+
+        
+    }
 
 	public function contentAdmin($atts, $content = null) {
 
@@ -41,7 +53,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
 			$atts = Composer::shortcode_atts($shortcode_attributes, $atts);
 			extract($atts);
 			$editor_css_classes = apply_filters('vc_edit_form_class', ['vc_col-sm-12', 'wpb_edit_form_elements']);
-			$output .= '<div class="' . implode(' ', $editor_css_classes) . '"><h2>' . $vc_manager->l('Edit') . ' ' . $this->settings['name'] . '</h2>';
+			$output .= '<div class="' . implode(' ', $editor_css_classes) . '"><h2>' . $this->l('Edit') . ' ' . $this->settings['name'] . '</h2>';
 
 			foreach ($this->settings['params'] as $param) {
 				$param_value = isset($atts[$param['param_name']]) ? $atts[$param['param_name']] : null;
@@ -56,7 +68,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
 				$output .= $this->singleParamEditHolder($param, $param_value);
 			}
 
-			$output .= '<div class="edit_form_actions"><a href="#" class="wpb_save_edit_form button-primary">' . $vc_manager->l('Save') . '</a></div>';
+			$output .= '<div class="edit_form_actions"><a href="#" class="wpb_save_edit_form button-primary">' . $this->l('Save') . '</a></div>';
 
 			$output .= '</div>'; //close wpb_edit_form_elements
 		}
@@ -102,7 +114,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
 	protected function singleParamEditForm($param, $param_value) {
 
 		$param_line = '';
-
+       
 		$vc_manager = ephenyx_manager();
         switch($param['type']) {
             case 'textfield':
@@ -143,23 +155,26 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
                 $selectId = $this->generateRandomString();
                 $param_line .= '<link rel="stylesheet" href="/content/backoffice/composer/animate.min.css" type="text/css" media="all" />';
                 $param_line .= '<div class="vc_row">';
-            	$styles = $this->animationStyles();            
+                if(isset($param['value'])) {
+                    $styles = $param['value'];
+                } else {
+                    $styles = $this->animationStyles();     
+                }
+            	   
                 if(is_array($param_value)) {
                     $param_value = 'none';
                 } 
-            	if (isset($this->settings['settings']['type'])) {
-				    $styles = $this->groupStyleByType($styles, $this->settings['settings']['type']);
-                }
-                if (isset($this->settings['settings']['custom']) && is_array($this->settings['settings']['custom'])) {
-				    $styles = array_merge($styles, $this->settings['settings']['custom']);
-                }
+            	
             
                 if (is_array($styles) && !empty($styles)) {
 				    $left_side = '<div class="vc_col-sm-6">';
                     $param_line .= '<input type="hidden" class="wpb_vc_param_value animation-style" data-id="'.$selectId.'" name="' . $param['param_name'] . '" value="'.$param_value.'">';
 				    $build_style_select = '<select id="'.$selectId.'" name="' . $param['param_name'] . '" class="vc_param-animation-style">';
 
-				    foreach ($styles as $style) {
+				    foreach ($styles as $key => $style) {
+                        if($key == 0) {
+                            continue;
+                        }
 					   $build_style_select .= '<optgroup ' . (isset($style['label']) ? 'label="' . htmlspecialchars($style['label']) . '"' : '') . '>';
 
 					   if (is_array($style['values']) && !empty($style['values'])) {
@@ -183,7 +198,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
 				    $param_line .= $left_side;
 
 				    $right_side = '<div class="vc_col-sm-6">';
-				    $right_side .= '<div class="vc_param-animation-style-preview"><button class="vc_btn vc_btn-grey vc_btn-sm vc_param-animation-style-trigger">' . $vc_manager->l('Animate it') . '</button></div>';
+				    $right_side .= '<div class="vc_param-animation-style-preview"><button class="vc_btn vc_btn-grey vc_btn-sm vc_param-animation-style-trigger">' . $this->l('Animate it') . '</button></div>';
 				    $right_side .= '</div>';
 				    $param_line .= $right_side; 
                 }
@@ -316,7 +331,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
                 $param_line .= '</div>';
                 $param_line .= '<div class="gallery_widget_site_images">';
                 $param_line .= '</div>';
-                $param_line .= '<a class="gallery_widget_add_images" href="#" title="' . $vc_manager->l('Add images') . '">' . $vc_manager->l('Add images') . '</a>';
+                $param_line .= '<a class="gallery_widget_add_images" href="#" title="' . $this->l('Add images') . '">' . $this->l('Add images') . '</a>';
                 break;
             case 'attach_image':
                 $param_value = removeNotExistingImgIDs(preg_replace('/[^\d]/', '', $param_value));
@@ -331,7 +346,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
                 $param_line .= '</div>';
                 $param_line .= '<div class="gallery_widget_site_images">';
                 $param_line .= '</div>';
-                $param_line .= '<a class="gallery_widget_add_images" href="#" use-single="true" title="' . $vc_manager->l('Add image') . '">' . $vc_manager->l('Add image') . '</a>';
+                $param_line .= '<a class="gallery_widget_add_images" href="#" use-single="true" title="' . $this->l('Add image') . '">' . $this->l('Add image') . '</a>';
                 break;
             case 'media_dropdown':
                 $css_option = get_dropdown_option($param, $param_value);
@@ -455,376 +470,376 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
 		$styles = [
 			[
 				'values' => [
-					$vc_manager->l('None') => 'none',
+					$this->l('None') => 'none',
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Attention Seekers'),
+				'label'  => $this->l('Attention Seekers'),
 				'values' => [
 					// text to display => value
-					$vc_manager->l('bounce')     => [
+					$this->l('bounce')     => [
 						'value' => 'bounce',
 						'type'  => 'other',
 					],
-					$vc_manager->l('flash')      => [
+					$this->l('flash')      => [
 						'value' => 'flash',
 						'type'  => 'other',
 					],
-					$vc_manager->l('pulse')      => [
+					$this->l('pulse')      => [
 						'value' => 'pulse',
 						'type'  => 'other',
 					],
-					$vc_manager->l('rubberBand') => [
+					$this->l('rubberBand') => [
 						'value' => 'rubberBand',
 						'type'  => 'other',
 					],
-					$vc_manager->l('shake')      => [
+					$this->l('shake')      => [
 						'value' => 'shake',
 						'type'  => 'other',
 					],
-					$vc_manager->l('swing')      => [
+					$this->l('swing')      => [
 						'value' => 'swing',
 						'type'  => 'other',
 					],
-					$vc_manager->l('tada')       => [
+					$this->l('tada')       => [
 						'value' => 'tada',
 						'type'  => 'other',
 					],
-					$vc_manager->l('wobble')     => [
+					$this->l('wobble')     => [
 						'value' => 'wobble',
 						'type'  => 'other',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Bouncing Entrances'),
+				'label'  => $this->l('Bouncing Entrances'),
 				'values' => [
 					// text to display => value
-					$vc_manager->l('bounceIn')      => [
+					$this->l('bounceIn')      => [
 						'value' => 'bounceIn',
 						'type'  => 'in',
 					],
-					$vc_manager->l('bounceInDown')  => [
+					$this->l('bounceInDown')  => [
 						'value' => 'bounceInDown',
 						'type'  => 'in',
 					],
-					$vc_manager->l('bounceInLeft')  => [
+					$this->l('bounceInLeft')  => [
 						'value' => 'bounceInLeft',
 						'type'  => 'in',
 					],
-					$vc_manager->l('bounceInRight') => [
+					$this->l('bounceInRight') => [
 						'value' => 'bounceInRight',
 						'type'  => 'in',
 					],
-					$vc_manager->l('bounceInUp')    => [
+					$this->l('bounceInUp')    => [
 						'value' => 'bounceInUp',
 						'type'  => 'in',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Bouncing Exits'),
+				'label'  => $this->l('Bouncing Exits'),
 				'values' => [
 					// text to display => value
-					$vc_manager->l('bounceOut')      => [
+					$this->l('bounceOut')      => [
 						'value' => 'bounceOut',
 						'type'  => 'out',
 					],
-					$vc_manager->l('bounceOutDown')  => [
+					$this->l('bounceOutDown')  => [
 						'value' => 'bounceOutDown',
 						'type'  => 'out',
 					],
-					$vc_manager->l('bounceOutLeft')  => [
+					$this->l('bounceOutLeft')  => [
 						'value' => 'bounceOutLeft',
 						'type'  => 'out',
 					],
-					$vc_manager->l('bounceOutRight') => [
+					$this->l('bounceOutRight') => [
 						'value' => 'bounceOutRight',
 						'type'  => 'out',
 					],
 
-					$vc_manager->l('bounceOutUp')    => [
+					$this->l('bounceOutUp')    => [
 						'value' => 'bounceOutUp',
 						'type'  => 'out',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Fading Entrances'),
+				'label'  => $this->l('Fading Entrances'),
 				'values' => [
 					// text to display => value
-					$vc_manager->l('fadeIn')         => [
+					$this->l('fadeIn')         => [
 						'value' => 'fadeIn',
 						'type'  => 'in',
 					],
-					$vc_manager->l('fadeInDown')     => [
+					$this->l('fadeInDown')     => [
 						'value' => 'fadeInDown',
 						'type'  => 'in',
 					],
-					$vc_manager->l('fadeInDownBig')  => [
+					$this->l('fadeInDownBig')  => [
 						'value' => 'fadeInDownBig',
 						'type'  => 'in',
 					],
-					$vc_manager->l('fadeInLeft')     => [
+					$this->l('fadeInLeft')     => [
 						'value' => 'fadeInLeft',
 						'type'  => 'in',
 					],
-					$vc_manager->l('fadeInLeftBig')  => [
+					$this->l('fadeInLeftBig')  => [
 						'value' => 'fadeInLeftBig',
 						'type'  => 'in',
 					],
-					$vc_manager->l('fadeInRight')    => [
+					$this->l('fadeInRight')    => [
 						'value' => 'fadeInRight',
 						'type'  => 'in',
 					],
-					$vc_manager->l('fadeInRightBig') => [
+					$this->l('fadeInRightBig') => [
 						'value' => 'fadeInRightBig',
 						'type'  => 'in',
 					],
-					$vc_manager->l('fadeInUp')       => [
+					$this->l('fadeInUp')       => [
 						'value' => 'fadeInUp',
 						'type'  => 'in',
 					],
-					$vc_manager->l('fadeInUpBig')    => [
+					$this->l('fadeInUpBig')    => [
 						'value' => 'fadeInUpBig',
 						'type'  => 'in',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Fading Exits'),
+				'label'  => $this->l('Fading Exits'),
 				'values' => [
-					$vc_manager->l('fadeOut')         => [
+					$this->l('fadeOut')         => [
 						'value' => 'fadeOut',
 						'type'  => 'out',
 					],
-					$vc_manager->l('fadeOutDown')     => [
+					$this->l('fadeOutDown')     => [
 						'value' => 'fadeOutDown',
 						'type'  => 'out',
 					],
-					$vc_manager->l('fadeOutDownBig')  => [
+					$this->l('fadeOutDownBig')  => [
 						'value' => 'fadeOutDownBig',
 						'type'  => 'out',
 					],
-					$vc_manager->l('fadeOutLeft')     => [
+					$this->l('fadeOutLeft')     => [
 						'value' => 'fadeOutLeft',
 						'type'  => 'out',
 					],
-					$vc_manager->l('fadeOutLeftBig')  => [
+					$this->l('fadeOutLeftBig')  => [
 						'value' => 'fadeOutLeftBig',
 						'type'  => 'out',
 					],
-					$vc_manager->l('fadeOutRight')    => [
+					$this->l('fadeOutRight')    => [
 						'value' => 'fadeOutRight',
 						'type'  => 'out',
 					],
-					$vc_manager->l('fadeOutRightBig') => [
+					$this->l('fadeOutRightBig') => [
 						'value' => 'fadeOutRightBig',
 						'type'  => 'out',
 					],
-					$vc_manager->l('fadeOutUp')       => [
+					$this->l('fadeOutUp')       => [
 						'value' => 'fadeOutUp',
 						'type'  => 'out',
 					],
-					$vc_manager->l('fadeOutUpBig')    => [
+					$this->l('fadeOutUpBig')    => [
 						'value' => 'fadeOutUpBig',
 						'type'  => 'out',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Flippers'),
+				'label'  => $this->l('Flippers'),
 				'values' => [
-					$vc_manager->l('flip')     => [
+					$this->l('flip')     => [
 						'value' => 'flip',
 						'type'  => 'other',
 					],
-					$vc_manager->l('flipInX')  => [
+					$this->l('flipInX')  => [
 						'value' => 'flipInX',
 						'type'  => 'in',
 					],
-					$vc_manager->l('flipInY')  => [
+					$this->l('flipInY')  => [
 						'value' => 'flipInY',
 						'type'  => 'in',
 					],
-					$vc_manager->l('flipOutX') => [
+					$this->l('flipOutX') => [
 						'value' => 'flipOutX',
 						'type'  => 'out',
 					],
-					$vc_manager->l('flipOutY') => [
+					$this->l('flipOutY') => [
 						'value' => 'flipOutY',
 						'type'  => 'out',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Lightspeed'),
+				'label'  => $this->l('Lightspeed'),
 				'values' => [
-					$vc_manager->l('lightSpeedIn')  => [
+					$this->l('lightSpeedIn')  => [
 						'value' => 'lightSpeedIn',
 						'type'  => 'in',
 					],
-					$vc_manager->l('lightSpeedOut') => [
+					$this->l('lightSpeedOut') => [
 						'value' => 'lightSpeedOut',
 						'type'  => 'out',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Rotating Entrances'),
+				'label'  => $this->l('Rotating Entrances'),
 				'values' => [
-					$vc_manager->l('rotateIn')          => [
+					$this->l('rotateIn')          => [
 						'value' => 'rotateIn',
 						'type'  => 'in',
 					],
-					$vc_manager->l('rotateInDownLeft')  => [
+					$this->l('rotateInDownLeft')  => [
 						'value' => 'rotateInDownLeft',
 						'type'  => 'in',
 					],
-					$vc_manager->l('rotateInDownRight') => [
+					$this->l('rotateInDownRight') => [
 						'value' => 'rotateInDownRight',
 						'type'  => 'in',
 					],
-					$vc_manager->l('rotateInUpLeft')    => [
+					$this->l('rotateInUpLeft')    => [
 						'value' => 'rotateInUpLeft',
 						'type'  => 'in',
 					],
-					$vc_manager->l('rotateInUpRight')   => [
+					$this->l('rotateInUpRight')   => [
 						'value' => 'rotateInUpRight',
 						'type'  => 'in',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Rotating Exits'),
+				'label'  => $this->l('Rotating Exits'),
 				'values' => [
-					$vc_manager->l('rotateOut')          => [
+					$this->l('rotateOut')          => [
 						'value' => 'rotateOut',
 						'type'  => 'out',
 
 					],
-					$vc_manager->l('rotateOutDownLeft')  => [
+					$this->l('rotateOutDownLeft')  => [
 						'value' => 'rotateOutDownLeft',
 						'type'  => 'out',
 					],
-					$vc_manager->l('rotateOutDownRight') => [
+					$this->l('rotateOutDownRight') => [
 						'value' => 'rotateOutDownRight',
 						'type'  => 'out',
 					],
-					$vc_manager->l('rotateOutUpLeft')    => [
+					$this->l('rotateOutUpLeft')    => [
 						'value' => 'rotateOutUpLeft',
 						'type'  => 'out',
 					],
-					$vc_manager->l('rotateOutUpRight')   => [
+					$this->l('rotateOutUpRight')   => [
 						'value' => 'rotateOutUpRight',
 						'type'  => 'out',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Specials'),
+				'label'  => $this->l('Specials'),
 				'values' => [
-					$vc_manager->l('hinge')   => [
+					$this->l('hinge')   => [
 						'value' => 'hinge',
 						'type'  => 'out',
 					],
-					$vc_manager->l('rollIn')  => [
+					$this->l('rollIn')  => [
 						'value' => 'rollIn',
 						'type'  => 'in',
 					],
-					$vc_manager->l('rollOut') => [
+					$this->l('rollOut') => [
 						'value' => 'rollOut',
 						'type'  => 'out',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Zoom Entrances'),
+				'label'  => $this->l('Zoom Entrances'),
 				'values' => [
-					$vc_manager->l('zoomIn')      => [
+					$this->l('zoomIn')      => [
 						'value' => 'zoomIn',
 						'type'  => 'in',
 					],
-					$vc_manager->l('zoomInDown')  => [
+					$this->l('zoomInDown')  => [
 						'value' => 'zoomInDown',
 						'type'  => 'in',
 					],
-					$vc_manager->l('zoomInLeft')  => [
+					$this->l('zoomInLeft')  => [
 						'value' => 'zoomInLeft',
 						'type'  => 'in',
 					],
-					$vc_manager->l('zoomInRight') => [
+					$this->l('zoomInRight') => [
 						'value' => 'zoomInRight',
 						'type'  => 'in',
 					],
-					$vc_manager->l('zoomInUp')    => [
+					$this->l('zoomInUp')    => [
 						'value' => 'zoomInUp',
 						'type'  => 'in',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Zoom Exits'),
+				'label'  => $this->l('Zoom Exits'),
 				'values' => [
-					$vc_manager->l('zoomOut')      => [
+					$this->l('zoomOut')      => [
 						'value' => 'zoomOut',
 						'type'  => 'out',
 					],
-					$vc_manager->l('zoomOutDown')  => [
+					$this->l('zoomOutDown')  => [
 						'value' => 'zoomOutDown',
 						'type'  => 'out',
 					],
-					$vc_manager->l('zoomOutLeft')  => [
+					$this->l('zoomOutLeft')  => [
 						'value' => 'zoomOutLeft',
 						'type'  => 'out',
 					],
-					$vc_manager->l('zoomOutRight') => [
+					$this->l('zoomOutRight') => [
 						'value' => 'zoomOutRight',
 						'type'  => 'out',
 					],
-					$vc_manager->l('zoomOutUp')    => [
+					$this->l('zoomOutUp')    => [
 						'value' => 'zoomOutUp',
 						'type'  => 'out',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Slide Entrances'),
+				'label'  => $this->l('Slide Entrances'),
 				'values' => [
-					$vc_manager->l('slideInDown')  => [
+					$this->l('slideInDown')  => [
 						'value' => 'slideInDown',
 						'type'  => 'in',
 					],
-					$vc_manager->l('slideInLeft')  => [
+					$this->l('slideInLeft')  => [
 						'value' => 'slideInLeft',
 						'type'  => 'in',
 					],
-					$vc_manager->l('slideInRight') => [
+					$this->l('slideInRight') => [
 						'value' => 'slideInRight',
 						'type'  => 'in',
 					],
-					$vc_manager->l('slideInUp')    => [
+					$this->l('slideInUp')    => [
 						'value' => 'slideInUp',
 						'type'  => 'in',
 					],
 				],
 			],
 			[
-				'label'  => $vc_manager->l('Slide Exits'),
+				'label'  => $this->l('Slide Exits'),
 				'values' => [
-					$vc_manager->l('slideOutDown')  => [
+					$this->l('slideOutDown')  => [
 						'value' => 'slideOutDown',
 						'type'  => 'out',
 					],
-					$vc_manager->l('slideOutLeft')  => [
+					$this->l('slideOutLeft')  => [
 						'value' => 'slideOutLeft',
 						'type'  => 'out',
 					],
-					$vc_manager->l('slideOutRight') => [
+					$this->l('slideOutRight') => [
 						'value' => 'slideOutRight',
 						'type'  => 'out',
 					],
-					$vc_manager->l('slideOutUp')    => [
+					$this->l('slideOutUp')    => [
 						'value' => 'slideOutUp',
 						'type'  => 'out',
 					],
