@@ -2643,7 +2643,7 @@ abstract class Plugin {
             return $string;
         }
 
-        return Context::getContext()->translations->getPluginTranslation($this, $string, ($specific) ? $specific : $this->name);
+        return $this->context->translations->getPluginTranslation($this, $string, ($specific) ? $specific : $this->name);
     }
 
     public function registerHook($hookName, $companyList = null, $position = null) {
