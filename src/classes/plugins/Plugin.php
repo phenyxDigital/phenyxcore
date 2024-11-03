@@ -1654,6 +1654,11 @@ abstract class Plugin {
 
         return (bool) Plugin::getPluginIdByName($pluginName, $use_cache);
     }
+    
+    public function isMounted() {
+
+        return (bool) Plugin::getPluginIdByName($this->name, false);
+    }
 
     public static function isActive($pluginName) {
 
