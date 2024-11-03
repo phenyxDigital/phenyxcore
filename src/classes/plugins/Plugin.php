@@ -217,6 +217,9 @@ abstract class Plugin {
 
             $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
         }
+        if (!isset($this->context->language)) {
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::construct('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
+        }
         if (!isset($this->context->translations)) {
 
             $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
@@ -2639,10 +2642,25 @@ abstract class Plugin {
 
     public function l($string, $specific = false) {
 
-        if (static::$_generate_config_xml_mode) {
-            return $string;
+        if(!isset($this->context)) {
+            $this->context = Context::getContext();
         }
+        if (!isset($this->context->phenyxConfig)) {
+            $this->context->phenyxConfig = new Configuration();
+            
+        }
+        if (!isset($this->context->company)) {
 
+            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+        }
+        if (!isset($this->context->language)) {
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::construct('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
+        }
+        if (!isset($this->context->translations)) {
+
+            $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
+        }
+       
         return $this->context->translations->getPluginTranslation($this, $string, ($specific) ? $specific : $this->name);
     }
 
