@@ -937,7 +937,7 @@ class Performer {
                     }
 
                     if ($need_more) {
-
+                        $found_in_hook = false;
                         $hookGetController = $this->context->_hook->exec('actionPerformerGetController', ['uri' => $uri, 'routes' => $routes, 'routes' => $routes, 'front_controller' => $this->front_controller], null, true, false);
 
                         if (is_array($hookGetController)) {
@@ -945,13 +945,16 @@ class Performer {
                             foreach ($hookGetController as $key => $getController) {
 
                                 if (isset($getController['front_controller']) && !is_null($getController['front_controller'])) {
+                                    $found_in_hook = true;
                                     $this->front_controller = $getController['front_controller'];
                                     $controller = $getController['controller'];
                                 }
 
                             }
 
-                        } else {
+                        } 
+                        
+                        if(!$found_in_hook) {
 
                             foreach ($routes as $route) {
 
