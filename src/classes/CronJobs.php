@@ -22,6 +22,7 @@ class CronJobs extends PhenyxObjectModel {
             'month'       => ['type' => self::TYPE_INT],
             'day_of_week' => ['type' => self::TYPE_INT],
             'custom'      => ['type' => self::TYPE_STRING, 'validate' => 'isString'],
+            'args'        => ['type' => self::TYPE_STRING, 'validate' => 'isString'],
             'updated_at'  => ['type' => self::TYPE_DATE, 'validate' => 'isDate', 'copy_post' => false],
             'active'      => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
 
@@ -39,6 +40,7 @@ class CronJobs extends PhenyxObjectModel {
     public $month;
     public $day_of_week;
     public $custom;
+    public $args;
     public $updated_at;
     public $active;
 
@@ -75,11 +77,13 @@ class CronJobs extends PhenyxObjectModel {
                     fwrite($file,"go cow ".$cron['description'].PHP_EOL.PHP_EOL);
                     $class_name = $cron['class_name'];
                     if(class_exists($class_name)) {
+                       
                         $instance = new $class_name();
                         $task = $cron['task'];
                         if (method_exists($instance, $task)) {
+                            $args = !empty($cron['arg']) ? $cron['arg'] : null;
                             try {
-                                $result = $instance->{$task}();
+                                $result = $instance->{$task}($args);
                                 $query = 'UPDATE ' . _DB_PREFIX_ . 'cronjobs 
                                 SET `updated_at` = NOW() 
                                 WHERE `id_cronjobs` = ' . (int) $cron['id_cronjobs'];
