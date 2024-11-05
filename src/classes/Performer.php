@@ -937,7 +937,7 @@ class Performer {
                     }
 
                     if ($need_more) {
-                        $found_in_hook = false;
+
                         $hookGetController = $this->context->_hook->exec('actionPerformerGetController', ['uri' => $uri, 'routes' => $routes, 'routes' => $routes, 'front_controller' => $this->front_controller], null, true, false);
 
                         if (is_array($hookGetController)) {
@@ -945,114 +945,113 @@ class Performer {
                             foreach ($hookGetController as $key => $getController) {
 
                                 if (isset($getController['front_controller']) && !is_null($getController['front_controller'])) {
-                                    $found_in_hook = true;
+
                                     $this->front_controller = $getController['front_controller'];
-                                    $controller = $getController['controller'];
+                                    $this->controller = $getController['controller'];
+                                    $_GET['controller'] = $this->controller;
+
+                                    return $this->controller;
                                 }
 
                             }
 
-                        } 
-                        
-                        if(!$found_in_hook) {
+                        }
 
-                            foreach ($routes as $route) {
+                        foreach ($routes as $route) {
 
-                                if (preg_match($route['regexp'], $uri, $m)) {
+                            if (preg_match($route['regexp'], $uri, $m)) {
 
-                                    if (array_key_exists('pfg_rewrite', $m)) {
+                                if (array_key_exists('pfg_rewrite', $m)) {
 
-                                        if ($route['controller'] === 'pfg') {
+                                    if ($route['controller'] === 'pfg') {
 
-                                            if (isset($m['id']) && $m['id']) {
-                                                $idPagepfg = (int) $m['id'];
-                                            } else {
-                                                $idPagepfg = $this->pagepfgID($m['pfg_rewrite']);
+                                        if (isset($m['id']) && $m['id']) {
+                                            $idPagepfg = (int) $m['id'];
+                                        } else {
+                                            $idPagepfg = $this->pagepfgID($m['pfg_rewrite']);
+
+                                            if (!$idPagepfg) {
+                                                $idPagepfg = in_array('id_pfg', $m) ? (int) $m['id_pfg'] : 0;
 
                                                 if (!$idPagepfg) {
-                                                    $idPagepfg = in_array('id_pfg', $m) ? (int) $m['id_pfg'] : 0;
-
-                                                    if (!$idPagepfg) {
-                                                        continue;
-                                                    }
-
+                                                    continue;
                                                 }
 
                                             }
 
-                                            $_GET['id_pfg'] = $idPagepfg;
                                         }
 
+                                        $_GET['id_pfg'] = $idPagepfg;
                                     }
 
-                                    if (array_key_exists('cms_rewrite', $m)) {
-
-                                        if ($route['controller'] === 'cms') {
-
-                                            if (isset($m['id']) && $m['id']) {
-                                                $idCms = (int) $m['id'];
-                                            } else {
-                                                $idCms = $this->cmsID($m['cms_rewrite'], $uri);
-
-                                                if (!$idCms) {
-                                                    $idCms = in_array('id_cms', $m) ? (int) $m['id_cms'] : 0;
-
-                                                    if (!$idCms) {
-                                                        continue;
-                                                    }
-
-                                                }
-
-                                            }
-
-                                            $_GET['id_cms'] = $idCms;
-                                        }
-
-                                    }
-
-                                    $isPlugin = isset($route['params']['fc']) && $route['params']['fc'] === 'plugin';
-
-                                    foreach ($m as $k => $v) {
-                                        // We might have us an external plugin page here, in that case we set whatever we can
-
-                                        if (!is_numeric($k) &&
-                                            ($isPlugin
-                                                || $k !== 'id'
-                                                && $k !== 'ipa'
-                                                && $k !== 'rewrite'
-                                                && $k !== 'cms_rewrite'
-                                                && $k !== 'pfg_rewrite'
-                                            )) {
-                                            $_GET[$k] = $v;
-                                        }
-
-                                    }
-
-                                    $controller = $route['controller'] ? $route['controller'] : $_GET['controller'];
-
-                                    if (!empty($route['params'])) {
-
-                                        foreach ($route['params'] as $k => $v) {
-                                            $_GET[$k] = $v;
-                                        }
-
-                                    }
-
-                                    // A patch for plugin friendly urls
-
-                                    if (preg_match('#plugin-([a-z0-9_-]+)-([a-z0-9_]+)$#i', $controller, $m)) {
-                                        $_GET['plugin'] = $m[1];
-                                        $_GET['fc'] = 'plugin';
-                                        $controller = $m[2];
-                                    }
-
-                                    if (isset($_GET['fc']) && $_GET['fc'] == 'plugin') {
-                                        $this->front_controller = self::FC_PLUGIN;
-                                    }
-
-                                    break;
                                 }
 
+                                if (array_key_exists('cms_rewrite', $m)) {
+
+                                    if ($route['controller'] === 'cms') {
+
+                                        if (isset($m['id']) && $m['id']) {
+                                            $idCms = (int) $m['id'];
+                                        } else {
+                                            $idCms = $this->cmsID($m['cms_rewrite'], $uri);
+
+                                            if (!$idCms) {
+                                                $idCms = in_array('id_cms', $m) ? (int) $m['id_cms'] : 0;
+
+                                                if (!$idCms) {
+                                                    continue;
+                                                }
+
+                                            }
+
+                                        }
+
+                                        $_GET['id_cms'] = $idCms;
+                                    }
+
+                                }
+
+                                $isPlugin = isset($route['params']['fc']) && $route['params']['fc'] === 'plugin';
+
+                                foreach ($m as $k => $v) {
+                                    // We might have us an external plugin page here, in that case we set whatever we can
+
+                                    if (!is_numeric($k) &&
+                                        ($isPlugin
+                                            || $k !== 'id'
+                                            && $k !== 'ipa'
+                                            && $k !== 'rewrite'
+                                            && $k !== 'cms_rewrite'
+                                            && $k !== 'pfg_rewrite'
+                                        )) {
+                                        $_GET[$k] = $v;
+                                    }
+
+                                }
+
+                                $controller = $route['controller'] ? $route['controller'] : $_GET['controller'];
+
+                                if (!empty($route['params'])) {
+
+                                    foreach ($route['params'] as $k => $v) {
+                                        $_GET[$k] = $v;
+                                    }
+
+                                }
+
+                                // A patch for plugin friendly urls
+
+                                if (preg_match('#plugin-([a-z0-9_-]+)-([a-z0-9_]+)$#i', $controller, $m)) {
+                                    $_GET['plugin'] = $m[1];
+                                    $_GET['fc'] = 'plugin';
+                                    $controller = $m[2];
+                                }
+
+                                if (isset($_GET['fc']) && $_GET['fc'] == 'plugin') {
+                                    $this->front_controller = self::FC_PLUGIN;
+                                }
+
+                                break;
                             }
 
                         }
