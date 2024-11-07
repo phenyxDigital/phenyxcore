@@ -4516,16 +4516,16 @@ FileETag none
 
     public static function sendEmail($postfields, $meta_description = null) {
 
-        $phenyxConfig = new Configuration();
+        $phenyxConfig = Configuration::getInstance();
         $mail_allowed = $phenyxConfig->get('EPH_ALLOW_SEND_EMAIL') ? 1 : 0;
         if($mail_allowed) {
             $context = Context::getContext();
             if (!isset($context->phenyxConfig)) {
-                $context->phenyxConfig = Configuration::getInstance();
+                $context->phenyxConfig = $phenyxConfig;
             
             }
             if (!isset($context->company)) {
-                $context->company = new Company($context->phenyxConfig->get('EPH_COMPANY_ID'));
+                $context->company = new Company($phenyxConfig->get('EPH_COMPANY_ID'));
             
             }
             if(!isset($context->theme)) {
@@ -6000,6 +6000,15 @@ FileETag none
         
         if(is_array($array)) {
             return array_chunk($array, $length, $preserve_keys);
+        }
+        return null;
+        
+    }
+    
+    public static function mdString($string) {
+        
+        if(is_string($string)) {
+            return md5($string);
         }
         return null;
         
