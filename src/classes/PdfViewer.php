@@ -634,7 +634,7 @@ class PdfViewer {
 
     public function buildViewerScript() {
 
-        $html = '<script type="text/javascript" data-keepinline="headJs">' . PHP_EOL;
+        $html = '<script type="text/javascript">' . PHP_EOL;
 
         if (count($this->extraVars)) {
 
