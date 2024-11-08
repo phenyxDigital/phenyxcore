@@ -365,7 +365,7 @@ class SmartyTools {
                 '#\s*<!--(?!\[if\s).*?-->\s*|(?<!\>)\n+(?=\<[^!])#s',
             ],
             [
-                '<$1$2</$1>',
+                '<$1$2<$1>',
                 '$1$2$3',
                 '$1$2$3',
                 '$1$2$3$4$5',
@@ -425,6 +425,24 @@ class SmartyTools {
             ],
             $input);
     }
+    
+    public static function mdString($string) {
+        
+        if(is_string($string)) {
+            return md5($string);
+        }
+        return null;
+        
+    }
+    
+    public static function timeToSeconds(string $time) {
+        $arr = explode(':', $time);
+        if (count($arr) === 3) {
+            return $arr[0] * 3600 + $arr[1] * 60 + $arr[2];
+        }
+        return $arr[0] * 60 + $arr[1];
+    }
+    
 
 
     public static function minify_js($input) {
