@@ -1083,7 +1083,7 @@ abstract class PhenyxController {
                     $jsTag      => $this->context->media->getJsDef(),
                     'js_files'  => $defer ? array_unique($this->js_files) : [],
                     'js_inline' => ($defer && $domAvailable) ? $this->context->media->getInlineScript() : [],
-                    'js_heads'  => ($compress && $defer) ? array_unique($this->js_heads) : [],
+                    'js_heads'  => $this->js_heads,
                 ]
             );
             $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
@@ -1875,7 +1875,7 @@ abstract class PhenyxController {
                 [
                     'js_def'           => ($defer && $domAvailable) ? [] : $this->js_def,
                     'extracss'         => $this->extracss,
-                    'js_heads'         => [],
+                    'js_heads'         => $this->js_heads,
                     'js_files'         => $defer ? [] : $this->push_js_files,
                     'favicon_dir'      => __EPH_BASE_URI__ . 'content/backoffice/img/',
                     'meta_title'       => $this->page_title,
@@ -1951,7 +1951,7 @@ abstract class PhenyxController {
                 [
                     'js_def'           => ($defer && $domAvailable) ? [] : $this->js_def,
                     'extracss'         => $this->extracss,
-                    'js_heads'         => [],
+                    'js_heads'         => $this->js_heads,
                     'js_files'         => $defer ? [] : $this->push_js_files,
                     'favicon_dir'      => __EPH_BASE_URI__ . 'content/backoffice/img/',
                     'meta_title'       => $this->page_title,
@@ -2197,7 +2197,7 @@ abstract class PhenyxController {
                 [
                     'js_def'           => ($defer && $domAvailable) ? [] : $this->js_def,
                     'extracss'         => $this->extracss,
-                    'js_heads'         => [],
+                    'js_heads'         => $this->js_heads,
                     'js_files'         => $defer ? [] : $this->extraJs,
                     'favicon_dir'      => __EPH_BASE_URI__ . 'content/backoffice/img/',
                     'meta_title'       => $this->page_title,
@@ -2272,7 +2272,7 @@ abstract class PhenyxController {
                     'js_def'    => $js_def,
                     'js_files'  => $js_files,
                     'js_inline' => $js_inline,
-                    'js_heads'  => [],
+                    'js_heads'  => $this->js_heads,
                 ]
             );
             $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');

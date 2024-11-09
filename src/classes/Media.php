@@ -1166,7 +1166,7 @@ class Media {
             foreach ($scripts as $script) {
                 /** @var DOMElement $script */
 
-                if ($datadefer = $script->getAttribute('data-defer')) {
+                if ($datadefer = $script->getAttribute('data-keepinline')) {
                     continue;
                 }
 
