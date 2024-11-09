@@ -6053,7 +6053,7 @@ FileETag none
             $htmlContent = preg_replace_callback('#<script(.*?)>(.*?)</script>#is', function ($matches) {
 
                 return '<script' . $matches[1] . '>' . self::minify_js($matches[2]) . '</script>';
-            }, $input);
+            }, $htmlContent);
         }
 
         return preg_replace(
