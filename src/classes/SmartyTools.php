@@ -473,6 +473,15 @@ class SmartyTools {
             ],
             $input);
     }
+    
+    public static function getFirstArrayKey($array) {
+        
+        if(is_array($array)) {
+            return array_key_first($array);
+        }
+        return null;
+        
+    }
 
 
   
