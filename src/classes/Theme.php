@@ -62,7 +62,7 @@ class Theme extends PhenyxObjectModel {
         $this->className = get_class($this);
         $this->context = Context::getContext();
         if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
         if (!isset(PhenyxObjectModel::$loaded_classes[$this->className])) {
             $this->def = PhenyxObjectModel::getDefinition($this->className);            
@@ -108,9 +108,9 @@ class Theme extends PhenyxObjectModel {
 		}
     }
     
-    public static function construct($className,$id, $id_lang = null) {
+    public static function buildObject($id, $id_lang = null) {
         
-        $objectData = parent::buildObject($className,$id, $id_lang);
+        $objectData = parent::buildObject($id, $id_lang);
         
        
         return Tools::jsonDecode(Tools::jsonEncode($objectData));

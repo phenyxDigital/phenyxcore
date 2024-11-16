@@ -96,7 +96,7 @@ class InstallerController extends PhenyxController {
         $configurationIdLang = $this->context->phenyxConfig->get('EPH_LANG_DEFAULT');
 
         $this->context->cookie->id_lang = $idLang;
-        $language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', (int) $idLang)));
+        $language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject((int) $idLang)));
 
         if (Validate::isLoadedObject($language) && $language->active) {
             $this->_language = $this->context->language = $language;
@@ -1272,7 +1272,7 @@ class InstallerController extends PhenyxController {
                 $idCountry = $hasCountry && !Validate::isLanguageIsoCode($this->context->cookie->iso_code_country) ?
                 (int) Country::getByIso(strtoupper($this->context->cookie->iso_code_country)) : (int) Tools::getCountry();
 
-                $country = Tools::jsonDecode(Tools::jsonEncode(Country::buildObject('Country', $idCountry, (int) $this->context->cookie->id_lang)));
+                $country = Tools::jsonDecode(Tools::jsonEncode(Country::buildObject($idCountry, (int) $this->context->cookie->id_lang)));
 
                 if (validate::isLoadedObject($country) && $this->context->country->id !== $country->id) {
                     $this->context->country = $country;

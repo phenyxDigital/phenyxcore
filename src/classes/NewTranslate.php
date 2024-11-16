@@ -28,7 +28,7 @@ class NewTranslate {
         if (!is_null($context)) {
 
             if (!isset($context->language)) {
-                $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+                $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
             }
 
             $iso = $context->language->iso_code;
@@ -99,7 +99,7 @@ class NewTranslate {
             if (!is_null($context)) {
 
                 if (!isset($context->language)) {
-                    $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+                    $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
                 }
 
                 $iso = $context->language->iso_code;
@@ -168,7 +168,7 @@ class NewTranslate {
             if (!is_null($context)) {
 
                 if (!isset($context->language)) {
-                    $language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+                    $language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
                     $iso = $language->iso_code;
                     $context->language = $language;
                 } else {
@@ -179,7 +179,7 @@ class NewTranslate {
                 $context = Context::getContext();
 
                 if (!isset($context->language)) {
-                    $language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+                    $language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
                     $iso = $language->iso_code;
                     $context->language = $language;
                 } else {
@@ -253,7 +253,7 @@ class NewTranslate {
         if (!is_null($context)) {
 
             if (!isset($context->language)) {
-                $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+                $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
             }
 
             $language = $context->language;
@@ -268,7 +268,7 @@ class NewTranslate {
             $context = Context::getContext();
 
             if (!isset($context->language)) {
-                $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+                $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
             }
 
             $language = $context->language;
@@ -465,7 +465,7 @@ class NewTranslate {
         if (!is_null($context)) {
 
             if (!isset($context->language)) {
-                $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+                $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
             }
 
             $iso = $context->language->iso_code;
@@ -512,7 +512,7 @@ class NewTranslate {
         if (!is_null($context)) {
 
             if (!isset($context->language)) {
-                $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+                $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
             }
 
             $iso = $context->language->iso_code;
@@ -593,7 +593,7 @@ class NewTranslate {
             if (!is_null($context)) {
 
                 if (!isset($context->language)) {
-                    $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+                    $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
                 }
 
                 $iso = $context->language->iso_code;
