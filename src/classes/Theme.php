@@ -108,9 +108,9 @@ class Theme extends PhenyxObjectModel {
 		}
     }
     
-    public static function buildObject($id, $id_lang = null) {
+    public static function buildObject($id, $id_lang = null, $className = null) {
         
-        $objectData = parent::buildObject($id, $id_lang);
+        $objectData = parent::buildObject($id, $id_lang, $className);
         
        
         return Tools::jsonDecode(Tools::jsonEncode($objectData));
