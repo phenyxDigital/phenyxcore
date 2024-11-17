@@ -117,7 +117,7 @@ class Performer {
         }
 
         if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
 
         $this->use_routes = (bool) $this->context->phenyxConfig->get('EPH_REWRITING_SETTINGS');
@@ -812,7 +812,7 @@ class Performer {
         $context = Context::getContext();
 
         if (!$context->language) {
-            $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+            $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
 
         if (isset($context->employee->id) && $context->employee->id) {

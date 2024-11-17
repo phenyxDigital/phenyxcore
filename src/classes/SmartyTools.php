@@ -211,7 +211,7 @@ class SmartyTools {
             
         }
         if (!isset($context->language)) {
-            $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject('Language', $context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
+            $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
         }
         if (!isset($context->translations)) {
 
