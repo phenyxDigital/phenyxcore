@@ -2105,6 +2105,7 @@ abstract class PhenyxController {
                 'li'         => $this->ajax_li,
                 'html'       => $content,
                 'page_title' => $this->page_title,
+                'controller' => $this->controller_name,
                 'load_time'  => sprintf($this->la('Load time %s seconds'), round(microtime(true) - TIME_START, 3)),
             ];
 
