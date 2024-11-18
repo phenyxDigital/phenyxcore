@@ -66,6 +66,7 @@ class Meta extends PhenyxObjectModel {
             if($this->context->cache_enable && is_object($this->context->cache_api)) {
                 $this->context->cache_api->cleanByStartingKey('metaGetPages_');
             }
+            Tools::generateHtaccess();
         }
         
 		return $result;
@@ -620,15 +621,6 @@ class Meta extends PhenyxObjectModel {
         }
 
         return Meta::getHomeMetas($idLang, $pageName);
-    }
-
-    public function update($nullValues = false) {
-
-        if (!parent::update($nullValues)) {
-            return false;
-        }
-
-        return Tools::generateHtaccess();
     }
     
     public function deleteSelection($selection) {
