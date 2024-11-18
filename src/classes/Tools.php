@@ -6028,12 +6028,15 @@ FileETag none
     
     public static function secondsToTime($seconds) {
         
-        if (is_int($seconds)) {
+        if ($seconds > 0) {
             $secs = $seconds % 60;
+            $secs = $secs < 10 ? '0' . $secs : $secs;
             $hrs = $seconds / 60;
             $hrs = floor($hrs);
             $mins = $hrs % 60;
+            $mins = $mins < 10 ? '0' . $mins : $mins;
             $hrs = round($hrs / 60);
+            $hrs = $hrs < 10 ? '0' . $hrs : $hrs;
 
             return $hrs.':'.$mins.':'.$secs;
         }
