@@ -45,7 +45,7 @@ class Page extends PhenyxObjectModel {
             'order'        => 'step',
             'manufacturer' => 'id_manufacturer',
         ];
-        $extraSpecialArrays = $context->_hook->exec('actionGetSpecialArrays', [], null, true);
+        $extraSpecialArrays = Context::getContext()->_hook->exec('actionGetSpecialArrays', [], null, true);
         if (is_array($extraSpecialArrays) && count($extraSpecialArrays)) {
             foreach ($extraSpecialArrays as $plugin => $pages) {
                 if (is_array($pages) && count($pages)) {
