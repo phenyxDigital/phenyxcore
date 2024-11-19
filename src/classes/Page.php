@@ -40,10 +40,7 @@ class Page extends PhenyxObjectModel {
 
         // Some pages must be distinguished in order to record exactly what is being seen
         $specialArray = [
-            'product'      => 'id_product',
-            'category'     => 'id_category',
-            'order'        => 'step',
-            'manufacturer' => 'id_manufacturer',
+            'pfg'      => 'id_pfg',
         ];
         $extraSpecialArrays = Context::getContext()->_hook->exec('actionGetSpecialArrays', [], null, true);
         if (is_array($extraSpecialArrays) && count($extraSpecialArrays)) {
