@@ -1327,7 +1327,7 @@ class Performer {
         return $url . $anchor;
     }
 
-    protected function pagepfgID($rewrite) {
+    public function pagepfgID($rewrite) {
 
         // Rewrite cannot be empty
 
@@ -1337,7 +1337,7 @@ class Performer {
 
         $context = Context::getContext();
 
-        $pages = PFGModel::getPagePfg($context->language->id, true);
+        $pages = PFGModel::getPagePfg($this->context->language->id, true);
 
         foreach ($pages as $page) {
 
@@ -1350,7 +1350,7 @@ class Performer {
         return 0;
     }
 
-    protected function cmsID($rewrite, $url = '') {
+    public function cmsID($rewrite, $url = '') {
 
         // Rewrite cannot be empty
 
@@ -1362,7 +1362,7 @@ class Performer {
         $url = ltrim($url, '/');
 
         $context = Context::getContext();
-        $pages = CMS::getPageCms($context->language->id);
+        $pages = CMS::getPageCms($this->context->language->id);
 
         foreach ($pages as $page) {
 

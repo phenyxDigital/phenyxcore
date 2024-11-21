@@ -11,8 +11,7 @@ extract(Composer::shortcode_atts([
 	'position'      => 'align_right',
 	'css_animation' => '',
 ], $atts));
-$file = fopen("testvc_pfg.txt", "w");
-fwrite($file, print_r($atts, true));
+$link = new Link();
 $class = 'vc_btn';
 
 $color = ($color != '') ? ' wpb_' . $color : '';
@@ -22,7 +21,7 @@ $position = ($position != '') ? ' ' . $position : '';
 $css_class = 'vc_btn ' . $position;
 $css_class .= $this->getCSSAnimation($css_animation);
 $button = '<span class="vc_btn ' . $color . $size . '">' . $title . '</span>';
-$button = '<button class="wpb_' . $size . ' ' . $class . '" onClick="openAjaxFormulaire(' . $id . ')">' . $button . '</button>';
+$button = '<a class="wpb_' . $size . ' ' . $class . '" href="'.$link->getPFGLink($id).'" >' . $button . '</a>';
 $output = '<div class="' . $css_class . ' col-lg-12">';
 $output .= $button;
 $output .= '</div> ' . $this->endBlockComment('button') . "\n";
