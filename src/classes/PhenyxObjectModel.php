@@ -237,7 +237,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             
         }
         if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::construct('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
         }
            
         

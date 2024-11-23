@@ -218,7 +218,7 @@ abstract class Plugin {
             $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
         }
         if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::construct('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
         }
         if (!isset($this->context->translations)) {
 
@@ -2654,7 +2654,7 @@ abstract class Plugin {
             $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
         }
         if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::construct('Language', $this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
         }
         if (!isset($this->context->translations)) {
 
