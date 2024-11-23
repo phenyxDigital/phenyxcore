@@ -42,6 +42,9 @@ class Translate {
                 $this->context->company = $company;
             }
         }
+        if (!isset($this->context->language)) {
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
+        }
         if(!isset($this->context->theme)) {
             $this->context->theme = new Theme((int) $this->context->company->id_theme);
         }
@@ -120,8 +123,6 @@ class Translate {
 
     public function getAdminTranslation($string, $class = 'Phenyx', $addslashes = false, $htmlentities = true, $sprintf = null) {
 
-        $file = fopen("testgetAdminTranslation.txt", "w");
-       
         $iso = $this->context->language->iso_code;
         if (str_contains($string, "\'")) {
             $string = str_replace("\'", "'", $string);
@@ -379,7 +380,7 @@ class Translate {
     }
 
     public function getPluginTranslation($plugin, $string, $source, $sprintf = null, $js = false, $context = null) {
-
+        
         if (str_contains($string, "\'")) {
             $string = str_replace("\'", "'", $string);
         }
@@ -387,7 +388,6 @@ class Translate {
             $string = str_replace("\‘", "'", $string);
         }
         $_PLUGIN = [];
-        global $_PLUGINS, $_LANGADM;
 
         if (empty($string)) {
             return $string;
@@ -410,7 +410,6 @@ class Translate {
         }
 
         if (isset($this->context->language)) {
-
             $filesByPriority = [
                 $path . 'plugins/' . $name . '/translations/' . $this->context->language->iso_code . '.php',
                 _EPH_TRANSLATIONS_DIR_ . $this->context->language->iso_code . '/admin.php',
@@ -420,14 +419,16 @@ class Translate {
             
             foreach ($filesByPriority as $file) {
 
-                if (file_exists($file)) {
-                    include_once $file;
-                    if(is_array($_PLUGINS)) {
+                if (file_exists($file)) {      
+                    
+                    include($file);
+                    if(isset($_PLUGINS) && is_array($_PLUGINS)) {
                         $_PLUGIN = array_merge(
                             $_PLUGIN,
                             $_PLUGINS
                         
                         );
+                        
                     }
 
                 }
@@ -444,10 +445,9 @@ class Translate {
         $cacheKey = $name . '|' . $string . '|' . $source . '|' . (int) $js;
         $ret = null;
 
-        if (!isset($langCache[$cacheKey])) {
+        
 
             if ($_PLUGINS == null) {
-
                 if ($sprintf !== null) {
                     $string = $this->checkAndReplaceArgs($string, $sprintf);
                 }
@@ -457,7 +457,7 @@ class Translate {
 
             $currentKey = trim(strtolower('<{' . $name . '}' . $theme . '>' . $source) . '_' . $key);
             $defaultKey = trim(strtolower('<{' . $name . '}ephenyx>' . $source) . '_' . $key);
-            $PhenyxShopKey = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) . '_' . $key);
+            $PhenyxShopKey = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) . '_' . $key);        
 
             if ('controller' == substr($source, -10, 10)) {
                 $file = substr($source, 0, -10);
@@ -480,14 +480,26 @@ class Translate {
 
             if (!empty($_PLUGINS[$currentKey])) {
                 $ret = stripslashes($_PLUGINS[$currentKey]);
+                if ($sprintf !== null) {
+                    $ret = $this->checkAndReplaceArgs($ret, $sprintf);
+                }
+                return $ret;
             } else
 
             if (!empty($_PLUGINS[$defaultKey])) {
                 $ret = stripslashes($_PLUGINS[$defaultKey]);
+                if ($sprintf !== null) {
+                    $ret = $this->checkAndReplaceArgs($ret, $sprintf);
+                }
+                return $ret;
             } else
 
             if (!empty($_PLUGINS[$PhenyxShopKey])) {
                 $ret = stripslashes($_PLUGINS[$PhenyxShopKey]);
+                if ($sprintf !== null) {
+                    $ret = $this->checkAndReplaceArgs($ret, $sprintf);
+                }
+                return $ret;
             } else
 
             if (!empty($_PLUGINS)) {
@@ -528,9 +540,7 @@ class Translate {
                 return $ret;
             }
 
-        }
-
-        return $langCache[$cacheKey];
+        
     }
     
     public function getPdfTranslation($string, $file, $sprintf = null, $context = null) {
