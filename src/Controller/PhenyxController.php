@@ -185,6 +185,8 @@ abstract class PhenyxController {
     protected $submit_action;
 
     public $base_tpl_form = null;
+    
+    public $base_folder_form = null;
 
     public $base_tpl_view = null;
 
@@ -2815,7 +2817,7 @@ abstract class PhenyxController {
 
             !is_null($this->base_tpl_form) ? $helper->base_tpl = $this->base_tpl_form : '';
 
-            !is_null($this->base_tpl_form) ? $helper->base_tpl = $this->base_tpl_form : '';
+            !is_null($this->base_folder_form) ? $helper->base_folder = $this->base_folder_form : '';
 
             $form = $helper->generateForm($this->fields_form);
 
