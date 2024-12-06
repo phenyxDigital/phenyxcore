@@ -4533,15 +4533,16 @@ FileETag none
             }
 
             $htmlContent = $postfields['htmlContent'];
+            $url = 'https://' . $context->company->domain_ssl;
             $tpl = $context->smarty->createTemplate(_EPH_MAIL_DIR_ . 'header.tpl');
-            $bckImg = !empty($phenyxConfig->get('EPH_BCK_LOGO_MAIL')) ? 'https://' . $context->company->domain_ssl . '/content/img/' . $phenyxConfig->get('EPH_BCK_LOGO_MAIL') : false;
+            $bckImg = !empty($phenyxConfig->get('EPH_BCK_LOGO_MAIL')) ? $url . '/content/img/' . $phenyxConfig->get('EPH_BCK_LOGO_MAIL') : false;
             $tpl->assign([
                 'title'        => $postfields['subject'],
                 'css_dir'      => 'https://' . $context->company->domain_ssl . $context->context->theme->css_theme,
                 'shop_link'    => $context->link->getBaseFrontLink(),
                 'shop_name'    => $context->company->company_name,
                 'bckImg'       => $bckImg,
-                'logoMailLink' => $context->link->getBaseFrontLink() . 'content/img/' . $phenyxConfig->get('EPH_LOGO_MAIL'),
+                'logoMailLink' => $url . '/content/img/' . $phenyxConfig->get('EPH_LOGO_MAIL'),
             ]);
 
             if (!is_null($meta_description)) {
