@@ -61,9 +61,9 @@ class PhenyxMailer  {
         
         $path_parts = pathinfo($tplName);
         $tpl = '';
-        if (file_exists($this->context->theme->path . 'mail/' . $path_parts['filename'])) {
+        if (file_exists($this->context->theme->path . 'mail/' . $path_parts['filename'].'.tpl')) {
         
-            $tpl = $this->context->theme->path . 'mail/' . $path_parts['filename'];
+            $tpl = $this->context->theme->path . 'mail/' . $path_parts['filename'].'.tpl';
 
         } else {
             $tpl = $tplName;
