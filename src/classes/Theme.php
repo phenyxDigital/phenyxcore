@@ -57,6 +57,10 @@ class Theme extends PhenyxObjectModel {
     
     public $img_theme;
     
+    public $mail_theme;
+    
+    public $pdf_theme;
+    
     public function __construct($id = null) {
         
         $this->className = get_class($this);
@@ -95,6 +99,8 @@ class Theme extends PhenyxObjectModel {
                 $this->css_theme = $this->localpath.'css'. DIRECTORY_SEPARATOR;
                 $this->js_theme = $this->localpath.'js'. DIRECTORY_SEPARATOR;
                 $this->img_theme = $this->localpath.'img'. DIRECTORY_SEPARATOR;
+                $this->mail_theme = $this->localpath.'mail'. DIRECTORY_SEPARATOR;
+                $this->pdf_theme = $this->localpath.'pdf'. DIRECTORY_SEPARATOR;
                 
             } else {
                 $this->path = _SHOP_ROOT_DIR_ . _EPH_THEMES_DIR_ . $this->directory . DIRECTORY_SEPARATOR;
@@ -102,6 +108,8 @@ class Theme extends PhenyxObjectModel {
                 $this->css_theme = $this->localpath.'css'. DIRECTORY_SEPARATOR;
                 $this->js_theme = $this->localpath.'js'. DIRECTORY_SEPARATOR;
                 $this->img_theme = $this->localpath.'img'. DIRECTORY_SEPARATOR;
+                $this->mail_theme = $this->localpath.'mail'. DIRECTORY_SEPARATOR;
+                $this->pdf_theme = $this->localpath.'pdf'. DIRECTORY_SEPARATOR;
             }
             
             
