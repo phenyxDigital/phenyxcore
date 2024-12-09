@@ -6,6 +6,8 @@ class PdfPrinter extends Mpdf {
     
     protected $context;
     
+    public $tpl_folder;
+    
     public $_smarty;
     
     
@@ -38,14 +40,20 @@ class PdfPrinter extends Mpdf {
     
     public function createTemplate($tplName) {
         
+                
         $path_parts = pathinfo($tplName);
         $tpl = '';
-        if (file_exists($this->context->theme->path . 'pdf/' . $path_parts['filename'].'.tpl')) {
+        if(!is_null($this->tpl_folder) && file_exists($this->context->theme->path .$this->tpl_folder. '/pdf/' . $path_parts['filename'].'.tpl')) {
+            $tpl = $this->context->theme->path .$this->tpl_folder. '/pdf/' . $path_parts['filename'].'.tpl';
+            
+        } else if (file_exists($this->context->theme->path . 'pdf/' . $path_parts['filename'].'.tpl')) {
         
             $tpl = $this->context->theme->path . 'pdf/' . $path_parts['filename'].'.tpl';
 
         } else {
+            
             $tpl = $tplName;
+            
         }
         $extraTplPaths = $this->context->_hook->exec('actionCreatePdfTemplate', ['tplName' => $tplName], null, true);
 
