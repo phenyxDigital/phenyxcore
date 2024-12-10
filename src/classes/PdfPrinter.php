@@ -39,10 +39,24 @@ class PdfPrinter extends Mpdf {
 	}
     
     public function createTemplate($tplName) {
-        
                 
+        $extraTplPaths = $this->context->_hook->exec('actionCreatePdfTemplate', ['tplName' => $tplName], null, true);
+
+        if (is_array($extraTplPaths)) {
+
+            foreach ($extraTplPaths as $plugin => $template) {
+
+                if (!is_null($template) && file_exists($template)) {
+                    $tplName = $template;
+                }
+
+            }
+
+        }
+        
         $path_parts = pathinfo($tplName);
         $tpl = '';
+        
         if(!is_null($this->tpl_folder) && file_exists($this->context->theme->path .$this->tpl_folder. '/pdf/' . $path_parts['filename'].'.tpl')) {
             $tpl = $this->context->theme->path .$this->tpl_folder. '/pdf/' . $path_parts['filename'].'.tpl';
             
@@ -55,19 +69,7 @@ class PdfPrinter extends Mpdf {
             $tpl = $tplName;
             
         }
-        $extraTplPaths = $this->context->_hook->exec('actionCreatePdfTemplate', ['tplName' => $tplName], null, true);
-
-        if (is_array($extraTplPaths)) {
-
-            foreach ($extraTplPaths as $plugin => $template) {
-
-                if (!is_null($template) && file_exists($template)) {
-                    $tpl = $template;
-                }
-
-            }
-
-        }
+        
         
         if (file_exists($tpl)) {
             return $this->_smarty->createTemplate($tpl, $this->_smarty);
