@@ -10,5 +10,5 @@ if (!defined('DIGITAL_CORE_LIB_DIR')) {
     define('DIGITAL_CORE_LIB_DIR', '/vendor/phenyxdigital/phenyxcore/lib/');
 }
 if (!defined('DIGITAL_CORE_PHENYXGRID_DIR')) {
-    define('DIGITAL_CORE_PHENYXGRID_DIR', DIGITAL_CORE_PHENYXGRID_DIR.'paramgrid/');
+    define('DIGITAL_CORE_PHENYXGRID_DIR', DIGITAL_CORE_LIB_DIR.'paramgrid/');
 }
