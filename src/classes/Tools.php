@@ -6220,6 +6220,46 @@ FileETag none
 
 		return $holidays;
 	}
+    
+    public static function parseEmailContent($content, $tpl) {
+        
+        $translate = [];
+        $context = Context::getContext();
+        preg_match_all("~{l s='([^{]*)' mail='true'}~i", $content, $match);
+        preg_match_all("~{l s='([^{]*)' sprintf=([^{]*) mail='true'}~i", $content, $match2);
+        $search  = array_merge(
+            $match,
+            $match2
+        );
+        
+        foreach($search as $key => $strings) {
+            if($key == 0) {
+                foreach($strings as $k=> $string) {
+                    $trans = '<span class="parent-translate" id="'.$tpl.md5($search[1][$k]).'"><span class="translate-string" contenteditable="true">';
+                    $trans .= $context->translations->getMailsTranslation($search[1][$k], $tpl);
+                    $trans .= '</span></span>';
+                    $translate[$search[0][$k]] = $trans;
+                }
+            }
+            if($key == 2) {
+                foreach($strings as $k=> $string) {                    
+                   $id = $tpl.md5($search[3][$k]);
+                   $translation = $context->translations->getMailsTranslation($search[3][$k], $tpl);
+                   $sprintf = explode(",",str_replace(['[', ']'],'', $search[4][$k]));
+                   foreach($sprintf as $index => $value) {                            
+                       if($index == 0) {
+                           $translate[$search[2][$k]] = Tools::strReplaceFirst('%s', '</span><span>{'.trim($value).'}</span><span data-index="'.$index.'" class="translate-string" contenteditable="true">',$translation);
+                       } else {
+                           $translate[$search[2][$k]] = Tools::strReplaceFirst('%s', '</span><span>{'.trim($value).'}</span><span class="translate-string" data-index="'.$index.'" contenteditable="true">',$translate[$search[2][$k]]);
+                       } 
+                                                  
+                   }
+                   $translate[$search[2][$k]] =  '<span class="parent-translate" id="'.$id.'"><span class="translate-string" contenteditable="true">'.$translate[$search[2][$k]].'</span></span>';  
+                }
+            }
+        }
+        return str_replace(array_keys($translate), $translate, $content);
+    }
 
 
 }
