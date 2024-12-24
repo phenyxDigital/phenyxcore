@@ -145,6 +145,7 @@ class PhenyxTools {
 			unlink(_EPH_CONFIG_DIR_ . 'json/new_json.json');
 			return Tools::jsonDecode($md5List, true);
 		}
+        $excludes = [];
 
 		$directories = Theme::getInstalledThemeDirectories();
 
