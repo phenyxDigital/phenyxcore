@@ -42,7 +42,7 @@ class ConnectionsSource extends PhenyxObjectModel {
      * @since 1.9.1.0
      * @version 1.8.1.0 Initial version
      */
-    public static function logHttpReferer(Cookie $cookie = null) {
+    public static function logHttpReferer($cookie = null) {
 
         if (!$cookie) {
             $cookie = Context::getContext()->cookie;
