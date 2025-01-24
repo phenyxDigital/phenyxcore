@@ -532,7 +532,7 @@ class Meta extends PhenyxObjectModel {
         
     }
    
-    public static function completeMetaTags($metaTags, $defaultValue, Context $context = null) {
+    public static function completeMetaTags($metaTags, $defaultValue, $context = null) {
 
         if (!$context) {
             $context = Context::getContext();

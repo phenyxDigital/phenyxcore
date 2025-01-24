@@ -562,7 +562,7 @@ abstract class PluginStats extends Plugin {
      * @since 1.9.1.0
      * @version 1.8.1.0 Initial version
      */
-    protected static function getEmployee($employee = null, Context $context = null) {
+    protected static function getEmployee($employee = null, $context = null) {
 
         if (!Validate::isLoadedObject($employee)) {
 

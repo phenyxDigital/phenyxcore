@@ -434,7 +434,7 @@ abstract class PluginGraph extends Plugin {
      * @since 1.9.1.0
      * @version 1.8.1.0 Initial version
      */
-    public static function getEmployee($employee = null, Context $context = null) {
+    public static function getEmployee($employee = null, $context = null) {
 
         if (!Validate::isLoadedObject($employee)) {
 

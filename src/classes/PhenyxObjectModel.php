@@ -1304,7 +1304,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         return true;
     }
 
-    public static function displayFieldName($field, $class = __CLASS__, $htmlentities = true, Context $context = null) {
+    public static function displayFieldName($field, $class = __CLASS__, $htmlentities = true, $context = null) {
 
         global $_FIELDS;
 
@@ -1998,7 +1998,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         return $success;
     }
 
-    public function l($string, $idLang = null, Context $context = null) {
+    public function l($string, $idLang = null, $context = null) {
 
         $class = get_class($this);
 

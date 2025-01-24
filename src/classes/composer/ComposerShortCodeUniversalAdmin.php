@@ -15,7 +15,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
 		return '';
 	}
     
-    public function l($string, $idLang = null, Context $context = null) {
+    public function l($string, $idLang = null, $context = null) {
 
         $class = 'ComposerShortCodeUniversalAdmin';
 

@@ -545,7 +545,7 @@ class BackTab extends PhenyxObjectModel {
         ));
     }
 
-    public static function initAccess(BackTab $Tab, Context $context = null) {
+    public static function initAccess(BackTab $Tab, $context = null) {
 
         if (!$context) {
             $context = Context::getContext();

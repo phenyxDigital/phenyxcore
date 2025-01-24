@@ -185,7 +185,7 @@ abstract class Plugin {
     
     public $ajax = false;
 
-    public function __construct($name = null, Context $context = null) {
+    public function __construct($name = null, $context = null) {
 
         if (isset($this->eph_versions_compliancy) && !isset($this->eph_versions_compliancy['min'])) {
             $this->eph_versions_compliancy['min'] = '1.4.0.0';

@@ -165,7 +165,7 @@ class Tools {
         return substr($result, 0, $length);
     }
 
-    public static function redirect($url, $baseUri = __EPH_BASE_URI__, Link $link = null, $headers = null) {
+    public static function redirect($url, $baseUri = __EPH_BASE_URI__, $link = null, $headers = null) {
 
         if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
             return Profiling::redirect($url, $baseUri, $link, $headers);
@@ -992,7 +992,7 @@ class Tools {
         return md5(_COOKIE_IV_ . $data);
     }
 
-    public static function getToken($page = true, Context $context = null) {
+    public static function getToken($page = true, $context = null) {
 
         if (!$context) {
             $context = Context::getContext();
@@ -1011,7 +1011,7 @@ class Tools {
         return md5(_COOKIE_KEY_ . $passwd);
     }
 
-    public static function getAdminTokenLite($tab, Context $context = null) {
+    public static function getAdminTokenLite($tab, $context = null) {
 
         if (!$context) {
             $context = Context::getContext();
@@ -1085,7 +1085,7 @@ class Tools {
         return @Tools::htmlentitiesUTF8($string, ENT_QUOTES);
     }
 
-    public static function displayError($string = 'Fatal error', $htmlentities = true, Context $context = null) {
+    public static function displayError($string = 'Fatal error', $htmlentities = true, $context = null) {
 
         global $_ERRORS;
 
@@ -2614,7 +2614,7 @@ FileETag none
         Tools::throwDeprecated($error, $message, $class);
     }
 
-    public static function enableCache($level = 1, Context $context = null) {
+    public static function enableCache($level = 1, $context = null) {
 
         if (!$context) {
             $context = Context::getContext();

@@ -2,7 +2,7 @@
 
 class Profiling {
 
-    public static function redirect($url, $base_uri = __EPH_BASE_URI__, Link $link = null, $headers = null) {
+    public static function redirect($url, $base_uri = __EPH_BASE_URI__, $link = null, $headers = null) {
 
         if (!$link) {
             $link = Context::getContext()->link;

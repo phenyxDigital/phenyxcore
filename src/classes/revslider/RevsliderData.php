@@ -79,7 +79,7 @@ class RevsliderData {
 		return RevLoader::apply_filters('revslider_data_get_font_familys', RevLoader::apply_filters('revslider_operations_getArrFontFamilys', $fonts));
 	}
 
-	public function l($string, $idLang = null, Context $context = null) {
+	public function l($string, $idLang = null, $context = null) {
 
 		$class = get_class($this);
 

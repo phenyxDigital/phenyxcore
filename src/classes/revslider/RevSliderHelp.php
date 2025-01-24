@@ -2,7 +2,7 @@
 
 class RevSliderHelp {
 
-	public function l($string, $idLang = null, Context $context = null) {
+	public function l($string, $idLang = null, $context = null) {
 
 		$class = get_class($this);
 
