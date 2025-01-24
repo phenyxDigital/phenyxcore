@@ -27,7 +27,7 @@ class Translate {
     
     public $frontlang;
 
-    public function __construct($iso = null, Company $company = null, $affectContext = true) {
+    public function __construct($iso = null, $company = null, $affectContext = true) {
         
         $this->context = Context::getContext();
         if (!isset($this->context->phenyxConfig)) {
