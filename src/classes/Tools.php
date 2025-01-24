@@ -585,7 +585,7 @@ class Tools {
         return isset($_POST[$key]) ? true : (isset($_GET[$key]) ? true : false);
     }
 
-    public static function setCookieLanguage(Cookie $cookie = null) {
+    public static function setCookieLanguage($cookie = null) {
 
         if (!$cookie) {
             $cookie = Context::getContext()->cookie;
@@ -657,7 +657,7 @@ class Tools {
         return $ret;
     }
 
-    public static function switchLanguage(Context $context = null) {
+    public static function switchLanguage($context = null) {
 
         if (!$context) {
             $context = Context::getContext();
