@@ -2637,7 +2637,7 @@ FileETag none
         $smarty->cache_lifetime = 31536000; // 1 Year
     }
 
-    public static function restoreCacheSettings(Context $context = null) {
+    public static function restoreCacheSettings($context = null) {
 
         if (!$context) {
             $context = Context::getContext();
@@ -2981,7 +2981,7 @@ FileETag none
     }
     
     
-    public static function cleanThemeDirectory(Context $context = null) {
+    public static function cleanThemeDirectory($context = null) {
        
         
         if(is_null($context)) {
