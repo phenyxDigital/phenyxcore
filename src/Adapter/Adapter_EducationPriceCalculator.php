@@ -48,7 +48,7 @@ class Adapter_EducationPriceCalculator {
         &$specificPriceOutput = null,
         $withEcotax = true,
         $useGroupReduction = true,
-        Context $context = null,
+        $context = null,
         $useCustomerPrice = true
     ) {
 
