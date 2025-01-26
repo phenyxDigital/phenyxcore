@@ -19,7 +19,7 @@ class PhenyxException extends Exception {
      * @param string|null    $file
      * @param int|null       $line
      */
-    public function __construct($message = '', $code = 0, Exception $previous = null, $customTrace = null, $file = null, $line = null) {
+    public function __construct($message = '', $code = 0, $previous = null, $customTrace = null, $file = null, $line = null) {
 
         parent::__construct($message, $code, $previous);
 
