@@ -133,7 +133,15 @@ class DbPDO extends Db {
      */
     protected function _query($sql) {
 
-        return isset($this->link) ? $this->link->query($sql) : null;
+        $file = fopen("testBug_query.txt","a");
+        
+         try {
+            return isset($this->link) ? $this->link->query($sql) : null;
+        } catch (PDOException $e) {
+             fwrite($file,$sql.PHP_EOL);
+            return false;
+        }
+        //return isset($this->link) ? $this->link->query($sql) : null;
 
     }
 
