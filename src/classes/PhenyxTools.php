@@ -23,8 +23,6 @@ class PhenyxTools {
 
 	public $license;
     
-    public $_link;
-
 	public function __construct() {
 
 		$this->context = Context::getContext();
