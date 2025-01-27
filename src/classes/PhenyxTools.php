@@ -22,6 +22,8 @@ class PhenyxTools {
 	public $plugins = [];
 
 	public $license;
+    
+    public $_link;
 
 	public function __construct() {
 
@@ -317,6 +319,19 @@ class PhenyxTools {
     public static function getConfiguration($tags) {
         
         return Context::getContext()->phenyxConfig->get($tags);
+    }
+    
+    public static function getSmartyLink($method, $args) {
+        
+        $link = new Link();
+       
+        if (method_exists($link, $method)) {
+             if(!is_array($args)) {
+                $args = [$args];
+            }
+            return $link->{method}(implode(',', $args));
+        }
+        
     }
 
 	public static function addJsDef($jsDef) {
