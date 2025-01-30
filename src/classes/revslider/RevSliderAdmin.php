@@ -11,8 +11,15 @@ class RevSliderAdmin extends RevSliderFunctionsAdmin {
 	private $pages = ['revslider']; // , 'revslider_navigation', 'rev_addon', 'revslider_global_settings'
 	private $path_views;
 	public $show_content = null;
+    public $context;
 
 	public function __construct($content = true) {
+        
+        $this->context = Context::getContext();
+        if (!isset($this->context->phenyxConfig)) {
+            $this->context->phenyxConfig = new Configuration();
+            
+        }
 
 		$this->path_views = RS_PLUGIN_PATH . 'views/templates/admin/revslider_sliders/';
 		$this->global_settings = $this->get_global_settings();
