@@ -27,7 +27,7 @@ class ComposerShortCode_vc_gallery extends ComposerShortCode {
 			}
 
 			$output .= '</ul>';
-			$output .= '<a href="#" class="column_edit_trigger' . (!empty($images_ids) ? ' image-exists' : '') . '">' . ephenyx_manager()->l('Add images') . '</a>';
+			$output .= '<a href="#" class="column_edit_trigger' . (!empty($images_ids) ? ' image-exists' : '') . '">' . $this->l('Add images') . '</a>';
 
 		}
 

@@ -72,7 +72,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
 
 			$output .= '</div>'; //close wpb_edit_form_elements
 		}
-
+        $output = str_replace('<input>', '', $output);
 		return $output;
 	}
 

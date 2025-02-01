@@ -1,7 +1,7 @@
 <?php
 /**
  */
-define('SLIDE_TITLE', ephenyx_manager()->l("Slide"));
+define('SLIDE_TITLE', "Slide");
 class ComposerShortCode_vc_tour extends ComposerShortCode_vc_tabs {
 
 	protected $predefined_atts = [

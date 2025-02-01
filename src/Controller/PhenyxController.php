@@ -1089,7 +1089,7 @@ abstract class PhenyxController {
                 ]
             );
             $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
-
+            
             if ($defer && (!isset($this->ajax) || !$this->ajax)) {
                 echo $html . $javascript;
             } else
@@ -1135,6 +1135,7 @@ abstract class PhenyxController {
         $html = trim(str_replace(['</body>', '</html>'], '', $html)) . "\n";
         $this->ajax_head = str_replace(['<head>', '</head>'], '', $this->context->media->deferTagOutput('head', $html));
         $page = $this->context->media->deferIdOutput('page', $html);
+        
         $this->context->smarty->assign(
             [
                 $jsTag      => $this->context->media->getJsDef(),
@@ -2101,7 +2102,7 @@ abstract class PhenyxController {
             if ($defer) {
                 $javascript = $javascript . '</content>';
             }
-
+            $content = str_replace('<input>', '', $content);
             $content = $head . $header . $content . $javascript . $foot;
             $result = [
                 'li'         => $this->ajax_li,
@@ -2233,7 +2234,7 @@ abstract class PhenyxController {
     }
 
     protected function ajaxShowEditContent($content) {
-
+        
         $this->context->cookie->write();
         $html = '';
         $jsTag = 'js_def';
@@ -2267,7 +2268,7 @@ abstract class PhenyxController {
             } else {
                 $content = $this->context->media->deferIdOutput('contentAdd' . $this->controller_name, $html);
             }
-
+            
             $js_def = ($defer && $domAvailable) ? $this->js_def : [];
             $js_files = (!is_null($this->extraJs) && $defer) ? array_unique($this->extraJs) : [];
             $js_inline = ($defer && $domAvailable) ? $this->context->media->getInlineScript() : [];

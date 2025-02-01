@@ -1,5 +1,5 @@
 <?php
-define('TAB_TITLE', ephenyx_manager()->l("Tab"));
+define('TAB_TITLE', "Tab");
 
 class ComposerShortCode_vc_tab extends ComposerShortCode_vc_column {
 
@@ -26,7 +26,7 @@ class ComposerShortCode_vc_tab extends ComposerShortCode_vc_column {
 
 	public function mainHtmlBlockParams($width, $i) {
 
-		return 'data-element_type="' . $this->settings["base"] . '" class="wpb_' . $this->settings['base'] . ' wpb_sortable wpb_content_holder"' . $this->customAdminBlockParams();
+		return 'data-element_type="' . $this->settings["base"] . '" class="wpb_' . $this->settings['base'] . ' wpb_sortable eph_content_holder"' . $this->customAdminBlockParams();
 	}
 
 	public function containerHtmlBlockParams($width, $i) {

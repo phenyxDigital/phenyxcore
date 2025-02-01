@@ -146,16 +146,14 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 	public function contentAdmin($atts, $content = null) {
         
-        $file = fopen("testcontentAdmin.txt","a");
-        fwrite($file,$this->shortcode.PHP_EOL);
 		$element = $this->shortcode;
-        fwrite($file,$content.PHP_EOL);
+        
 		$output = $custom_markup = $width = $el_position = '';
 
 		if ($content != NULL) {
 			$content = ephenyx_manager()->wpautop(stripslashes($content));
 		}
-        fwrite($file,$content.PHP_EOL);
+        
 		if (isset($this->settings['params'])) {
 			$shortcode_attributes = ['width' => '1/1'];
 

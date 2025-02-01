@@ -20,8 +20,7 @@ class ComposerShortCodeFishBones extends ComposerShortCode {
 		}
 
 		public function shortcodeClass() {
-
-			$file = fopen("testNewFishBoneShortCodeClass.txt","a");
+			
             $class_name = $this->settings('php_class_name') ? $this->settings('php_class_name') : 'ComposerShortCode_' . $this->settings('base');
             $class_name = str_replace('-', '_', $class_name);
             if (class_exists($class_name) && is_subclass_of($class_name, 'ComposerShortCode')) {
@@ -29,11 +28,11 @@ class ComposerShortCodeFishBones extends ComposerShortCode {
                 return $this->shortcode_class;
 			} else {
                 try {
-                    fwrite($file,$this->shortcode .PHP_EOL .PHP_EOL);
+                   
                     $this->shortcode_class = new ComposerShortCode_abstract($this->settings);
                     return $this->shortcode_class;
                 } catch(Exception $e) {
-                    
+                    $file = fopen("testNewFishBoneShortCodeClass.txt","a");
                     fwrite($file,$e->getMessage() .PHP_EOL);
                     
                 }

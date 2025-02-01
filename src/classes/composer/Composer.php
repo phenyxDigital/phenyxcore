@@ -1256,7 +1256,7 @@ class Composer {
 
     public function esc_attr__($string) {
 
-        return $this->esc_attr($this->l($string));
+        return $this->esc_attr($string);
     }
 
     public function esc_attr_e($string, $textdomain = '') {
@@ -1303,7 +1303,6 @@ class Composer {
         $controller = Tools::getValue('controller');
         $autolaunch = false;
         $target = $params['target'];
-
         $autolaunch = $params['autolaunch'];
         $language = $params['language'];
       
@@ -1369,7 +1368,6 @@ class Composer {
         );
         $content = $data->fetch();
         ob_get_clean();
-
         return $content;
     }
 
@@ -1640,9 +1638,12 @@ class Composer {
     }
 
     public function wpb_single_image_src() {
-
+        $file = fopen("testwpb_single_image_src.txt","a");
+        fwrite($file,Tools::getValue('content').PHP_EOL);
         if (Tools::getValue('content') && is_numeric(Tools::getValue('content'))) {
+            fwrite($file,"Go cow".PHP_EOL);
             $image_src = '/content/img/composer/' . Tools::get_media_thumbnail_url(Tools::getValue('content'));
+            fwrite($file,$image_src.PHP_EOL);
             echo Tools::ModifyImageUrl($image_src);
             die();
         }

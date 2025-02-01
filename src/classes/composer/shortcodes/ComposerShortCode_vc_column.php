@@ -17,14 +17,14 @@ class ComposerShortCode_vc_column extends ComposerShortCode {
 		$vc_manager = ephenyx_manager();
 
 		if ($extended_css == 'bottom-controls') {
-			$control_title = $vc_manager->l('Append to this column');
+			$control_title = $this->l('Append to this column');
 		} else {
-			$control_title = $vc_manager->l('Prepend to this column');
+			$control_title = $this->l('Prepend to this column');
 		}
 
 		$controls_add = ' <a class="vc_control column_add" href="#" title="' . $control_title . '"><i class="fa-duotone fa-plus"></i></a>';
-		$controls_edit = ' <a class="vc_control column_edit" href="#" title="' . $vc_manager->l('Edit this column') . '"><i class="fa-duotone fa-pen-to-square"></i></i></a>';
-		$controls_delete = ' <a class="vc_control column_delete" href="#" title="' . $vc_manager->l('Delete this column') . '"><i class="fa-duotone fa-trash"></i></a>';
+		$controls_edit = ' <a class="vc_control column_edit" href="#" title="' . $this->l('Edit this column') . '"><i class="fa-duotone fa-pen-to-square"></i></i></a>';
+		$controls_delete = ' <a class="vc_control column_delete" href="#" title="' . $this->l('Delete this column') . '"><i class="fa-duotone fa-trash"></i></a>';
 
 		return $controls_start . $controls_add . $controls_edit . $controls_delete . $controls_end;
 	}
@@ -126,7 +126,7 @@ class ComposerShortCode_vc_column extends ComposerShortCode {
 			$output .= str_replace("%column_size%", translateColumnWidthToFractional($width[$i]), $column_controls_bottom);
 			$output .= '</div>';
 		}
-
+        
 		return $output;
 	}
 
@@ -136,8 +136,8 @@ class ComposerShortCode_vc_column extends ComposerShortCode {
 	}
 
 	public function mainHtmlBlockParams($width, $i) {
-
-		return 'data-element_type="' . $this->settings["base"] . '" data-vc-column-width="' . vc_get_column_width_indent($width[$i]) . '" class="wpb_' . $this->settings['base'] . ' wpb_sortable ' . $this->templateWidth() . ' wpb_content_holder"' . $this->customAdminBlockParams();
+       
+		return 'data-element_type="' . $this->settings["base"] . '" data-vc-column-width="' . vc_get_column_width_indent($width[$i]) . '" class="wpb_' . $this->settings['base'] . ' wpb_sortable eph_content_holder ' . $this->templateWidth() . '  "' . $this->customAdminBlockParams();
 	}
 
 	public function containerHtmlBlockParams($width, $i) {

@@ -27,15 +27,15 @@ class ComposerShortCode_vc_row extends ComposerShortCode {
 			$controls_layout .= '<a class="vc_control-set-column set_columns ' . $layout['icon_class'] . '" data-cells="' . $layout['cells'] . '" data-cells-mask="' . $layout['mask'] . '" title="' . $layout['title'] . '"></a> ';
 		}
 
-		$controls_layout .= '<br/><a class="vc_control-set-column set_columns l_11 vc_active" data-cells="custom" data-cells-mask="custom" title="' . $vc_manager->l('Custom layout') . '"></a> ';
+		$controls_layout .= '<br/><a class="vc_control-set-column set_columns custom_columns" data-cells="custom" data-cells-mask="custom" title="' . $this->l('Custom layout') . '">' . $this->l('Custom layout') . '</a> ';
 		$controls_layout .= '</span>';
 
-		$controls_move = ' <a class="vc_control column_move" href="#" title="' . $vc_manager->l('Drag row to reorder') . '"><i class="fa-duotone fa-arrows-up-down-left-right"></i></a>';
-		$controls_add = ' <a class="vc_control column_add" href="#" title="' . $vc_manager->l('Add column') . '"><i class="fa-duotone fa-plus"></i></a>';
-		$controls_delete = '<a class="vc_control column_delete" href="#" title="' . $vc_manager->l('Delete this row') . '"><i class="fa-duotone fa-trash"></i></a>';
-		$controls_edit = ' <a class="vc_control column_edit" href="#" title="' . $vc_manager->l('Edit this row') . '"><i class="fa-duotone fa-pen-to-square"></i></a>';
-		$controls_clone = ' <a class="vc_control column_clone" href="#" title="' . $vc_manager->l('Clone this row') . '"><i class="fa-duotone fa-copy"></i></a>';
-		$controls_toggle = ' <a class="vc_control column_toggle" href="#" title="' . $vc_manager->l('Toggle row') . '"><i class="vc_icon"></i></a>';
+		$controls_move = ' <a class="vc_control column_move" href="javascript:void(0)" title="' . $this->l('Drag row to reorder') . '"><i class="fa-duotone fa-arrows-up-down-left-right"></i></a>';
+		$controls_add = ' <a class="vc_control column_add" href="javascript:void(0)" title="' . $this->l('Add column') . '"><i class="fa-duotone fa-plus"></i></a>';
+		$controls_delete = '<a class="vc_control column_delete" href="javascript:void(0)" title="' . $this->l('Delete this row') . '"><i class="fa-duotone fa-trash"></i></a>';
+		$controls_edit = ' <a class="vc_control column_edit" href="javascript:void(0)" title="' . $this->l('Edit this row') . '"><i class="fa-duotone fa-pen-to-square"></i></a>';
+		$controls_clone = ' <a class="vc_control column_clone" href="javascript:void(0)" title="' . $this->l('Clone this row') . '"><i class="fa-duotone fa-copy"></i></a>';
+		$controls_toggle = ' <a class="vc_control column_toggle" href="javascript:void(0)" title="' . $this->l('Toggle row') . '"><i class="vc_icon"></i></a>';
 
 		$row_edit_clone_delete = '<span class="vc_row_edit_clone_delete">';
 		$row_edit_clone_delete .= $controls_delete . $controls_clone . $controls_edit . $controls_toggle;
