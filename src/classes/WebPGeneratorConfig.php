@@ -43,7 +43,7 @@ class WebPGeneratorConfig {
      */
     public static function saveValue($key, $value) {
 
-        return $this->context->phenyxConfig->updateValue($key, $value);
+        return Context::getContext()->phenyxConfig->updateValue($key, $value);
     }
 
     /**
@@ -64,7 +64,7 @@ class WebPGeneratorConfig {
                     if (in_array($constant, static::$multiLang, true)) {
                         static::getMultilangConfigValues($constant, $values);
                     } else {
-                        $values[$constant] = $this->context->phenyxConfig->get($constant);
+                        $values[$constant] = Context::getContext()->phenyxConfig->get($constant);
                     }
 
                 }
@@ -119,7 +119,7 @@ class WebPGeneratorConfig {
      */
     public static function getConverterSettings() {
 
-        $config = $this->context->phenyxConfig->getMultiple([
+        $config = Context::getContext()->phenyxConfig->getMultiple([
             static::CONFIG_COMMON_QUALITY,
             static::CONFIG_COMMON_META_DATA,
             static::CONFIG_COMMON_METHOD,
