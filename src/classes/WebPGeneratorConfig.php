@@ -164,7 +164,7 @@ class WebPGeneratorConfig {
         ];
     }
 
-    public static function getCWebpSettings() {
+    public function getCWebpSettings() {
 
         return [
             'use-nice'                   => (bool) $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_USE_NICE),
