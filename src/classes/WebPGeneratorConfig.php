@@ -90,7 +90,7 @@ class WebPGeneratorConfig {
         $values[$key] = [];
 
         foreach ($languages as $language) {
-            $values[$key][$language['id_lang']] = $this->context->phenyxConfig->get($key, $language['id_lang']);
+            $values[$key][$language['id_lang']] = Context::getContext()->phenyxConfig->get($key, $language['id_lang']);
         }
 
     }
@@ -146,29 +146,29 @@ class WebPGeneratorConfig {
     public static function getEwwwSettings() {
 
         return [
-            'key' => $this->context->phenyxConfig->get('WEBP_CONVERTER_EWWW_API_KEY'),
+            'key' => Context::getContext()->phenyxConfig->get('WEBP_CONVERTER_EWWW_API_KEY'),
         ];
     }
 
     public static function getCWebpSettings() {
 
         return [
-            'use-nice'                   => (bool) $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_USE_NICE),
-            'try-common-system-paths'    => (bool) $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_TRY_COMMON_SYSTEM_PATHS),
-            'try-supplied-binary-for-os' => (bool) $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_TRY_SUPPLIED_BINARY),
-            'autofilter'                 => (bool) $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_AUTO_FILTER),
-            'command-line-options'       => $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_CMD_OPTIONS),
+            'use-nice'                   => (bool) Context::getContext()->phenyxConfig->get(static::CONVERTER_CWEBP_USE_NICE),
+            'try-common-system-paths'    => (bool) Context::getContext()->phenyxConfig->get(static::CONVERTER_CWEBP_TRY_COMMON_SYSTEM_PATHS),
+            'try-supplied-binary-for-os' => (bool) Context::getContext()->phenyxConfig->get(static::CONVERTER_CWEBP_TRY_SUPPLIED_BINARY),
+            'autofilter'                 => (bool) Context::getContext()->phenyxConfig->get(static::CONVERTER_CWEBP_AUTO_FILTER),
+            'command-line-options'       => Context::getContext()->phenyxConfig->get(static::CONVERTER_CWEBP_CMD_OPTIONS),
         ];
     }
 
     public static function updateRegenerationProgress($entityType, $index) {
 
-        $this->context->phenyxConfig->updateValue("PC_WEBP_REGENERATE_$entityType", (int) $index);
+        Context::getContext()->phenyxConfig->updateValue("PC_WEBP_REGENERATE_$entityType", (int) $index);
     }
 
     public static function getRegenerationProgress($entityType) {
 
-        return (int) $this->context->phenyxConfig->get("PC_WEBP_REGENERATE_$entityType", null, null, null, 0);
+        return (int) Context::getContext()->phenyxConfig->get("PC_WEBP_REGENERATE_$entityType", null, null, null, 0);
     }
 
 }
