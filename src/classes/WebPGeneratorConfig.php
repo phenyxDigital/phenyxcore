@@ -9,6 +9,8 @@ class WebPGeneratorConfig {
     public static $className = 'WebPGeneratorConfig';
 
     public static $multiLang = [];
+    
+    public $context;
 
     const CONVERTER_CWEBP = 'cwebp';
     const CONVERTER_IMAGICK = 'imagick';
@@ -33,6 +35,18 @@ class WebPGeneratorConfig {
     const CONFIG_CONVERTER_TO_USE = 'WEBP_CONVERTOR_TO_USE';
 
     const DEMO_MODE = 'WEBCONVERTOR_DEMO_MODE';
+    
+    public function __construct() {
+
+        $this->context = $this->context;
+        if(!isset($this->context->phenyxConfig)) {
+            $this->context->phenyxConfig = new Configuration();
+        }
+        $this->context->webp = $this;
+        
+
+    }
+    
     /**
      * Save a config value
      *
@@ -41,9 +55,9 @@ class WebPGeneratorConfig {
      *
      * @return bool
      */
-    public static function saveValue($key, $value) {
+    public function saveValue($key, $value) {
 
-        return Context::getContext()->phenyxConfig->updateValue($key, $value);
+        return $this->context->phenyxConfig->updateValue($key, $value);
     }
 
     /**
@@ -51,7 +65,7 @@ class WebPGeneratorConfig {
      *
      * @return array
      */
-    public static function getConfigurationValues() {
+    public function getConfigurationValues() {
 
         try {
             $class = new ReflectionClass(static::$className);
@@ -64,7 +78,7 @@ class WebPGeneratorConfig {
                     if (in_array($constant, static::$multiLang, true)) {
                         static::getMultilangConfigValues($constant, $values);
                     } else {
-                        $values[$constant] = Context::getContext()->phenyxConfig->get($constant);
+                        $values[$constant] = $this->context->phenyxConfig->get($constant);
                     }
 
                 }
@@ -84,13 +98,13 @@ class WebPGeneratorConfig {
      * @param $key
      * @param $values
      */
-    private static function getMultilangConfigValues($key, &$values) {
+    private function getMultilangConfigValues($key, &$values) {
 
         $languages = Language::getLanguages(false, false, false);
         $values[$key] = [];
 
         foreach ($languages as $language) {
-            $values[$key][$language['id_lang']] = Context::getContext()->phenyxConfig->get($key, $language['id_lang']);
+            $values[$key][$language['id_lang']] = $this->context->phenyxConfig->get($key, $language['id_lang']);
         }
 
     }
@@ -103,7 +117,7 @@ class WebPGeneratorConfig {
      * @return bool
      * @throws PhenyxDatabaseExceptionException
      */
-    public static function configExists($configKey = null) {
+    public function configExists($configKey = null) {
 
         $query = new \DbQuery();
         $query->select('count(*)');
@@ -117,9 +131,9 @@ class WebPGeneratorConfig {
      * @return array
      * @throws PhenyxException
      */
-    public static function getConverterSettings() {
+    public function getConverterSettings() {
 
-        $config = Context::getContext()->phenyxConfig->getMultiple([
+        $config = $this->context->phenyxConfig->getMultiple([
             static::CONFIG_COMMON_QUALITY,
             static::CONFIG_COMMON_META_DATA,
             static::CONFIG_COMMON_METHOD,
@@ -136,39 +150,39 @@ class WebPGeneratorConfig {
             'lossless'          => (bool) $config[static::CONFIG_COMMON_LOSSLESS],
             'converters'        => explode(',', $config[static::CONFIG_CONVERTER_TO_USE]),
             'converter-options' => [
-                'ewww'  => static::getEwwwSettings(),
-                'cwebp' => static::getCWebpSettings(),
+                'ewww'  => $this->getEwwwSettings(),
+                'cwebp' => $this->getCWebpSettings(),
                 'gd'    => ['skip-pngs' => false],
             ],
         ];
     }
 
-    public static function getEwwwSettings() {
+    public function getEwwwSettings() {
 
         return [
-            'key' => Context::getContext()->phenyxConfig->get('WEBP_CONVERTER_EWWW_API_KEY'),
+            'key' => $this->context->phenyxConfig->get('WEBP_CONVERTER_EWWW_API_KEY'),
         ];
     }
 
     public static function getCWebpSettings() {
 
         return [
-            'use-nice'                   => (bool) Context::getContext()->phenyxConfig->get(static::CONVERTER_CWEBP_USE_NICE),
-            'try-common-system-paths'    => (bool) Context::getContext()->phenyxConfig->get(static::CONVERTER_CWEBP_TRY_COMMON_SYSTEM_PATHS),
-            'try-supplied-binary-for-os' => (bool) Context::getContext()->phenyxConfig->get(static::CONVERTER_CWEBP_TRY_SUPPLIED_BINARY),
-            'autofilter'                 => (bool) Context::getContext()->phenyxConfig->get(static::CONVERTER_CWEBP_AUTO_FILTER),
-            'command-line-options'       => Context::getContext()->phenyxConfig->get(static::CONVERTER_CWEBP_CMD_OPTIONS),
+            'use-nice'                   => (bool) $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_USE_NICE),
+            'try-common-system-paths'    => (bool) $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_TRY_COMMON_SYSTEM_PATHS),
+            'try-supplied-binary-for-os' => (bool) $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_TRY_SUPPLIED_BINARY),
+            'autofilter'                 => (bool) $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_AUTO_FILTER),
+            'command-line-options'       => $this->context->phenyxConfig->get(static::CONVERTER_CWEBP_CMD_OPTIONS),
         ];
     }
 
-    public static function updateRegenerationProgress($entityType, $index) {
+    public function updateRegenerationProgress($entityType, $index) {
 
-        Context::getContext()->phenyxConfig->updateValue("PC_WEBP_REGENERATE_$entityType", (int) $index);
+        $this->context->phenyxConfig->updateValue("PC_WEBP_REGENERATE_$entityType", (int) $index);
     }
 
-    public static function getRegenerationProgress($entityType) {
+    public function getRegenerationProgress($entityType) {
 
-        return (int) Context::getContext()->phenyxConfig->get("PC_WEBP_REGENERATE_$entityType", null, null, null, 0);
+        return (int) $this->context->phenyxConfig->get("PC_WEBP_REGENERATE_$entityType", null, null, null, 0);
     }
 
 }

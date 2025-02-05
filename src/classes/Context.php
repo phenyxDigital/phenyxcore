@@ -55,6 +55,8 @@ class Context {
 	public $override_controller_name_for_translations;
 	/** @var Language */
 	public $language;
+    
+    public $webp;
 	/** @var AdminTab */
 	public $tab;
 	/** @var Theme */
