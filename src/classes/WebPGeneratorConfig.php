@@ -38,7 +38,7 @@ class WebPGeneratorConfig {
     
     public function __construct() {
 
-        $this->context = $this->context;
+        $this->context = Context::getContext();
         if(!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = new Configuration();
         }
