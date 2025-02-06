@@ -338,7 +338,7 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 		$output = '';
 
 		if (!is_array($css_animation) && $css_animation != '') {
-			Context::getContext()->controller->addJS(_EPH_JS_DIR_ . 'composer/jquery-waypoints/waypoints.min.js');
+			
 			$output = ' wpb_animate_when_almost_visible wpb_' . $css_animation.' '. $css_animation;
 		}
 

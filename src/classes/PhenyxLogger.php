@@ -28,6 +28,8 @@ class PhenyxLogger extends PhenyxObjectModel {
 
     /** @var string Object last modification date */
     public $date_upd;
+    
+    public $employee;
 
     /**
      * @see ObjectModel::$definition
@@ -48,6 +50,70 @@ class PhenyxLogger extends PhenyxObjectModel {
     ];
 
     protected static $is_present = [];
+    
+    public function __construct($id = null, $idLang = null) {
+        
+        parent::__construct($id, $idLang);
+
+		if ($this->id) {
+            $this->employee = '';
+            if($this->id_employee > 0) {
+                $this->employee = Employee::getEmployeeName($this->id_employee);
+            }
+            switch ($this->severity) {
+            case 1:
+                $this->severity = '<span class="label color_field" style="background-color:green">1</span>';
+                break;
+            case 2:
+                $this->severity = '<span class="label color_field" style="background-color:orange">2</span>';
+                break;
+            case 3:
+                $this->severity = '<span class="label color_field" style="background-color:red">3</span>';
+                break;
+            case 4:
+                $this->severity = '<span class="label color_field" style="background-color:black; color:white">4</span>';
+                break;
+            }
+		}
+        
+    }
+    
+    public static function buildObject($id, $id_lang = null, $className = null) {
+        
+        $objectData = parent::buildObject($id, $id_lang, $className);
+        $objectData['employee'] = '';
+        if($objectData['id_employee'] > 0) {
+            $objectData['employee'] = Employee::getEmployeeName($objectData['id_employee']);
+        }
+        switch ($objectData['severity']) {
+            case 1:
+                $objectData['severity'] = '<span class="label color_field" style="background-color:green">1</span>';
+                break;
+            case 2:
+                $objectData['severity'] = '<span class="label color_field" style="background-color:orange">2</span>';
+                break;
+            case 3:
+                $objectData['severity'] = '<span class="label color_field" style="background-color:red">3</span>';
+                break;
+            case 4:
+                $objectData['severity'] = '<span class="label color_field" style="background-color:black; color:white">4</span>';
+                break;
+            }
+        
+        
+        return Tools::jsonDecode(Tools::jsonEncode($objectData));
+    }    
+    
+    public static function getLogs() {
+        
+        $result = [];
+        $logs = new PhenyxCollection('PhenyxLogger');
+        foreach($logs as $log) {
+            $result[] = PhenyxLogger::buildObject($log->id);
+        }
+        
+        return $result;
+    }
 
     /**
      * Send e-mail to the shop owner only if the minimal severity level has been reached
