@@ -253,6 +253,22 @@ class Context {
 
 		return $this->is_tablet;
 	}
+    
+    public function isMobileDevice() {
+        
+        if (isset($_SERVER["HTTP_USER_AGENT"])) {
+            return !$this->isTabletDevice() && preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
+        }
+
+    }
+    
+    public function isTabletDevice() {
+
+        if (isset($_SERVER["HTTP_USER_AGENT"])) {
+            return preg_match("/(iPad|tablet)/i", $_SERVER["HTTP_USER_AGENT"]);
+        }
+
+    }
 
 	/**
 	 * Returns mobile device type

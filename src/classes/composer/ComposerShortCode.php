@@ -337,7 +337,7 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 		$output = '';
 
-		if (!is_array($css_animation) && $css_animation != '') {
+		if (!is_array($css_animation) && $css_animation != '' && !Context::getContext()->isMobileDevice()) {
 			
 			$output = ' wpb_animate_when_almost_visible wpb_' . $css_animation.' '. $css_animation;
 		}
