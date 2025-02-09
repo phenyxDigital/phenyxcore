@@ -1085,7 +1085,7 @@ abstract class PhenyxController {
                     $jsTag      => $this->context->media->getJsDef(),
                     'js_files'  => $defer ? array_unique($this->js_files) : [],
                     'js_inline' => ($defer && $domAvailable) ? $this->context->media->getInlineScript() : [],
-                    'js_heads'  => [],
+                    'js_heads'  => ($defer) ? $this->js_heads : [],
                 ]
             );
             $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
