@@ -2,9 +2,16 @@
 extract(Composer::shortcode_atts([
     'alias' => '', //standard, button_count, box_count
     'el_class'    => '',
+    'display_mobile' => 1,
+    'display_tablet' => 1,
 ], $atts));
-$el_class = $this->getExtraClass($el_class);
-$output = '<div class="' . $el_class . '>';
-$output .= '[rev_slider alias="'.$alias.'"]';
-$output .= '</div>';
+$context = Context::getContext();
+if(!$display_mobile && $context->isMobileDevice()) {
+    return;
+}
+if(!$display_tablet && $context->isTabletDevice()) {
+    return;
+}
+$output = '';
+$output = '[rev_slider alias="'.$alias.'"]';
 echo $output;
