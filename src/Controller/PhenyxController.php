@@ -717,7 +717,11 @@ abstract class PhenyxController {
     public function processClearCache() {
         
         $result = $this->context->cache_api->cleanCache();
-        die($result);
+        $result = [
+            'success' => true
+        ];
+
+        die(Tools::jsonEncode($result));
     }
 
     public function generateParaGridToolBar() {

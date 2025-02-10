@@ -5,13 +5,13 @@ extract(Composer::shortcode_atts([
     'display_mobile' => 'not_display_mobile',
     'display_tablet' => 'not_display_tablet',
 ], $atts));
+$output = '';
 $context = Context::getContext();
 if($display_mobile == 'not_display_mobile' && $context->isMobileDevice()) {
-    return '';
+    $output = '';
+} else if($display_tablet == 'not_display_tablet' && $context->isTabletDevice()) {
+   $output = '';
+} else {
+    $output = '[rev_slider alias="'.$alias.'"]';
 }
-if($display_tablet == 'not_display_tablet' && $context->isTabletDevice()) {
-    return '';
-}
-$output = '';
-$output = '[rev_slider alias="'.$alias.'"]';
-echo $output;
+ echo $output;
