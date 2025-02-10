@@ -257,6 +257,9 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
 
                 foreach ($values as $label => $v) {
 				    $checked = in_array($v, $current_value) ? ' checked="checked"' : '';
+                    if(!$checked && isset($param['default_check'])) {
+                        $checked = $param['default_check'];
+                    }
 				    $param_line .= ' <input id="' . $param['param_name'] . '-' . $v . '" value="' . $v . '" class="wpb_vc_param_value ' . $param['param_name'] . ' ' . $param['type'] . '" type="checkbox" name="' . $param['param_name'] . '"' . $checked . '> ' . $label;
                 }
                 break;
