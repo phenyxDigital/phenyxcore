@@ -7,10 +7,10 @@ extract(Composer::shortcode_atts([
 ], $atts));
 $context = Context::getContext();
 if($display_mobile == 'not_display_mobile' && $context->isMobileDevice()) {
-    return;
+    return '';
 }
 if($display_tablet == 'not_display_tablet' && $context->isTabletDevice()) {
-    return;
+    return '';
 }
 $output = '';
 $output = '[rev_slider alias="'.$alias.'"]';
