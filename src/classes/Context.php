@@ -269,6 +269,14 @@ class Context {
         }
 
     }
+    
+    public function isAppleDevice() {
+        
+        if (isset($_SERVER["HTTP_USER_AGENT"])) {
+            return preg_match("/(iPod|iPhone|iPad)/i", $_SERVER["HTTP_USER_AGENT"]);
+        }
+
+    }
 
 	/**
 	 * Returns mobile device type
