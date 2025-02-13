@@ -740,7 +740,6 @@ abstract class Plugin {
     public static function getPluginsOnDisk($useConfig = false, $loggedOnAddons = false, $idEmployee = false, $full = false) {
 
         global $_PLUGINS;
-
         $context = Context::getContext();
         $link = new Link();
 
@@ -763,22 +762,22 @@ abstract class Plugin {
             
             $pluginsInstalled[$row['name']] = $row;
         }
-        
+        $extras = [];
         foreach ($pluginsDir as $plugin) {
 
             if (Plugin::useTooMuchMemory()) {
                 $errors[] = Tools::displayError('All plugins cannot be loaded due to memory limit restrictions, please increase your memory_limit value on your server configuration');
                 break;
             }
-
+            $specific = false;
             if (!class_exists($plugin, false)) {
-
                 if (file_exists(_EPH_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php')) {
                     $filePath = _EPH_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php';
                     $file = trim(file_get_contents(_EPH_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php'));
                 } else
-
+                    
                 if (file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php')) {
+                    $specific = true;
                     $filePath = _EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php';
                     $file = trim(file_get_contents(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php'));
                 }
@@ -810,11 +809,12 @@ abstract class Plugin {
             }
 
             if (class_exists($plugin, false)) {
-
+                
                 $tmpPlugin = Adapter_ServiceLocator::get($plugin);
-
+                
                 $item = [
                     'id'                     => is_null($tmpPlugin->id) ? 0 : $tmpPlugin->id,
+                    'specific'               => $specific,
                     'warning'                => $tmpPlugin->warning,
                     'name'                   => $tmpPlugin->name,
                     'version'                => $tmpPlugin->version,
@@ -856,6 +856,7 @@ abstract class Plugin {
                 }
 
                 $item = (object) $item;
+                
                 $pluginList[] = $item;
                 $pluginsNameToCursor[mb_strtolower($item->name)] = $item;
 
@@ -865,6 +866,8 @@ abstract class Plugin {
             }
 
         }
+        
+       
 
         if (!empty($pluginNameList)) {
             $list = [Context::getContext()->company->id];
@@ -888,8 +891,9 @@ abstract class Plugin {
         }
        
         $languageCode = str_replace('_', '-', mb_strtolower(Context::getContext()->language->language_code));
-        $extras = [];
+        
         $ioPlugin = [];
+        
         if ($full && file_exists(_EPH_CONFIG_DIR_ . 'json/plugin_sources.json')) {
             $extras = file_get_contents(_EPH_CONFIG_DIR_ . 'json/plugin_sources.json');
 
@@ -908,11 +912,11 @@ abstract class Plugin {
             }
 
         }
-        $extras = [];
+        //$extras = [];
         foreach($ioPlugin as $extra) {
             $extras[] = $extra;
         }
-       
+                
         foreach ($pluginList as $key => &$plugin) {
 
             if (file_exists(_EPH_PLUGIN_DIR_ . $plugin->name . '/' . $plugin->name . '.php')) {
@@ -927,6 +931,7 @@ abstract class Plugin {
             } else
 
             if (file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin->name . '/' . $plugin->name . '.php')) {
+                $specific = true;
                 require_once _EPH_SPECIFIC_PLUGIN_DIR_ . $plugin->name . '/' . $plugin->name . '.php';
                 if(file_exists(_EPH_SPECIFIC_PLUGIN_DIR_. $plugin->name . '/logo.webp')) {
                     $image = 'includes/specific_plugins/' . $plugin->name . '/logo.webp';
@@ -939,7 +944,7 @@ abstract class Plugin {
                 
             }
             
-
+             
             $tmpPlugin = Adapter_ServiceLocator::get($plugin->name);
             if (isset($pluginsInstalled[$plugin->name])) {
 
@@ -969,9 +974,13 @@ abstract class Plugin {
                 $plugin->image_link = "/" . $image;
                 $plugin->is_ondisk = true;
             }
-
+            
+            if($specific) {
+                $extras[] = $plugin;
+            }
+                
         }
-
+       
         foreach ($extras as $key => $values) {
             $plugin = [];
             
@@ -988,10 +997,11 @@ abstract class Plugin {
             }
 
             $plugin = Tools::jsonDecode(Tools::jsonEncode($plugin));
+            
             $pluginList[] = $plugin;
 
         }
-
+        
         if ($errors) {
 
             if (!isset(Context::getContext()->controller) && !Context::getContext()->controller->controller_name) {
@@ -1017,7 +1027,7 @@ abstract class Plugin {
         foreach ($pluginList as $plugin) {
             $return[$plugin->name] = $plugin;
         }
-
+        
         ksort($return);
 
         return $return;
@@ -1470,6 +1480,7 @@ abstract class Plugin {
             }
 
         }
+
         $this->mergeLanguages();
         Tools::generateIndex();
         $this->updateIoPlugins();
@@ -2655,6 +2666,7 @@ abstract class Plugin {
         }
         if (!isset($this->context->language)) {
             $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
+
         }
         if (!isset($this->context->translations)) {
 
