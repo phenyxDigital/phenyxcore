@@ -1412,6 +1412,16 @@ class Composer {
     }
 
     public static function getPhenyxImgSizesOption() {
+        
+        $context = Context::getContext();
+        $cache = $context->cache_api;
+        if($context->cache_enable && is_object($context->cache_api)) {
+            $value = $cache->getData('getPhenyxImgSizesOption');
+            $temp = empty($value) ? null : $value;
+            if(!empty($temp)) {
+                return $temp;
+            }            
+        }
 
         $db = Db::getInstance();
         $tablename = _DB_PREFIX_ . 'image_type';
@@ -1424,6 +1434,10 @@ class Composer {
                 $options[$size['name']] = $size['name'];
             }
 
+        }
+        if($context->cache_enable && is_object($context->cache_api)) {
+            $temp = $options === null ? null : Tools::jsonEncode($options);
+            $cache->putData('getPhenyxImgSizesOption', $temp);
         }
 
         return $options;

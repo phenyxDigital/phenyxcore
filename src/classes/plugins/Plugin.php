@@ -338,7 +338,7 @@ abstract class Plugin {
             ->where('LOWER(`name`) = \'' . pSQL(mb_strtolower($plugin)) . '\'')
         );
         if($context->cache_enable && is_object($context->cache_api)) {
-            $temp = $value === null ? null : Tools::jsonEncode($result);
+            $temp = $result === null ? null : $result;
             $cache->putData('getIdPluginByName_' .$plugin, $temp);
         }
         return $result;
