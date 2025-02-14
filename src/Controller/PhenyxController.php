@@ -2468,6 +2468,7 @@ abstract class PhenyxController {
 
         $result = $this->object->update();
 
+
         $this->afterUpdate();
 
         if ($result) {
@@ -3511,6 +3512,7 @@ abstract class PhenyxController {
 
         foreach (get_included_files() as $file) {
             $this->total_filesize += filesize($file);
+
         }
 
         // Sum querying time
@@ -3852,7 +3854,7 @@ abstract class PhenyxController {
 
             $this->content_ajax .= '
                 <tr>
-                    <td class="pre" style="width:50%; display:table-cell">' . preg_replace("/(^[\s]*)/m", "", htmlspecialchars($data['query'], ENT_NOQUOTES, 'utf-8', false)) . '</td>
+                    <td class="pre" style="width:50%; display:table-cell">' . preg_replace("/(^[\s]*)/m", "", htmlspecialchars(substr($data['query'], 0, 256), ENT_NOQUOTES, 'utf-8', false)) . '</td>
                     <td style="width:10%"><span ' . $this->getTimeColor($data['time'] * 1000) . '>' . (round($data['time'] * 1000, 1) < 0.1 ? '< 1' : round($data['time'] * 1000, 1)) . '</span></td>
                     <td>' . (int) $data['rows'] . '</td>
                     <td>' . ($data['filesort'] ? '<span style="color:red">' . $this->la('Yes') . '</span>' : '') . '</td>
