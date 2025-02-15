@@ -65,17 +65,16 @@ class Hook extends PhenyxObjectModel {
     ];
 
     public function __construct($id = null, $idLang = null) {
-
+       
         $this->className = get_class($this);
         $this->context = Context::getContext();
-
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = new Configuration();
-
+            
         }
-
+        
         if (!isset(PhenyxObjectModel::$loaded_classes[$this->className])) {
-            $this->def = PhenyxObjectModel::getDefinition($this->className);
+            $this->def = PhenyxObjectModel::getDefinition($this->className);            
 
             if (!Validate::isTableOrIdentifier('id_hook') || !Validate::isTableOrIdentifier('hook')) {
                 throw new PhenyxException('Identifier or table format not valid for class ' . $this->className);
@@ -105,6 +104,8 @@ class Hook extends PhenyxObjectModel {
             $this->available_plugins = $this->getPossiblePluginList();
             $this->metas = Tools::jsonDecode($this->metas, true);
         }
+        
+        
 
     }
 
@@ -136,15 +137,15 @@ class Hook extends PhenyxObjectModel {
 
         return $return;
     }
-
+    
     public function getHookArgs() {
 
-        $args = ['cookie' => 'construct cookie'];
+        $args = ['cookie'=> 'construct cookie'];
 
         $args_conf_id = $this->getIdByName('actionHookExtraArgs');
 
         if ($args_conf_id > 0) {
-
+            
             $plugins = $this->getPluginsFromHook($args_conf_id, null);
 
             foreach ($plugins as $plugin) {
@@ -164,10 +165,12 @@ class Hook extends PhenyxObjectModel {
 
             }
 
+            
         }
 
         return $args;
     }
+
 
     public function getArgs($force = false) {
 
@@ -485,7 +488,6 @@ class Hook extends PhenyxObjectModel {
                     if ($arrayReturn) {
                         $return[$m['plugin']] = $dataWrapped;
                     } else
-
                     if ($objectReturn) {
                         $return = $dataWrapped;
                     } else {
@@ -616,6 +618,7 @@ class Hook extends PhenyxObjectModel {
                 $hookArgs['altern'] = ++$altern;
 
                 if ($usePush && isset($pluginInstance->push_filename) && file_exists($pluginInstance->push_filename)) {
+
                     Tools::waitUntilFileIsModified($pluginInstance->push_filename, $pluginInstance->push_time_limit);
                 }
 
@@ -623,7 +626,6 @@ class Hook extends PhenyxObjectModel {
 
                     $display = $this->coreCallHook($pluginInstance, 'hook' . $hookName, $hookArgs);
                 } else
-
                 if ($hookRetroCallable) {
 
                     $display = $this->coreCallHook($pluginInstance, 'hook' . $retroHookName, $hookArgs);
@@ -632,7 +634,6 @@ class Hook extends PhenyxObjectModel {
                 if ($arrayReturn) {
                     $output[$pluginInstance->name] = $display;
                 } else
-
                 if ($objectReturn) {
                     $return = $display;
                 } else {
@@ -652,8 +653,8 @@ class Hook extends PhenyxObjectModel {
         $list = null;
 
         if ($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $cacheId = 'hook_plugin_exec_hook_' . $hookName;
-            $value = $this->context->cache_api->getData($cacheId);
+            $cacheId = 'hook_plugin_exec_list_' . $hookName . ((isset($this->context->user->id)) ? '_' . $this->context->user->id : '');
+            $value = $this->context->cache_api->getData($cacheId, 3600);
             $temp = empty($value) ? null : Tools::jsonDecode($value, true);
 
             if (!empty($temp)) {
@@ -667,7 +668,7 @@ class Hook extends PhenyxObjectModel {
             $groups = [];
             $useGroups = Group::isFeatureActive();
 
-            if (isset($this->context->employee->id)) {
+            if (isset($context->employee)) {
                 $frontend = false;
             } else {
                 // Get groups list
@@ -675,9 +676,8 @@ class Hook extends PhenyxObjectModel {
                 if ($useGroups) {
 
                     if (isset($this->context->user) && $this->context->user->isLogged()) {
-                        $groups = $this->context->user->getGroups();
+                        $groups = $context->user->getGroups();
                     } else
-
                     if (isset($this->context->user) && $this->context->user->isLogged(true)) {
                         $groups = [(int) $this->context->phenyxConfig->get('EPH_GUEST_GROUP')];
                     } else {
@@ -703,15 +703,14 @@ class Hook extends PhenyxObjectModel {
 
             // For payment plugins, we check that they are available in the contextual country
             else
-
             if ($frontend) {
 
                 if (Validate::isLoadedObject($this->context->country)) {
-                    $sql->where('((h.`name` = "displayPayment" OR h.`name` = "displayPaymentEU") AND (SELECT `id_country` FROM `' . _DB_PREFIX_ . 'plugin_country` mc WHERE mc.`id_plugin` = m.`id_plugin` AND `id_country` = ' . (int) $this->context->country->id . '  LIMIT 1) = ' . (int) $this->context->country->id . ')');
+                    $sql->where('((h.`name` = "displayPayment" OR h.`name` = "displayPaymentEU") AND (SELECT `id_country` FROM `' . _DB_PREFIX_ . 'plugin_country` mc WHERE mc.`id_plugin` = m.`id_plugin` AND `id_country` = ' . (int) $context->country->id . '  LIMIT 1) = ' . (int) $this->context->country->id . ')');
                 }
 
                 if (Validate::isLoadedObject($this->context->currency)) {
-                    $sql->where('((h.`name` = "displayPayment" OR h.`name` = "displayPaymentEU") AND (SELECT `id_currency` FROM `' . _DB_PREFIX_ . 'plugin_currency` mcr WHERE mcr.`id_plugin` = m.`id_plugin` AND `id_currency` IN (' . (int) $this->context->currency->id . ', -1, -2) LIMIT 1) IN (' . (int) $this->context->currency->id . ', -1, -2))');
+                    $sql->where('((h.`name` = "displayPayment" OR h.`name` = "displayPaymentEU") AND (SELECT `id_currency` FROM `' . _DB_PREFIX_ . 'plugin_currency` mcr WHERE mcr.`id_plugin` = m.`id_plugin` AND `id_currency` IN (' . (int) $context->currency->id . ', -1, -2) LIMIT 1) IN (' . (int) $this->context->currency->id . ', -1, -2))');
                 }
 
                 if (Validate::isLoadedObject($this->context->cart)) {
@@ -759,13 +758,15 @@ class Hook extends PhenyxObjectModel {
                     ];
                 }
 
-                if ($this->context->cache_enable && is_object($this->context->cache_api)) {
-                    $temp = $list === null ? null : Tools::jsonEncode($list);
-                    $this->context->cache_api->putData($cacheId, $temp, 8640000);
-                }
-
             }
 
+           
+
+        }
+        
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {
+            $temp = $list === null ? null : Tools::jsonEncode($list);
+            $this->context->cache_api->putData($cacheId, $temp);
         }
 
         // If hook_name is given, just get list of plugins for this hook
@@ -799,7 +800,7 @@ class Hook extends PhenyxObjectModel {
 
             return (count($return) > 0 ? $return : false);
         } else {
-
+             
             return $list;
         }
 

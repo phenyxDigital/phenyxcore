@@ -208,14 +208,6 @@ class Configuration extends PhenyxObjectModel {
      * @version 1.8.1.0 Initial version
      */
     public function configurationIsLoaded() {
-                
-        if($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $value = $this->context->cache_api->getData('loadConfigurationFromDB');
-            if(!empty($value)) {
-                return true;
-            }
-            return false;
-        }
 
         return isset(static::$_cache['configuration'])
         && is_array(static::$_cache['configuration'])
@@ -369,11 +361,16 @@ class Configuration extends PhenyxObjectModel {
     
     public function loadConfiguration() {
         
+        return $this->loadConfigurationFromDB();
+    }
+    
+    public function loadConfigurationFromDB() {
+        
         static::$_cache['configuration'] = [];
         $rows = null;        
        
         if($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $value = $this->context->cache_api->getData('loadConfigurationFromDB');
+            $value = $this->context->cache_api->getData('loadConfigurationFromDB', 864000);
             $temp = empty($value) ? null : Tools::jsonDecode($value, true);
             if(!empty($temp)) {
                 $rows = $temp;
@@ -385,18 +382,17 @@ class Configuration extends PhenyxObjectModel {
                 ->select('c.`name`, cl.`id_lang`, IFNULL(cl.`value_lang`, c.`value`) AS `value`')
                 ->from('configuration', 'c')
                 ->leftJoin('configuration_lang', 'cl', 'c.`id_configuration` = cl.`id_configuration`')
-            );    
-            if($this->context->cache_enable && is_object($this->context->cache_api)) {
-                $temp = $rows === null ? null : Tools::jsonEncode($rows);
-                $this->context->cache_api->putData('loadConfigurationFromDB', $temp, 8640000);
-            }	
+            );            
         }
 
         if (!is_array($rows)) {
             return;
         }
         
-        
+        if($this->context->cache_enable && is_object($this->context->cache_api)) {
+            $temp = $rows === null ? null : Tools::jsonEncode($rows);
+            $this->context->cache_api->putData('loadConfigurationFromDB', $temp, 864000);
+        }	
 
         foreach ($rows as $row) {
             $lang = ($row['id_lang']) ? $row['id_lang'] : 0;
