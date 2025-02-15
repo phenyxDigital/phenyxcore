@@ -120,6 +120,31 @@ class Theme extends PhenyxObjectModel {
         
         $objectData = parent::buildObject($id, $id_lang, $className);
         
+        if ($id) {
+            
+            if(!empty($objectData['plugin'])) {
+                
+                $objectData['path'] = _EPH_PLUGIN_DIR_ . $objectData['plugin'] . DIRECTORY_SEPARATOR.'views/themes/' . $objectData['directory'] . DIRECTORY_SEPARATOR;
+                $objectData['localpath'] = DIRECTORY_SEPARATOR. 'includes/plugins/' . $objectData['plugin'] . DIRECTORY_SEPARATOR.'views/themes/' . $objectData['directory'] . DIRECTORY_SEPARATOR;                
+                $objectData['css_theme'] = $objectData['localpath'].'css'. DIRECTORY_SEPARATOR;
+                $objectData['js_theme'] = $objectData['localpath'].'js'. DIRECTORY_SEPARATOR;
+                $objectData['img_theme'] = $objectData['localpath'].'img'. DIRECTORY_SEPARATOR;                
+                $objectData['mail_theme'] = $objectData['localpath'].'mail'. DIRECTORY_SEPARATOR;                
+                $objectData['pdf_theme'] = $objectData['localpath'].'pdf'. DIRECTORY_SEPARATOR;
+                
+            } else {
+                $objectData['path'] = _SHOP_ROOT_DIR_ . _EPH_THEMES_DIR_ . $objectData['directory'] . DIRECTORY_SEPARATOR;
+                $objectData['localpath'] = DIRECTORY_SEPARATOR. 'content' .  _EPH_THEMES_DIR_  . $objectData['directory'] . DIRECTORY_SEPARATOR;
+                $objectData['css_theme'] = $objectData['localpath'].'css'. DIRECTORY_SEPARATOR;
+                $objectData['js_theme'] = $objectData['localpath'].'js'. DIRECTORY_SEPARATOR;
+                $objectData['img_theme'] = $objectData['localpath'].'img'. DIRECTORY_SEPARATOR;
+                $objectData['>mail_theme'] = $objectData['localpath'].'mail'. DIRECTORY_SEPARATOR;
+                $objectData['pdf_theme'] = $objectData['localpath'].'pdf'. DIRECTORY_SEPARATOR;
+            }
+            
+            
+		}
+        
        
         return Tools::jsonDecode(Tools::jsonEncode($objectData));
     }    
