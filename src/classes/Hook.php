@@ -762,6 +762,11 @@ class Hook extends PhenyxObjectModel {
            
 
         }
+        
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {
+            $temp = $list === null ? null : Tools::jsonEncode($list);
+            $this->context->cache_api->putData($cacheId, $temp);
+        }
 
         // If hook_name is given, just get list of plugins for this hook
 
@@ -794,10 +799,7 @@ class Hook extends PhenyxObjectModel {
 
             return (count($return) > 0 ? $return : false);
         } else {
-             if ($this->context->cache_enable && is_object($this->context->cache_api)) {
-                $temp = $list === null ? null : Tools::jsonEncode($list);
-                $this->context->cache_api->putData($cacheId, $temp);
-            }
+             
             return $list;
         }
 

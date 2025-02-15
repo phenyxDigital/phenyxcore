@@ -5629,12 +5629,26 @@ FileETag none
 
     public static function getAutoCompleteCity() {
 
-        return Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
+        $context = Context::getContext();   
+        if($context->cache_enable && is_object($context->cache_api)) {
+           $value = $context->cache_api->getData('getAutoCompleteCity');
+           $temp = empty($value) ? null : Tools::jsonDecode($value, true);
+           if(!empty($temp)) {
+               return $temp;
+           }
+        }
+        $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
             (new DbQuery())
                 ->select('`post_code`, `city`')
                 ->from('post_code')
                 ->orderBy('city')
         );
+        if($context->cache_enable && is_object($context->cache_api)) {
+            $temp = $result === null ? null : Tools::jsonEncode($result);
+            $context->cache_api->putData('getAutoCompleteCity', $temp, 864000);
+        }	
+
+        return $result;
 
     }
 

@@ -361,10 +361,10 @@ class Configuration extends PhenyxObjectModel {
     
     public function loadConfiguration() {
         
-        return $this->loadConfigurationFromDB(Db::getInstance(_EPH_USE_SQL_SLAVE_));
+        return $this->loadConfigurationFromDB();
     }
     
-    public function loadConfigurationFromDB($connection) {
+    public function loadConfigurationFromDB() {
         
         static::$_cache['configuration'] = [];
         $rows = null;        
@@ -376,22 +376,23 @@ class Configuration extends PhenyxObjectModel {
                 $rows = $temp;
             }
         }
-        if(empty($rows)) {
-            $rows = $connection->executeS(
+        if(is_null($rows)) {
+            $rows = Db::getInstance()->executeS(
                 (new DbQuery())
                 ->select('c.`name`, cl.`id_lang`, IFNULL(cl.`value_lang`, c.`value`) AS `value`')
                 ->from('configuration', 'c')
                 ->leftJoin('configuration_lang', 'cl', 'c.`id_configuration` = cl.`id_configuration`')
-            );
-            if($this->context->cache_enable && is_object($this->context->cache_api)) {
-                $temp = $rows === null ? null : Tools::jsonEncode($rows);
-                $this->context->cache_api->putData('loadConfigurationFromDB', $temp);
-            }	
+            );            
         }
 
         if (!is_array($rows)) {
             return;
         }
+        
+        if($this->context->cache_enable && is_object($this->context->cache_api)) {
+            $temp = $rows === null ? null : Tools::jsonEncode($rows);
+            $this->context->cache_api->putData('loadConfigurationFromDB', $temp, 864000);
+        }	
 
         foreach ($rows as $row) {
             $lang = ($row['id_lang']) ? $row['id_lang'] : 0;
@@ -406,6 +407,8 @@ class Configuration extends PhenyxObjectModel {
             static::$_cache['configuration'][$lang]['global'][$row['name']] = $row['value'];
 
         }
+        
+        
 
     }
 
