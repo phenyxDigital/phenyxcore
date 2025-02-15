@@ -230,10 +230,6 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             }
 
         }
-        if ($id) {
-            $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
-            $entityMapper->load($id, $idLang, $this, $this->def, static::$cache_objects);
-        }
         
         $this->context = Context::getContext();
         if (!PhenyxObjectModel::$hook_instance) {
@@ -252,6 +248,12 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
                 }
             }
         }
+        
+        if ($id) {
+            $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
+            $entityMapper->load($id, $idLang, $this, $this->def, static::$cache_objects);
+        }
+        
         
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = new Configuration();
