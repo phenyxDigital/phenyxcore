@@ -27,6 +27,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
      */
     const FORMAT_COMMON = 1;
     const FORMAT_LANG = 2;
+    const FORMAT_META = 3;
 
     /**
      * List of association types
@@ -208,8 +209,32 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
     }
 
     public function __construct($id = null, $idLang = null, $light = false) {
-
+        
         $this->className = get_class($this);
+                
+        if (!isset(PhenyxObjectModel::$loaded_classes[$this->className])) {
+            $this->def = PhenyxObjectModel::getDefinition($this->className);
+
+            if (!Validate::isTableOrIdentifier($this->def['primary']) || !Validate::isTableOrIdentifier($this->def['table'])) {
+                throw new PhenyxException('Identifier or table format not valid for class ' . $this->className);
+                PhenyxLogger::addLog(sprintf($this->l('Identifier or table format not valid for class %s'), $this->className), 3, null, get_class($this));
+            }
+
+            PhenyxObjectModel::$loaded_classes[$this->className] = get_object_vars($this);
+        } else {
+
+            foreach (PhenyxObjectModel::$loaded_classes[$this->className] as $key => $value) {
+                $this->{$key}
+
+                = $value;
+            }
+
+        }
+        if ($id) {
+            $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
+            $entityMapper->load($id, $idLang, $this, $this->def, static::$cache_objects);
+        }
+        
         $this->context = Context::getContext();
         if (!PhenyxObjectModel::$hook_instance) {
             PhenyxObjectModel::$hook_instance = new Hook();
@@ -267,24 +292,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             $this->context->cache_api = CacheApi::getInstance();
         }
 
-        if (!isset(PhenyxObjectModel::$loaded_classes[$this->className])) {
-            $this->def = PhenyxObjectModel::getDefinition($this->className);
-
-            if (!Validate::isTableOrIdentifier($this->def['primary']) || !Validate::isTableOrIdentifier($this->def['table'])) {
-                throw new PhenyxException('Identifier or table format not valid for class ' . $this->className);
-                PhenyxLogger::addLog(sprintf($this->l('Identifier or table format not valid for class %s'), $this->className), 3, null, get_class($this));
-            }
-
-            PhenyxObjectModel::$loaded_classes[$this->className] = get_object_vars($this);
-        } else {
-
-            foreach (PhenyxObjectModel::$loaded_classes[$this->className] as $key => $value) {
-                $this->{$key}
-
-                = $value;
-            }
-
-        }
+        
 
         if ($idLang !== null) {
             $this->id_lang = (Language::getLanguage($idLang) !== false) ? $idLang : $this->context->phenyxConfig->get('EPH_LANG_DEFAULT');
@@ -315,13 +323,6 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
                 'file' => @$backtrace[$trace_id]['file'],
                 'line' => @$backtrace[$trace_id]['line'],
             ];
-        }
-
-        
-
-        if ($id) {
-            $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
-            $entityMapper->load($id, $idLang, $this, $this->def, static::$cache_objects);
         }
 
         $extraLoads = $this->context->_hook->exec('action' . $this->className . 'ObjectConstruct', ['id' => $id, 'object' => $this], null, true);
@@ -380,6 +381,12 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             $sql->leftJoin($def['table'] . '_lang', 'b', 'a.`' . bqSQL($def['primary']) . '` = b.`' . bqSQL($def['primary']) . '` AND b.`id_lang` = ' . (int) $id_lang);
 
         }
+        
+        if (isset($def['have_meta']) && $def['have_meta']) {
+            $sql->select('c.*');
+            $sql->leftJoin($def['table'] . '_meta', 'c', 'a.`' . bqSQL($def['primary']) . '` = c.`' . bqSQL($def['primary']) );
+
+        }
 
         return Db::getInstance()->getRow($sql);
     }
@@ -403,7 +410,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
     public static function getInstance() {
 
-        $class_name = static::class;
+        $class_name = get_called_class();
 
         if (!$class_name::$instance) {
             $class_name::$instance = new $class_name();
@@ -423,7 +430,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         return $this->$property;
     }
 
-    public function __set($property, $value): void{
+    public function __set($property, $value) {
 
         $snakeCaseProperty = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $property))));
 
@@ -568,11 +575,21 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
         return $fields;
     }
+    
+    public function getFieldsMeta() {
+         
+        $this->validateFieldsMeta();
+        $fields = $this->formatFields(static::FORMAT_META);
+        if (!$fields && isset($this->id) && Validate::isUnsignedId($this->id)) {
+            $fields[$this->def['primary']] = $this->id;
+        }
+        return $fields;
+    }
 
     protected function formatFields($type, $idLang = null) {
 
         $fields = [];
-
+        
         if (isset($this->id)) {
             $fields[$this->def['primary']] = $this->id;
         }
@@ -581,6 +598,10 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
             if (($type == static::FORMAT_LANG && empty($data['lang']))
                 || ($type == static::FORMAT_COMMON && !empty($data['lang']))) {
+                continue;
+            }
+            if (($type == static::FORMAT_META && empty($data['meta']))
+               || ($type == static::FORMAT_COMMON && !empty($data['meta']))) {
                 continue;
             }
 
@@ -612,7 +633,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
             $fields[$field] = PhenyxObjectModel::formatValue($value, $data['type'], false, $purify, !empty($data['allow_null']));
         }
-
+        
         return $fields;
     }
 
@@ -885,7 +906,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
         $this->context->_hook->exec('actionObjectUpdateBefore', ['object' => $this]);
         $updateBefores = $this->context->_hook->exec('actionObject' . get_class($this) . 'UpdateBefore', ['object' => $this], null, true);
-
+        
         if (is_array($updateBefores)) {
 
             foreach ($updateBefores as $plugin => $defs) {
@@ -963,6 +984,15 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
                 }
 
             }
+
+        }
+        
+        if (isset($this->def['have_meta']) && $this->def['have_meta']) {
+                       
+            if (!$result = Db::getInstance()->update($this->def['table']. '_meta', $this->getFieldsMeta(), '`' . pSQL($this->def['primary']) . '` = ' . (int) $this->id, 0, $nullValues)) {
+                return false;
+            }
+          
 
         }
 
@@ -1154,6 +1184,20 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
         return true;
     }
+    
+    public function validateFieldsMeta($die = true, $errorReturn = false) {
+        
+        foreach ($this->def['fields'] as $field => $data) {
+
+            if (!empty($data['meta'])) {
+                continue;
+            }
+
+        }
+
+        return true;
+    }
+
 
     public function validateField($field, $value, $idLang = null, $skip = [], $humanErrors = false) {
 

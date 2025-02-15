@@ -42,7 +42,12 @@ class Adapter_EntityMapper {
                 $sql->leftJoin($entityDefs['table'] . '_lang', 'b', 'a.`' . bqSQL($entityDefs['primary']) . '` = b.`' . bqSQL($entityDefs['primary']) . '` AND b.`id_lang` = ' . (int) $idLang);
 
             }
+            
+            if (isset($entityDefs['have_meta']) && $entityDefs['have_meta']) {
+                $sql->leftJoin($entityDefs['table'] . '_meta', 'c', 'a.`' . bqSQL($entityDefs['primary']) . '` = c.`' . bqSQL($entityDefs['primary']). '`');
 
+            }
+            
             if ($objectData = Db::getInstance()->getRow($sql)) {
 
                 if (!$idLang && isset($entityDefs['multilang']) && $entityDefs['multilang']) {
@@ -66,6 +71,35 @@ class Adapter_EntityMapper {
                                     }
 
                                     $objectData[$key][$row['id_lang']] = $value;
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+                
+                if (isset($entityDefs['have_meta']) && $entityDefs['have_meta']) {
+                    $sql = (new DbQuery())
+                        ->select('*')
+                        ->from($entityDefs['table'] . '_meta')
+                        ->where('`' . $entityDefs['primary'] . '` = ' . (int) $id);
+                    if ($objectDatasMeta = Db::getInstance()->executeS($sql)) {
+
+                        foreach ($objectDatasMeta as $row) {
+
+                            foreach ($row as $key => $value) {
+
+                                if ($key !== $entityDefs['primary']
+                                    && property_exists($entity, $key)) {
+
+                                    if (!isset($objectData[$key]) || !is_array($objectData[$key])) {
+                                        $objectData[$key] = [];
+                                    }
+
+                                    $objectData[$key] = $value;
                                 }
 
                             }

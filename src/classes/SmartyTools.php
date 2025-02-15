@@ -65,6 +65,16 @@ class SmartyTools {
         return (bool) $value;
     }
     
+    public static function isEmpty($string) {
+
+        $value = false;
+        if (empty($value)) {
+            $value = true;
+        }
+
+        return (bool) $value;
+    }
+    
     public static function isString($string) {
         
         return is_string($string);
