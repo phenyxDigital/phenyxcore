@@ -11,6 +11,7 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
     const INNER_JOIN = 2;
     const LEFT_OUTER_JOIN = 3;
     const LANG_ALIAS = 'l';
+    const META_ALIAS = 'm';
 
     // @codingStandardsIgnoreStart
     /**
@@ -58,17 +59,8 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
     protected $alias_iterator = 0;
     protected $join_list = [];
     protected $association_definition = [];
-    // @codingStandardsIgnoreEnd
-
-    /**
-     * @param string $classname
-     * @param int    $idLang
-     *
-     * @throws PhenyxException
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
+    protected $association_meta = [];
+    
     public function __construct($classname, $idLang = null) {
 
         $this->classname = $classname;
@@ -85,36 +77,14 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
 
         $this->query = new DbQuery();
     }
-
-    /**
-     * Add WHERE restriction on query using real SQL syntax
-     *
-     * @param string $sql
-     *
-     * @return static
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
+    
     public function sqlWhere($sql) {
 
         $this->query->where($this->parseFields($sql));
 
         return $this;
     }
-
-    /**
-     * Parse all fields with {field} syntax in a string
-     *
-     * @param string $str
-     *
-     * @return string
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
+    
     protected function parseFields($str) {
 
         preg_match_all('#\{(([a-z0-9_]+\.)*[a-z0-9_]+)\}#i', $str, $m);
@@ -125,18 +95,7 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
 
         return $str;
     }
-
-    /**
-     * Replace a field with its SQL version (E.g. manufacturer.name with a2.name)
-     *
-     * @param string $field Field name
-     *
-     * @return string
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
+    
     protected function parseField($field) {
 
         $info = $this->getFieldInfo($field);
@@ -144,17 +103,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $info['alias'] . '.`' . $info['name'] . '`';
     }
 
-    /**
-     * Obtain some information on a field (alias, name, type, etc.)
-     *
-     * @param string $field Field name
-     *
-     * @return array
-     * @throws PhenyxException
-     * @throws PhenyxException
-     * @throws PhenyxException
-     * @throws PhenyxException
-     */
     protected function getFieldInfo($field) {
 
         if (!isset($this->fields[$field])) {
@@ -208,18 +156,8 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this->fields[$field];
     }
 
-    /**
-     * Get definition of an association
-     *
-     * @param string $association
-     *
-     * @return array
-     * @throws PhenyxException
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
-    protected function getDefinition($association) {
-
+    public function getDefinition($association) {
+        
         if (!$association) {
             return $this->definition;
         }
@@ -285,19 +223,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $definition;
     }
 
-    /**
-     * Join current entity to an associated entity
-     *
-     * @param string $association Association name
-     * @param string $on
-     * @param int    $type
-     *
-     * @return false|static
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     public function join($association, $on = '', $type = null) {
 
         if (!$association) {
@@ -326,16 +251,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this;
     }
 
-    /**
-     * Generate uniq alias from association name
-     *
-     * @param string $association Use empty association for alias on current table
-     *
-     * @return string
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     protected function generateAlias($association = '') {
 
         if (!isset($this->alias[$association])) {
@@ -345,39 +260,11 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this->alias[$association];
     }
 
-    /**
-     * Add HAVING restriction on query
-     *
-     * @param string $field    Field name
-     * @param string $operator List of operators : =, !=, <>, <, <=, >, >=, like, notlike, regexp, notregexp
-     * @param mixed  $value
-     *
-     * @return static
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     public function having($field, $operator, $value) {
 
         return $this->where($field, $operator, $value, 'having');
     }
 
-    /**
-     * Add WHERE restriction on query
-     *
-     * @param string $field    Field name
-     * @param string $operator List of operators : =, !=, <>, <, <=, >, >=, like, notlike, regexp, notregexp
-     * @param mixed  $value
-     * @param string $method
-     *
-     * @return static
-     * @throws PhenyxException
-     * @internal param string $type where|having
-     *
-     * @since    1.0.0
-     * @version  1.0.0 Initial version
-     */
     public function where($field, $operator, $value, $method = 'where') {
 
         if ($method != 'where' && $method != 'having') {
@@ -438,18 +325,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this;
     }
 
-    /**
-     * Format a value with the type of the given field
-     *
-     * @param mixed  $value
-     * @param string $field Field name
-     *
-     * @return mixed
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     protected function formatValue($value, $field) {
 
         $info = $this->getFieldInfo($field);
@@ -467,16 +342,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return PhenyxObjectModel::formatValue($value, $info['type'], true);
     }
 
-    /**
-     * Add HAVING restriction on query using real SQL syntax
-     *
-     * @param string $sql
-     *
-     * @return static
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function sqlHaving($sql) {
 
         $this->query->having($this->parseFields($sql));
@@ -484,17 +349,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this;
     }
 
-    /**
-     * Add ORDER BY restriction on query
-     *
-     * @param string $field Field name
-     * @param string $order asc|desc
-     *
-     * @return static
-     * @throws PhenyxException
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function orderBy($field, $order = 'asc') {
 
         $order = strtolower($order);
@@ -508,17 +362,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this;
     }
 
-    /**
-     * Add ORDER BY restriction on query using real SQL syntax
-     *
-     * @param string $sql
-     *
-     * @return static
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     public function sqlOrderBy($sql) {
 
         $this->query->orderBy($this->parseFields($sql));
@@ -526,17 +369,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this;
     }
 
-    /**
-     * Add GROUP BY restriction on query
-     *
-     * @param string $field Field name
-     *
-     * @return static
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     public function groupBy($field) {
 
         $this->query->groupBy($this->parseField($field));
@@ -544,17 +376,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this;
     }
 
-    /**
-     * Add GROUP BY restriction on query using real SQL syntax
-     *
-     * @param string $sql
-     *
-     * @return static
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     public function sqlGroupBy($sql) {
 
         $this->query->groupBy($this->parseFields($sql));
@@ -562,15 +383,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this;
     }
 
-    /**
-     * Retrieve the first result
-     *
-     * @return false|ObjectModel
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     public function getFirst() {
 
         $this->getAll();
@@ -582,19 +394,9 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this[0];
     }
 
-    /**
-     * Launch sql query to create collection of objects
-     *
-     * @param bool $displayQuery If true, query will be displayed (for debug purpose)
-     *
-     * @return static
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     public function getAll($displayQuery = false) {
 
+        
         if ($this->is_hydrated) {
             return $this;
         }
@@ -602,6 +404,9 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         $this->is_hydrated = true;
 
         $alias = $this->generateAlias();
+        if (!empty($this->definition['have_meta'])) {
+            $alias = 'a';
+        }
         //$this->query->select($alias.'.*');
         $this->query->from($this->definition['table'], $alias);
 
@@ -614,6 +419,11 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
                 $this->where(static::LANG_ALIAS . '.id_lang', '=', $this->id_lang);
             }
 
+        }
+        
+        if (!empty($this->definition['have_meta'])) {
+            $this->query->select('a.*,'.implode(', ', $this->definition['have_meta']['field']));
+            $this->query->leftJoin($this->definition['table'].'_meta', static::META_ALIAS, 'a.`'.$this->definition['primary'] .'` = '.static::META_ALIAS.'.`'.$this->definition['primary'].'`');
         }
 
         // Add join clause
@@ -648,6 +458,7 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         if ($displayQuery) {
             echo $this->query . '<br />';
         }
+       
 
         $this->results = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS($this->query);
 
@@ -658,15 +469,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this;
     }
 
-    /**
-     * Get results array
-     *
-     * @return array
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     public function getResults() {
 
         $this->getAll();
@@ -674,15 +476,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this->results;
     }
 
-    /**
-     * This method is called when a foreach begin
-     *
-     * @see     Iterator::rewind()
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
 	#[\ReturnTypeWillChange]
     public function rewind() {
 
@@ -692,75 +485,30 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         $this->total = count($this->results);
     }
 
-    /**
-     * Get current result
-     *
-     * @see     Iterator::current()
-     * @return ObjectModel
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
 	#[\ReturnTypeWillChange]
     public function current() {
 		
         return isset($this->results[$this->iterator]) ? $this->results[$this->iterator] : 0;
     }
 
-    /**
-     * Check if there is a current result
-     *
-     * @see     Iterator::valid()
-     * @return bool
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
 	#[\ReturnTypeWillChange]
     public function valid() {
 
         return $this->iterator < $this->total;
     }
 
-    /**
-     * Get current result index
-     *
-     * @see     Iterator::key()
-     * @return int
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
 	#[\ReturnTypeWillChange]
     public function key() {
 
         return $this->iterator;
     }
 
-    /**
-     * Go to next result
-     *
-     * @see     Iterator::next()
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
 	#[\ReturnTypeWillChange]
     public function next() {
 
         $this->iterator++;
     }
 
-    /**
-     * Get total of results
-     *
-     * @see     Countable::count()
-     * @return int
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
 	#[\ReturnTypeWillChange]
     public function count() {
 
@@ -769,17 +517,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return count($this->results);
     }
 
-    /**
-     * Check if a result exist
-     *
-     * @param int $offset
-     *
-     * @return bool
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
 	#[\ReturnTypeWillChange]
     public function offsetExists($offset) {
 
@@ -788,16 +525,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return isset($this->results[$offset]);
     }
 
-    /**
-     * Get a result by offset
-     *
-     * @param mixed $offset
-     *
-     * @return ObjectModel
-     * @throws PhenyxException
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
 	#[\ReturnTypeWillChange]
     public function offsetGet($offset) {
 
@@ -810,16 +537,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this->results[$offset];
     }
 
-    /**
-     * Add an element in the collection
-     *
-     * @param int   $offset
-     * @param mixed $value
-     *
-     * @throws PhenyxException
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
 	#[\ReturnTypeWillChange]
     public function offsetSet($offset, $value) {
 
@@ -837,17 +554,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
 
     }
 
-    /**
-     * Delete an element from the collection
-     *
-     * @see     ArrayAccess::offsetUnset()
-     *
-     * @param $offset
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
 	#[\ReturnTypeWillChange]
     public function offsetUnset($offset) {
 
@@ -855,16 +561,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         unset($this->results[$offset]);
     }
 
-    /**
-     * Set the page number
-     *
-     * @param int $pageNumber
-     *
-     * @return static
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function setPageNumber($pageNumber) {
 
         $pageNumber = (int) $pageNumber;
@@ -878,16 +574,6 @@ class PhenyxCollection implements Iterator, ArrayAccess, Countable {
         return $this;
     }
 
-    /**
-     * Set the nuber of item per page
-     *
-     * @param int $pageSize
-     *
-     * @return static
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function setPageSize($pageSize) {
 
         $this->page_size = (int) $pageSize;

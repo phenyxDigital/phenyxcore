@@ -1758,6 +1758,19 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
                     'foreign_field' => $definition['primary'],
                 ];
             }
+            if (!empty($definition['have_meta'])) {
+                $metaFields = [];
+                foreach($definition['fields'] as $key => $values) {
+                    if(isset($values['meta']) && $values['meta']) {
+                        $metaFields[] = PhenyxCollection::META_ALIAS.'.'.$key;
+                    }
+                    
+                }
+                
+                $definition['have_meta'] = [
+                    'field'         => $metaFields
+                ];
+            }
 
             if ($field) {
                 return isset($definition['fields'][$field]) ? $definition['fields'][$field] : null;
