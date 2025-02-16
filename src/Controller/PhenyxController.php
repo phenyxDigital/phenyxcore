@@ -276,6 +276,10 @@ abstract class PhenyxController {
         if (!isset($this->context->media)) {
             $this->context->media = new Media();
         }
+        
+        if (!isset($this->context->link)) {
+            $this->context->link = new Link();
+        }
 
         if (!isset($this->context->language)) {
             $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));

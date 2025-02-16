@@ -1,6 +1,6 @@
 <?php
 
-use vierbergenlars\SemVer\version;
+
 use \Curl\Curl;
 
 /**
@@ -71,10 +71,7 @@ abstract class Plugin {
     public $registered_version;
     /** @var array filled with known compliant PrestaShop versions */
     public $eph_versions_compliancy = [];
-    /**
-     * @var string Filled with known compliant thirty bees versions
-     *             This string contains a SemVer 1.0.0 range
-     */
+    
     public $has_reset;
     /** @var array filled with plugins needed for install */
     public $dependencies = [];
@@ -525,7 +522,7 @@ abstract class Plugin {
     protected static function coreLoadPlugin($pluginName, $full) {
 
         if (Plugin::$_log_plugins_perfs === null) {
-            $modulo = _EPH_DEBUG_PROFILING_ ? 1 : Context::getContext()->phenyxConfig->get('EPH_log_plugins_perfs_MODULO');
+            $modulo = _EPH_ADMIN_DEBUG_PROFILING_ ? 1 : Context::getContext()->phenyxConfig->get('EPH_log_plugins_perfs_MODULO');
             Plugin::$_log_plugins_perfs = ($modulo && mt_rand(0, $modulo - 1) == 0);
 
             if (Plugin::$_log_plugins_perfs) {
@@ -561,6 +558,25 @@ abstract class Plugin {
 
         if (!$r && class_exists($pluginName, false)) {
             $r = static::$_INSTANCE[$pluginName] = Adapter_ServiceLocator::get($pluginName);
+        }
+        
+        if (Plugin::$_log_plugins_perfs) {
+            // @codingStandardsIgnoreEnd
+            $timeEnd = microtime(true);
+            $memoryEnd = memory_get_usage(true);
+
+            Db::getInstance()->insert(
+                'plugins_perfs',
+                [
+                    'session'      => (int) Plugin::$_log_plugins_perfs_session,
+                    'plugin'       => pSQL($pluginName),
+                    'method'       => '__construct',
+                    'time_start'   => pSQL($timeStart),
+                    'time_end'     => pSQL($timeEnd),
+                    'memory_start' => (int) $memoryStart,
+                    'memory_end'   => (int) $memoryEnd,
+                ]
+            );
         }
 
         
@@ -736,10 +752,35 @@ abstract class Plugin {
 
         return Tools::htmlentitiesDecodeUTF8($string);
     }
+    
+    public static function getPluginRequest() {
+        
+        $context = Context::getContext();
+        if ($context->cache_enable && is_object($context->cache_api)) {
+            $cacheId = 'getPluginRequest';
+            $value = $context->cache_api->getData($cacheId);
+            $plugins = empty($value) ? null : Tools::jsonDecode($value, true);
+
+            if (!is_null($plugins)) {
+                return $plugins;
+            }
+
+        }
+        
+        $plugins = Plugin::getPluginsOnDisk(true, false, $context->employee->id, true);
+        
+        if ($context->cache_enable && is_object($context->cache_api)) {
+            $temp = $plugins === null ? null : Tools::jsonEncode($plugins);
+            $context->cache_api->putData($cacheId, $temp);
+        }
+        
+        return $plugins;
+
+        
+    }
 
     public static function getPluginsOnDisk($useConfig = false, $loggedOnAddons = false, $idEmployee = false, $full = false) {
-
-        global $_PLUGINS;
+       
         $context = Context::getContext();
         $link = new Link();
 

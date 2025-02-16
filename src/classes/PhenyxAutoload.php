@@ -55,7 +55,7 @@ class PhenyxAutoload {
 
         if (@filemtime($file) && is_readable($file)) {
             $this->index = include $file;
-        } else {
+        } else {            
             $this->generateIndex();
         }
 
