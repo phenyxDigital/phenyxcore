@@ -41,19 +41,9 @@ class DbQuery {
         'args'   => [],
     ];
 
-    /**
-     * Sets type of the query
-     *
-     * @param string $type SELECT|DELETE
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function type($type) {
 
-        $types = ['SELECT', 'DELETE', 'UPDATE', 'INSERT'];
+        $types = ['SELECT', 'DELETE', 'UPDATE', 'INSERT', 'REPLACE'];
 
         if (!empty($type) && in_array($type, $types)) {
             $this->query['type'] = $type;
@@ -62,16 +52,6 @@ class DbQuery {
         return $this;
     }
 
-    /**
-     * Adds fields to SELECT clause
-     *
-     * @param string $fields List of fields to concat to other fields
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function select($fields) {
 
         if (!empty($fields)) {
@@ -126,17 +106,6 @@ class DbQuery {
         return $this;
     }
 
-    /**
-     * Sets table for FROM clause
-     *
-     * @param string      $table Table name
-     * @param string|null $alias Table alias
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function from($table, $alias = null, $table2 = null, $alias2 = null) {
 
         if (!empty($table)) {
@@ -173,17 +142,6 @@ class DbQuery {
         return $this;
     }
 
-    /**
-     * Adds JOIN clause
-     * E.g. $this->join('RIGHT JOIN '.$this->dbprefix.'product p ON ...');
-     *
-     * @param string $join Complete string
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function join($join) {
 
         if (!empty($join)) {
@@ -193,18 +151,6 @@ class DbQuery {
         return $this;
     }
 
-    /**
-     * Adds a LEFT JOIN clause
-     *
-     * @param string      $table Table name (without prefix)
-     * @param string|null $alias Table alias
-     * @param string|null $on    ON clause
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function leftJoin($table, $alias = null, $on = null) {
 
         if (strncmp($this->dbprefix, $table, strlen($this->dbprefix)) !== 0) {
@@ -214,19 +160,6 @@ class DbQuery {
         return $this->join('LEFT JOIN `' . bqSQL($table) . '`' . ($alias ? ' `' . pSQL($alias) . '`' : '') . ($on ? ' ON ' . $on : ''));
     }
 
-    /**
-     * Adds an INNER JOIN clause
-     * E.g. $this->innerJoin('product p ON ...')
-     *
-     * @param string      $table Table name (without prefix)
-     * @param string|null $alias Table alias
-     * @param string|null $on    ON clause
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function innerJoin($table, $alias = null, $on = null) {
 
         if (strncmp($this->dbprefix, $table, strlen($this->dbprefix)) !== 0) {
@@ -236,18 +169,6 @@ class DbQuery {
         return $this->join('INNER JOIN `' . bqSQL($table) . '`' . ($alias ? ' ' . pSQL($alias) : '') . ($on ? ' ON ' . $on : ''));
     }
 
-    /**
-     * Adds a LEFT OUTER JOIN clause
-     *
-     * @param string      $table Table name (without prefix)
-     * @param string|null $alias Table alias
-     * @param string|null $on    ON clause
-     *
-     * @return DbQuery
-     *
-     *@since 1.0.0
-     * @version 1.8.1.0 Initial version
-     */
     public function leftOuterJoin($table, $alias = null, $on = null) {
 
         if (strncmp($this->dbprefix, $table, strlen($this->dbprefix)) !== 0) {
@@ -257,17 +178,6 @@ class DbQuery {
         return $this->join('LEFT OUTER JOIN `' . bqSQL($table) . '`' . ($alias ? ' ' . pSQL($alias) : '') . ($on ? ' ON ' . $on : ''));
     }
 
-    /**
-     * Adds a NATURAL JOIN clause
-     *
-     * @param string      $table Table name (without prefix)
-     * @param string|null $alias Table alias
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function naturalJoin($table, $alias = null) {
 
         if (strncmp($this->dbprefix, $table, strlen($this->dbprefix)) !== 0) {
@@ -277,18 +187,6 @@ class DbQuery {
         return $this->join('NATURAL JOIN `' . bqSQL($table) . '`' . ($alias ? ' ' . pSQL($alias) : ''));
     }
 
-    /**
-     * Adds a RIGHT JOIN clause
-     *
-     * @param string      $table Table name (without prefix)
-     * @param string|null $alias Table alias
-     * @param string|null $on    ON clause
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function rightJoin($table, $alias = null, $on = null) {
 
         if (strncmp($this->dbprefix, $table, strlen($this->dbprefix)) !== 0) {
@@ -316,16 +214,6 @@ class DbQuery {
         return $this;
     }
 
-    /**
-     * Adds a restriction in WHERE clause (each restriction will be separated by AND statement)
-     *
-     * @param string $restriction
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function where($restriction) {
 
         if (!empty($restriction)) {
@@ -335,16 +223,6 @@ class DbQuery {
         return $this;
     }
 
-    /**
-     * Adds a restriction in HAVING clause (each restriction will be separated by AND statement)
-     *
-     * @param string $restriction
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function having($restriction) {
 
         if (!empty($restriction)) {
@@ -354,16 +232,6 @@ class DbQuery {
         return $this;
     }
 
-    /**
-     * Adds an ORDER BY restriction
-     *
-     * @param string $fields List of fields to sort. E.g. $this->order('myField, b.mySecondField DESC')
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function orderBy($fields) {
 
         if (!empty($fields)) {
@@ -373,16 +241,6 @@ class DbQuery {
         return $this;
     }
 
-    /**
-     * Adds a GROUP BY restriction
-     *
-     * @param string $fields List of fields to group. E.g. $this->group('myField1, myField2')
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function groupBy($fields) {
 
         if (!empty($fields)) {
@@ -392,17 +250,6 @@ class DbQuery {
         return $this;
     }
 
-    /**
-     * Sets query offset and limit
-     *
-     * @param int $limit
-     * @param int $offset
-     *
-     * @return DbQuery
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function limit($limit, $offset = 0) {
 
         $offset = (int) $offset;
@@ -419,15 +266,6 @@ class DbQuery {
         return $this;
     }
 
-    /**
-     * Generates query and return SQL string
-     *
-     * @return string
-     * @throws PhenyxException
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function build() {
 
         if ($this->query['type'] == 'SELECT') {
@@ -438,7 +276,10 @@ class DbQuery {
         } else
         if ($this->query['type'] == 'INSERT') {
             $sql = 'INSERT ' . (isset($this->query['insert']) ? implode(",\n", $this->query['insert']) : '') . "\n";
-        } else {
+        } else
+        if ($this->query['type'] == 'REPLACE') {
+            $sql = 'REPLACE ' . (isset($this->query['insert']) ? implode(",\n", $this->query['insert']) : '') . "\n";
+        }else {
             $sql = $this->query['type'] . ' ';
         }
 
@@ -449,7 +290,7 @@ class DbQuery {
         if ($this->query['type'] == 'UPDATE') {
             $sql .= implode(', ', $this->query['from']) . ' SET ' . implode(', ', $this->query['set']) . "\n";
         } else
-        if ($this->query['type'] == 'INSERT') {
+        if ($this->query['type'] == 'INSERT' || $this->query['type'] == 'REPLACE') {
             $sql .= 'INTO ' . implode(', ', $this->query['from']) . ' (' . implode(', ', $this->query['fields']) . ') VALUES (' . implode(', ', $this->query['values']) . ') ' . "\n";
         } else {
             $sql .= 'FROM ' . implode(', ', $this->query['from']) . "\n";
@@ -487,14 +328,6 @@ class DbQuery {
         return $sql;
     }
 
-    /**
-     * Converts object to string
-     *
-     * @return string
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function __toString() {
 
         return $this->build();
