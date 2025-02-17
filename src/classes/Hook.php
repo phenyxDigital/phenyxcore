@@ -296,7 +296,7 @@ class Hook extends PhenyxObjectModel {
 
         if ($this->context->cache_enable && is_object($this->context->cache_api)) {
             $temp = $collection === null ? null : Tools::jsonEncode($collection);
-            $this->context->cache_api->putData($cacheId, $temp, 1864000);
+            $this->context->cache_api->putData($cacheId, $temp);
         }
 
         return $collection;

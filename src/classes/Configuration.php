@@ -391,7 +391,7 @@ class Configuration extends PhenyxObjectModel {
         
         if($this->context->cache_enable && is_object($this->context->cache_api)) {
             $temp = $rows === null ? null : Tools::jsonEncode($rows);
-            $this->context->cache_api->putData('loadConfigurationFromDB', $temp, 864000);
+            $this->context->cache_api->putData('loadConfigurationFromDB', $temp);
         }	
 
         foreach ($rows as $row) {
