@@ -699,7 +699,7 @@ class Media {
         }
 
         // get compressed css file infos
-        $version = (int) $this->context->phenyxConfig->get('EPH_CCCCSS_VERSION');
+        $version = (int) $this->context->phenyxConfig->get('EPH_ADCCCCSS_VERSION');
 
         foreach ($compressedCssFilesInfos as $media => &$info) {
             $key = md5($info['key'] . $protocolLink);
@@ -716,7 +716,7 @@ class Media {
             if ($mediaInfos['date'] > $compressedCssFilesInfos[$media]['date']) {
 
                 if ($compressedCssFilesInfos[$media]['date']) {
-                    Context::getContext()->phenyxConfig->updateValue('EPH_CCCCSS_VERSION', ++$version);
+                    Context::getContext()->phenyxConfig->updateValue('EPH_ADCCCCSS_VERSION', ++$version);
                     break;
                 }
 
@@ -953,7 +953,7 @@ class Media {
 
         // get compressed js file infos
         $compressedJsFilename = md5($compressedJsFilename);
-        $version = (int) $this->context->phenyxConfig->get('EPH_CCCJS_VERSION');
+        $version = (int) $this->context->phenyxConfig->get('EPH_ADCCCJS_VERSION');
         $compressedJsPath = $cachePath . 'v_' . $version . '_' . $compressedJsFilename . '.js';
         $compressedJsFileDate = (int) @filemtime($compressedJsPath);
 
@@ -962,7 +962,7 @@ class Media {
         if ($jsFilesDate > $compressedJsFileDate) {
 
             if ($compressedJsFileDate) {
-                $this->context->phenyxConfig->updateValue('EPH_CCCJS_VERSION', ++$version);
+                $this->context->phenyxConfig->updateValue('EPH_ADCCCJS_VERSION', ++$version);
             }
 
             $compressedJsPath = $cachePath . 'v_' . $version . '_' . $compressedJsFilename . '.js';
