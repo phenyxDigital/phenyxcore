@@ -796,7 +796,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         
         if (isset($this->def['have_meta']) && $this->def['have_meta']) {
             
-            $sql = 'REPLACE INTO `' . _DB_PREFIX_ . $this->def['table'].'` (' . pSQL($this->def['primary']) . ') VALUES ('.$this->id.')';
+            $sql = 'REPLACE INTO `' . _DB_PREFIX_ . $this->def['table'].'_meta` (' . pSQL($this->def['primary']) . ') VALUES ('.$this->id.')';
             Db::getInstance()->execute($sql);       
             if (!$result &= Db::getInstance()->update($this->def['table']. '_meta', $this->getFieldsMeta(), '`' . pSQL($this->def['primary']) . '` = ' . (int) $this->id, 0, $nullValues)) {
                 return false;
