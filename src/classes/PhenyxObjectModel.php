@@ -606,6 +606,10 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
                || ($type == static::FORMAT_COMMON && !empty($data['meta']))) {
                 continue;
             }
+            
+            if (($type == static::FORMAT_COMMON && !empty($data['meta']))) {
+                continue;
+            }
 
             if (is_array($this->update_fields)) {
 
