@@ -5,7 +5,7 @@ extract(vc_map_get_attributes($this->getShortcode(), $atts));
 
 $el_class = $this->getExtraClass($el_class);
 
-$css_class = 'wpb_text_column wpb_content_element ' . $el_class . shortcode_custom_css_class($css, ' ');
+$css_class = 'wpb_text_column  ' . $el_class . shortcode_custom_css_class($css, ' ');
 
 if (isset($css) && !empty($css)) {
 	$css_out = '<style>' . $css . '</style>';
