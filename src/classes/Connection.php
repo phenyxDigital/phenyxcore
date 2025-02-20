@@ -159,6 +159,13 @@ class Connection extends PhenyxObjectModel {
 
             $connection->add();
             $cookie->id_connections = $connection->id;
+            Db::getInstance()->execute(
+                (new DbQuery())
+                ->type('UPDATE')
+                ->from('guest')
+                ->set('`last_activity` = "'.time().'"')
+                ->where('`id_guest` = '. (int) $cookie->id_guest)
+            ); 
 
             return $connection->id_page;
         }

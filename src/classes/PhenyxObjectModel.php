@@ -386,7 +386,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         
         if (isset($def['have_meta']) && $def['have_meta']) {
             $sql->select('c.*');
-            $sql->leftJoin($def['table'] . '_meta', 'c', 'a.`' . bqSQL($def['primary']) . '` = c.`' . bqSQL($def['primary']) );
+            $sql->leftJoin($def['table'] . '_meta', 'c', 'a.`' . bqSQL($def['primary']) . '` = c.`' . bqSQL($def['primary']).'`' );
 
         }
 
