@@ -207,6 +207,8 @@ abstract class PhenyxController {
     public $paramTable;
 
     public $paramIdentifier;
+    
+    public $ajax_layout;
 
     public function getExtraPhenyxVars() {
 
@@ -341,6 +343,8 @@ abstract class PhenyxController {
         $this->context->phenyxgrid->create = 'function (evt, ui) {
             buildHeadingAction(\'' . 'grid_' . $this->controller_name . '\', \'' . $this->controller_name . '\');
         }';
+        
+        $this->ajax_layout = $this->getAjaxLayout();
 
     }
 
@@ -1051,6 +1055,7 @@ abstract class PhenyxController {
 
     protected function afterUpdate() {
 
+        $this->context->smarty->clearCache($this->ajax_layout, $this->php_self);
         return true;
     }
 
@@ -1841,10 +1846,8 @@ abstract class PhenyxController {
     }
 
     public function ajaxDisplay() {
-
-        $layout = $this->getAjaxLayout();
-
-        if ($layout) {
+        
+        if ($this->ajax_layout) {
 
             $defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
 
@@ -1911,7 +1914,7 @@ abstract class PhenyxController {
                 ]
             );
             
-            $content = $this->context->smarty->fetch($layout, $this->php_self);
+            $content = $this->context->smarty->fetch($this->ajax_layout, $this->php_self);
             $this->context->smarty->setCaching(\Smarty\Smarty::CACHING_OFF);
             $this->ajaxShowContent($content);
         }
@@ -1919,10 +1922,9 @@ abstract class PhenyxController {
     }
 
     public function refeshDisplay() {
+        
 
-        $layout = $this->getAjaxLayout();
-
-        if ($layout) {
+        if ($this->ajax_layout) {
 
             $defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
 
@@ -1988,7 +1990,7 @@ abstract class PhenyxController {
                 ]
             );
 
-            $content = $this->context->smarty->fetch($layout);
+            $content = $this->context->smarty->fetch($this->ajax_layout);
             return $this->showContent($content);
         } else {
 
