@@ -69,6 +69,18 @@ class TopMenuColumnWrap extends PhenyxObjectModel {
         }
     }
     
+    public static function buildObject($id, $id_lang = null, $className = null, $full = true) {
+                
+        $objectData = parent::buildObject($id, $id_lang, $className);
+        $objectData['chosen_groups'] = Tools::jsonDecode($objectData['chosen_groups']);
+        $objectData['columns'] = self::getStaticMenuColums($objectData);
+        
+        
+       
+        return Tools::jsonDecode(Tools::jsonEncode($objectData));
+    }    
+    
+    
     public function getMenuColums() {
         
         if($this->context->cache_enable && is_object($this->context->cache_api)) {
@@ -94,6 +106,37 @@ class TopMenuColumnWrap extends PhenyxObjectModel {
         if($this->context->cache_enable && is_object($this->context->cache_api)) {
             $temp = $column === null ? null : Tools::jsonEncode($column);
             $this->context->cache_api->putData('getMenuColums_'.$this->id, $temp);
+        }	
+        
+        return $column;
+    }
+    
+    public static function getStaticMenuColums($objectData) {
+        
+        $context = Context::getContext();
+        if($context->cache_enable && is_object($context->cache_api)) {
+            $value = $context->cache_api->getData('getMenuColums_'.$objectData['id'], 864000);
+            $temp = empty($value) ? null : Tools::jsonDecode($value);
+            if(!empty($temp)) {
+                return $temp;
+            }
+        }
+        
+        $column = [];
+        
+        $columns = new PhenyxCollection('TopMenuColumn', $context->language->id);
+        $columns->where('id_topmenu_columns_wrap', '=', $objectData['id']);
+        if(!PhenyxObjectModel::$admin_request) {
+            $columns->where('active', '=', 1);
+        }
+        $columns->orderBy('position');
+        
+        foreach($columns as $wrap) {
+            $column[] = TopMenuColumn::buildObject($wrap->id, $context->language->id);
+        }
+        if($context->cache_enable && is_object($context->cache_api)) {
+            $temp = $column === null ? null : Tools::jsonEncode($column);
+            $context->cache_api->putData('getMenuColums_'.$objectData['id'], $temp);
         }	
         
         return $column;

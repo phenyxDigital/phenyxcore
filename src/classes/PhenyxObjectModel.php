@@ -38,6 +38,8 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
     protected static $instance;
 
     public static $hook_instance;
+    
+    public static $admin_request = false;
 
     // @codingStandardsIgnoreStart
     /** @var int Object ID */
@@ -372,7 +374,18 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         if(is_null($className)) {
             $className = get_called_class();
         }
+        $_hook = Hook::getInstance();
         $def = PhenyxObjectModel::getDefinition($className);
+        $extraVars = $_hook->exec('action' . $className . 'GetExtraVars', [], null, true);
+        if (is_array($extraVars) && count($extraVars)) {
+            foreach ($extraVars as $plugin => $vars) {
+                if (is_array($vars) && count($vars)) {
+                    foreach ($vars as $key => $value) {
+                        $def['fields'][$key] = $value;
+                    }
+                }
+            }
+        }
         $sql = new DbQuery();
         $sql->select('a.`' . bqSQL($def['primary']) . '` as `id`, a.*');
         $sql->from($def['table'], 'a');
@@ -1750,6 +1763,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         if (is_object($class)) {
             $class = get_class($class);
         }
+        
 
         if ($field === null) {
             $cacheId = 'PhenyxObjectModel_def_' . $class;
@@ -1763,7 +1777,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             }
 
             $definition = $reflection->getStaticPropertyValue('definition');
-
+            
             $definition['classname'] = $class;
 
             if (!empty($definition['multilang'])) {

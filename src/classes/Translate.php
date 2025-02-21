@@ -457,7 +457,8 @@ class Translate {
 
             $currentKey = trim(strtolower('<{' . $name . '}' . $theme . '>' . $source) . '_' . $key);
             $defaultKey = trim(strtolower('<{' . $name . '}ephenyx>' . $source) . '_' . $key);
-            $PhenyxShopKey = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) . '_' . $key);        
+            $PhenyxShopKey = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) . '_' . $key);   
+            $PhenyxShopKey2 = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) .  $key); 
 
             if ('controller' == substr($source, -10, 10)) {
                 $file = substr($source, 0, -10);
@@ -488,6 +489,14 @@ class Translate {
 
             if (!empty($_PLUGINS[$defaultKey])) {
                 $ret = stripslashes($_PLUGINS[$defaultKey]);
+                if ($sprintf !== null) {
+                    $ret = $this->checkAndReplaceArgs($ret, $sprintf);
+                }
+                return $ret;
+            } else
+
+            if (!empty($_PLUGINS[$PhenyxShopKey])) {
+                $ret = stripslashes($_PLUGINS[$PhenyxShopKey]);
                 if ($sprintf !== null) {
                     $ret = $this->checkAndReplaceArgs($ret, $sprintf);
                 }
