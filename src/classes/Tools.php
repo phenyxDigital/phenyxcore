@@ -5687,6 +5687,14 @@ FileETag none
 
     public static function generateTabs(Context $context, $use_cache = true) {
         
+        if($use_cache && $context->cache_enable && is_object($context->cache_api)) {
+            $value = $context->cache_api->getData('generateTabs');
+            $temp = empty($value) ? null : Tools::jsonDecode($value, true);
+            if(!empty($temp)) {
+                return $temp;
+            }
+        }
+        
         $hookBars = Hook::getInstance()->exec('actionAdminTabs', [], null, true);
 
         if (is_array($hookBars)) {
@@ -5808,6 +5816,11 @@ FileETag none
             }
 
         }
+        
+        if($context->cache_enable && is_object($context->cache_api)) {
+            $temp = $topbars === null ? null : Tools::jsonEncode($topbars);
+            $context->cache_api->putData('generateTabs', $temp);
+        }	
 
         return $topbars;
     }

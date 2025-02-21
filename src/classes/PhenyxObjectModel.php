@@ -374,9 +374,9 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         if(is_null($className)) {
             $className = get_called_class();
         }
-        $_hook = Hook::getInstance();
+        
         $def = PhenyxObjectModel::getDefinition($className);
-        $extraVars = $_hook->exec('action' . $className . 'GetExtraVars', [], null, true);
+        $extraVars = Hook::getInstance()->exec('action' . $className . 'GetExtraVars', [], null, true);
         if (is_array($extraVars) && count($extraVars)) {
             foreach ($extraVars as $plugin => $vars) {
                 if (is_array($vars) && count($vars)) {
