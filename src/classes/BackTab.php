@@ -733,7 +733,7 @@ class BackTab extends PhenyxObjectModel {
 
                 $meta->add();
             }
-            Tools::generateTabs($this->context, false);
+            
 
             return true;
         }
@@ -765,7 +765,7 @@ class BackTab extends PhenyxObjectModel {
     public function delete() {
 
         Db::getInstance()->execute('DELETE FROM `' . _DB_PREFIX_ . 'employee_access` WHERE `id_back_tab` = ' . (int) $this->id);
-        Tools::generateTabs($this->context, false);
+        
         return parent::delete();
     }
 
@@ -774,7 +774,7 @@ class BackTab extends PhenyxObjectModel {
         static::$_cache_back_tab = [];
 
         if (parent::update($nullValues)) {
-            Tools::generateTabs($this->context, false);
+            
             if ($init) {
                 return BackTab::initAccess($this);
             }
