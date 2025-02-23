@@ -3694,7 +3694,7 @@ abstract class PhenyxController {
                 <tr><td>' . $this->la('Memory limit') . '</td><td>' . ini_get('memory_limit') . '</td></tr>
                 <tr><td>' . $this->la('Max execution time') . '</td><td>' . ini_get('max_execution_time') . 's</td></tr>
                 <tr><td>' . $this->la('Smarty cache') . '</td><td><span style="color:' . ($this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED') ? 'green">enabled' : 'red">disabled') . '</td></tr>
-                <tr><td>' . $this->la('Smarty Compilation') . '</td><td><span style="color:' . ($compileType == 'AwsRedis' ? 'green">' . $this->la('Redis') : '#EF8B00">' . $compileType) . '</td></tr>
+                <tr><td>' . $this->la('Smarty Compilation') . '</td><td><span style="color:' . (in_array($compileType, ['CacheApcu', 'AwsRedis']) ? 'green">' . $this->la('Redis') : '#EF8B00">' . $compileType) . '</td></tr>
             </table>
         </div>';
     }
