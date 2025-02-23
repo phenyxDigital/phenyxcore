@@ -1,7 +1,7 @@
 <?php
 
-use Detection\Exception\MobileDetectException;
-use Detection\MobileDetect;
+use Detection\Exception\DeviceDetectException;
+use Detection\DeviceDetect;
 #[AllowDynamicProperties]
 
 /**
@@ -77,6 +77,8 @@ class Context {
     public $cache_api;
     
     public $phenyxtool;
+    
+    public $_tools;
     
     public $phenyxgrid;
     
@@ -214,8 +216,8 @@ class Context {
 	public function isMobile() {
 
 		if ($this->is_mobile === null) {
-			$mobileDetect = $this->getMobileDetect();
-			$this->is_mobile = $mobileDetect->isMobile();
+			$DeviceDetect = $this->getMobileDetect();
+			$this->is_mobile = $DeviceDetect->isMobile();
 		}
 
 		return $this->is_mobile;
@@ -231,7 +233,7 @@ class Context {
 	public function getMobileDetect() {
 
 		if ($this->mobile_detect === null) {
-			$this->mobile_detect = new MobileDetect();
+			$this->mobile_detect = new DeviceDetect();
 		}
 
 		return $this->mobile_detect;
