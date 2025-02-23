@@ -40,7 +40,7 @@ class PhenyxTool {
     
     public function __construct() {
         
-        $this->context = $this->context;
+        $this->context = Context::getContext();
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = new Configuration();            
         }
@@ -6272,55 +6272,4 @@ FileETag none
     }
 
 
-}
-
-/**
- * Compare 2 prices to sort products
- *
- * @param float $a
- * @param float $b
- *
- * @return int
- *
- * @since 1.9.1.0
- * @version 1.8.1.0 Initial version
- *
- * @todo    : move into class
- */
-/* Externalized because of a bug in PHP 5.1.6 when inside an object */
-function cmpPriceAsc($a, $b) {
-
-    if ((float) $a['price_tmp'] < (float) $b['price_tmp']) {
-        return (-1);
-    } else
-
-    if ((float) $a['price_tmp'] > (float) $b['price_tmp']) {
-        return (1);
-    }
-
-    return 0;
-}
-
-/**
- * @param $a
- * @param $b
- *
- * @return int
- *
- * @since 1.9.1.0
- * @version 1.8.1.0 Initial version
- *
- * @todo    : move into class
- */
-function cmpPriceDesc($a, $b) {
-
-    if ((float) $a['price_tmp'] < (float) $b['price_tmp']) {
-        return 1;
-    } else
-
-    if ((float) $a['price_tmp'] > (float) $b['price_tmp']) {
-        return -1;
-    }
-
-    return 0;
 }

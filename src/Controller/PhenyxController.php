@@ -291,6 +291,8 @@ abstract class PhenyxController {
             $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
         }
         
+        $this->context->_tools = PhenyxTool::getInstance();
+        
         $this->context->phenyxgrid = new ParamGrid();
 
         $this->context->smarty->assign([
