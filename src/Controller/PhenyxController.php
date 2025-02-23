@@ -282,16 +282,18 @@ abstract class PhenyxController {
         if (!isset($this->context->link)) {
             $this->context->link = new Link();
         }
-
+        if (!isset($this->context->_tools)) {
+            $this->context->_tools = PhenyxTool::getInstance();
+        }
         if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+            $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
 
         if (!isset($this->context->translations)) {
             $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
         }
         
-        $this->context->_tools = PhenyxTool::getInstance();
+        
         
         $this->context->phenyxgrid = new ParamGrid();
 
@@ -316,7 +318,7 @@ abstract class PhenyxController {
 
         $this->getExtraPhenyxVars();
 
-        $this->ajax = Tools::getValue('ajax') || Tools::isSubmit('ajax');
+        $this->ajax = $this->context->_tools->getValue('ajax') || $this->context->_tools->isSubmit('ajax');
 
         if (!headers_sent()
             && isset($_SERVER['HTTP_USER_AGENT'])
@@ -675,9 +677,9 @@ abstract class PhenyxController {
 
     public function ajaxProcessSwitchAdminLanguage() {
 
-        $idLang = Tools::getValue('id_lang');
+        $idLang = $this->context->_tools->getValue('id_lang');
 
-        $language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject((int) $idLang)));
+        $language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject((int) $idLang)));
 
         if (Validate::isLoadedObject($language) && $language->active) {
             $this->context->cookie->id_lang = $idLang;
@@ -692,17 +694,17 @@ abstract class PhenyxController {
             'link' => $this->context->link->getAdminLink('admindashboard'),
         ];
 
-        die(Tools::jsonEncode($result));
+        die($this->context->_tools->jsonEncode($result));
     }
 
     public function ajaxProcessSetLanguage() {
 
-        $idLang = Tools::getValue('id_lang');
+        $idLang = $this->context->_tools->getValue('id_lang');
         $cookieIdLang = $this->context->cookie->id_lang;
         $configurationIdLang = $this->context->phenyxConfig->get('EPH_LANG_DEFAULT');
 
         $this->context->cookie->id_lang = $idLang;
-        $language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject((int) $idLang)));
+        $language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject((int) $idLang)));
 
         if (Validate::isLoadedObject($language) && $language->active) {
             $this->_language = $this->context->language = $language;
@@ -731,7 +733,7 @@ abstract class PhenyxController {
             'success' => true
         ];
 
-        die(Tools::jsonEncode($result));
+        die($this->context->_tools->jsonEncode($result));
     }
 
     public function generateParaGridToolBar() {
@@ -935,7 +937,7 @@ abstract class PhenyxController {
             if ($this->viewAccess()) {
                 $this->initContent();
             } else {
-                $this->errors[] = Tools::displayError('Access denied.');
+                $this->errors[] = $this->context->_tools->displayError('Access denied.');
             }
 
             if (!$this->content_only && ($this->display_footer || (isset($this->className) && $this->className))) {
@@ -943,7 +945,7 @@ abstract class PhenyxController {
             }
 
             if ($this->ajax) {
-                $action = Tools::toCamelCase(Tools::getValue('action'), true);
+                $action = $this->context->_tools->toCamelCase($this->context->_tools->getValue('action'), true);
 
                 if (!empty($action) && method_exists($this, 'displayAjax' . $action)) {
                     $this->{'displayAjax' . $action}
@@ -992,11 +994,11 @@ abstract class PhenyxController {
         }
 
         if (!defined('_EPH_BASE_URL_')) {
-            define('_EPH_BASE_URL_', Tools::getDomain(true));
+            define('_EPH_BASE_URL_', $this->context->_tools->getDomain(true));
         }
 
         if (!defined('_EPH_BASE_URL_SSL_')) {
-            define('_EPH_BASE_URL_SSL_', Tools::getDomainSsl(true));
+            define('_EPH_BASE_URL_SSL_', $this->context->_tools->getDomainSsl(true));
         }
 
     }
@@ -1111,13 +1113,13 @@ abstract class PhenyxController {
 
             if ($defer && $this->ajax) {
 
-                die(Tools::jsonEncode(['html', $html . $javascript]));
+                die($this->context->_tools->jsonEncode(['html', $html . $javascript]));
 
             } else {
                 echo preg_replace('/(?<!\$)' . $jsTag . '/', $javascript, $html);
             }
 
-            echo ((!Tools::getIsset($this->ajax) || !$this->ajax) ? '</body></html>' : '');
+            echo ((!$this->context->_tools->getIsset($this->ajax) || !$this->ajax) ? '</body></html>' : '');
 
         } else {
             echo $html;
@@ -1180,11 +1182,11 @@ abstract class PhenyxController {
         }
 
         if (!is_null($this->cacheId) && $this->cachable && $this->context->cache_enable) {
-            $temp = $return === null ? null : Tools::jsonEncode($return);
+            $temp = $return === null ? null : $this->context->_tools->jsonEncode($return);
             $this->context->cache_api->putData($this->cacheId, $temp, 1864000);
         }
 
-        die(Tools::jsonEncode($return));
+        die($this->context->_tools->jsonEncode($return));
 
     }
 
@@ -1685,7 +1687,7 @@ abstract class PhenyxController {
 
     public function ajaxProcessRefreshTargetController() {
 
-        $args = Tools::getValue('args');
+        $args = $this->context->_tools->getValue('args');
         $this->paragridScript = $this->generateParaGridScript();
         $this->setAjaxMedia();
         $data = $this->createTemplate($this->table . '.tpl');
@@ -1769,10 +1771,10 @@ abstract class PhenyxController {
 
                 if (is_object($this->context->cache_api)) {
                     $value = $this->context->cache_api->getData($this->cacheId);
-                    $result = empty($value) ? null : Tools::jsonDecode($value, true);
+                    $result = empty($value) ? null : $this->context->_tools->jsonDecode($value, true);
 
                     if (!empty($temp)) {
-                        die(Tools::jsonEncode($result));
+                        die($this->context->_tools->jsonEncode($result));
 
                     }
 
@@ -1859,10 +1861,10 @@ abstract class PhenyxController {
 
                     if (is_object($this->context->cache_api)) {
                         $value = $this->context->cache_api->getData($this->cacheId);
-                        $result = empty($value) ? null : Tools::jsonDecode($value, true);
+                        $result = empty($value) ? null : $this->context->_tools->jsonDecode($value, true);
 
                         if (!empty($temp)) {
-                            die(Tools::jsonEncode($result));
+                            die($this->context->_tools->jsonEncode($result));
 
                         }
 
@@ -1887,7 +1889,7 @@ abstract class PhenyxController {
 
             }
 
-            $controller = Tools::getValue('controller');
+            $controller = $this->context->_tools->getValue('controller');
 
             $this->context->smarty->assign(
                 [
@@ -1936,10 +1938,10 @@ abstract class PhenyxController {
 
                     if (is_object($this->context->cache_api)) {
                         $value = $this->context->cache_api->getData($this->cacheId);
-                        $result = empty($value) ? null : Tools::jsonDecode($value, true);
+                        $result = empty($value) ? null : $this->context->_tools->jsonDecode($value, true);
 
                         if (!empty($temp)) {
-                            die(Tools::jsonEncode($result));
+                            die($this->context->_tools->jsonEncode($result));
 
                         }
 
@@ -1963,7 +1965,7 @@ abstract class PhenyxController {
 
             }
 
-            $controller = Tools::getValue('controller');
+            $controller = $this->context->_tools->getValue('controller');
 
             $this->context->smarty->assign(
                 [
@@ -2132,13 +2134,13 @@ abstract class PhenyxController {
             } else {
 
                 if (!is_null($this->cacheId) && $this->cachable && $this->context->cache_enable) {
-                    $temp = Tools::jsonEncode($result);
+                    $temp = $this->context->_tools->jsonEncode($result);
                     $this->context->cache_api->putData($this->cacheId, $temp, 1864000);
                 }
 
             }
 
-            die(Tools::jsonEncode($result));
+            die($this->context->_tools->jsonEncode($result));
 
         }
 
@@ -2150,7 +2152,7 @@ abstract class PhenyxController {
 
         if ($this->tabAccess['edit'] == 1) {
 
-            $idObject = Tools::getValue('idObject');
+            $idObject = $this->context->_tools->getValue('idObject');
 
             $_GET[$this->identifier] = $idObject;
             $_GET['controller'] = $this->controller_name;
@@ -2169,7 +2171,7 @@ abstract class PhenyxController {
             ];
         }
 
-        die(Tools::jsonEncode($result));
+        die($this->context->_tools->jsonEncode($result));
     }
 
     public function ajaxProcessAddObject() {
@@ -2177,7 +2179,7 @@ abstract class PhenyxController {
         $this->checkAccess();
         $_GET['controller'] = $this->controller_name;
         $_GET['add' . $this->table] = "";
-        $_GET['id_parent'] = Tools::getValue('idParent', '');
+        $_GET['id_parent'] = $this->context->_tools->getValue('idParent', '');
 
         $scripHeader = $this->context->_hook->exec('displayBackOfficeHeader', []);
         $scriptFooter = $this->context->_hook->exec('displayBackOfficeFooter', []);
@@ -2210,7 +2212,7 @@ abstract class PhenyxController {
 
             }
 
-            $controller = Tools::getValue('controller');
+            $controller = $this->context->_tools->getValue('controller');
 
             $this->context->smarty->assign(
                 [
@@ -2316,7 +2318,7 @@ abstract class PhenyxController {
                 $result['profiling'] = $this->displayProfiling();
             }
 
-            die(Tools::jsonEncode($result));
+            die($this->context->_tools->jsonEncode($result));
 
         }
 
@@ -2324,7 +2326,7 @@ abstract class PhenyxController {
 
     public function generateTabs(Context $context, $use_cache = true) {
 
-        return Tools::generateTabs($context, $use_cache);
+        return $this->context->_tools->generateTabs($context, $use_cache);
     }
 
     protected function initTabPluginList() {
@@ -2342,8 +2344,8 @@ abstract class PhenyxController {
                 [
                     'tab_plugins_list'      => implode(',', $this->tab_plugins_list['slider_list']),
                     'admin_plugin_ajax_url' => $this->context->link->getAdminLink('AdminPlugins'),
-                    'back_tab_plugins_list' => $this->context->link->getAdminLink(Tools::getValue('controller')),
-                    'tab_plugins_open'      => (int) Tools::getValue('tab_plugins_open'),
+                    'back_tab_plugins_list' => $this->context->link->getAdminLink($this->context->_tools->getValue('controller')),
+                    'tab_plugins_open'      => (int) $this->context->_tools->getValue('tab_plugins_open'),
                 ]
             );
         }
@@ -2417,7 +2419,7 @@ abstract class PhenyxController {
 
         if ($this->tabAccess['edit'] == 1) {
 
-            $idObject = Tools::getValue('idObject');
+            $idObject = $this->context->_tools->getValue('idObject');
             $objet = new $this->className($idObject);
             $this->object = $objet->duplicateObject();
 
@@ -2443,15 +2445,15 @@ abstract class PhenyxController {
             ];
         }
 
-        die(Tools::jsonEncode($result));
+        die($this->context->_tools->jsonEncode($result));
     }
 
     public function ajaxProcessDeleteObject() {
 
         $this->checkAccess();
-        $idObject = Tools::getValue('idObject');
+        $idObject = $this->context->_tools->getValue('idObject');
 
-        $this->className = Tools::getValue('targetClass');
+        $this->className = $this->context->_tools->getValue('targetClass');
 
         $this->object = new $this->className($idObject);
 
@@ -2462,14 +2464,14 @@ abstract class PhenyxController {
             'message' => $this->la('The deletion was successful.'),
         ];
 
-        die(Tools::jsonEncode($result));
+        die($this->context->_tools->jsonEncode($result));
     }
 
     public function ajaxProcessUpdateObject() {
 
         $this->checkAccess();
-        $has_keyword = Tools::getValue('has_keyword');
-        $idObject = Tools::getValue($this->identifier);
+        $has_keyword = $this->context->_tools->getValue('has_keyword');
+        $idObject = $this->context->_tools->getValue($this->identifier);
         $this->object = new $this->className($idObject);
 
         $this->copyFromPost($this->object, $this->table, $has_keyword);
@@ -2494,7 +2496,7 @@ abstract class PhenyxController {
             ];
         }
 
-        die(Tools::jsonEncode($return));
+        die($this->context->_tools->jsonEncode($return));
     }
 
     public function ajaxProcessAddNewObject() {
@@ -2524,7 +2526,7 @@ abstract class PhenyxController {
 
         }
 
-        die(Tools::jsonEncode($return));
+        die($this->context->_tools->jsonEncode($return));
 
     }
 
@@ -2544,9 +2546,9 @@ abstract class PhenyxController {
 
     protected function isCached($template, $cacheId = null, $compileId = null) {
 
-        Tools::enableCache();
+        $this->context->_tools->enableCache();
         $res = $this->context->smarty->isCached($template, $cacheId, $compileId);
-        Tools::restoreCacheSettings();
+        $this->context->_tools->restoreCacheSettings();
 
         return $res;
     }
@@ -2733,7 +2735,7 @@ abstract class PhenyxController {
 
         }
 
-        return Tools::getValue($key . ($idLang ? '_' . $idLang : ''), $defaultValue);
+        return $this->context->_tools->getValue($key . ($idLang ? '_' . $idLang : ''), $defaultValue);
     }
 
     public function renderView() {
@@ -2770,7 +2772,7 @@ abstract class PhenyxController {
             $this->getLanguages();
         }
 
-        if (Tools::getValue('submitFormAjax')) {
+        if ($this->context->_tools->getValue('submitFormAjax')) {
             $this->content .= $this->context->smarty->fetch('form_submit_ajax.tpl');
         }
 
@@ -2803,8 +2805,8 @@ abstract class PhenyxController {
             $fieldsValue = $this->getFieldsValue($this->object);
 
             if ($this->tabList == true) {
-                $this->tpl_form_vars['controller'] = Tools::getValue('controller');
-                $this->tpl_form_vars['tabScript'] = $this->generateTabScript(Tools::getValue('controller'));
+                $this->tpl_form_vars['controller'] = $this->context->_tools->getValue('controller');
+                $this->tpl_form_vars['tabScript'] = $this->generateTabScript($this->context->_tools->getValue('controller'));
             }
 
             $has_editor = false;
@@ -2848,7 +2850,7 @@ abstract class PhenyxController {
             $this->getLanguages();
         }
 
-        if (Tools::getValue('submitFormAjax')) {
+        if ($this->context->_tools->getValue('submitFormAjax')) {
             $this->content .= $this->context->smarty->fetch('form_submit_ajax.tpl');
         }
 
@@ -2933,7 +2935,7 @@ abstract class PhenyxController {
         $helper->currentIndex = static::$currentIndex;
         $helper->className = $this->className;
         $helper->table = $this->table;
-        $helper->name_controller = Tools::getValue('controller');
+        $helper->name_controller = $this->context->_tools->getValue('controller');
         $helper->identifier = $this->identifier;
         $helper->token = $this->token;
         $helper->languages = $this->_languages;
@@ -2952,33 +2954,33 @@ abstract class PhenyxController {
 
     public function ajaxProcessGetAccountTypeRequest() {
 
-        $type = Tools::getValue('type');
+        $type = $this->context->_tools->getValue('type');
 
         switch ($type) {
         case 'Banks':
-            die(Tools::jsonEncode(StdAccount::getBankStdAccount()));
+            die($this->context->_tools->jsonEncode(StdAccount::getBankStdAccount()));
             break;
         case 'Profits':
-            die(Tools::jsonEncode(StdAccount::getProfitsStdAccount()));
+            die($this->context->_tools->jsonEncode(StdAccount::getProfitsStdAccount()));
             break;
         case 'Expenses':
-            die(Tools::jsonEncode(StdAccount::getExpensesStdAccount()));
+            die($this->context->_tools->jsonEncode(StdAccount::getExpensesStdAccount()));
             break;
         case 'VAT':
-            die(Tools::jsonEncode(StdAccount::getVATStdAccount()));
+            die($this->context->_tools->jsonEncode(StdAccount::getVATStdAccount()));
             break;
         case 'Supplier':
-            die(Tools::jsonEncode(StdAccount::getAccountByidType(4)));
+            die($this->context->_tools->jsonEncode(StdAccount::getAccountByidType(4)));
 
             break;
         case 'Customer':
-            die(Tools::jsonEncode(StdAccount::getAccountByidType(5)));
+            die($this->context->_tools->jsonEncode(StdAccount::getAccountByidType(5)));
             break;
         case 'Others':
-            die(Tools::jsonEncode(StdAccount::getAccountByidType(6)));
+            die($this->context->_tools->jsonEncode(StdAccount::getAccountByidType(6)));
             break;
         case 'Capital':
-            die(Tools::jsonEncode(StdAccount::getAccountByidType(1)));
+            die($this->context->_tools->jsonEncode(StdAccount::getAccountByidType(1)));
             break;
         }
 
@@ -3000,7 +3002,7 @@ abstract class PhenyxController {
 
         }
 
-        return Tools::getValue($key . ($idLang ? '_' . $idLang : ''), $defaultValue);
+        return $this->context->_tools->getValue($key . ($idLang ? '_' . $idLang : ''), $defaultValue);
     }
 
     public function getExportFields() {
@@ -3157,7 +3159,7 @@ abstract class PhenyxController {
             if (property_exists($object, $key) && $key != 'id_' . $table) {
                 /* Do not take care of password field if empty */
 
-                if ($key == 'passwd' && Tools::getValue('id_' . $table) && empty($value)) {
+                if ($key == 'passwd' && $this->context->_tools->getValue('id_' . $table) && empty($value)) {
                     continue;
                 }
 
@@ -3169,7 +3171,7 @@ abstract class PhenyxController {
                         $object->password = $value;
                     }
 
-                    $value = Tools::hash($value);
+                    $value = $this->context->_tools->hash($value);
                 }
 
                 if ($key === 'email') {
@@ -3177,7 +3179,7 @@ abstract class PhenyxController {
                     if (mb_detect_encoding($value, 'UTF-8', true) && mb_strpos($value, '@') > -1) {
                         // Convert to IDN
                         list($local, $domain) = explode('@', $value, 2);
-                        $domain = Tools::utf8ToIdn($domain);
+                        $domain = $this->context->_tools->utf8ToIdn($domain);
                         $value = "$local@$domain";
                     }
 
@@ -3205,7 +3207,7 @@ abstract class PhenyxController {
                 foreach (Language::getIDs(false) as $idLang) {
                     $referent = '';
 
-                    if (Tools::isSubmit($field . '_' . (int) $idLang)) {
+                    if ($this->context->_tools->isSubmit($field . '_' . (int) $idLang)) {
 
                         if (!isset($object->{$field}) || !is_array($object->{$field})) {
                             $object->{$field}
@@ -3214,10 +3216,10 @@ abstract class PhenyxController {
                         }
 
                         if ($idLang == $this->context->language->id) {
-                            $referent = Tools::getValue($field . '_' . (int) $idLang);
+                            $referent = $this->context->_tools->getValue($field . '_' . (int) $idLang);
                         }
 
-                        $value = !empty(Tools::getValue($field . '_' . (int) $idLang)) ? Tools::getValue($field . '_' . (int) $idLang) : $referent;
+                        $value = !empty($this->context->_tools->getValue($field . '_' . (int) $idLang)) ? $this->context->_tools->getValue($field . '_' . (int) $idLang) : $referent;
                         $object->{$field}
 
                         [(int) $idLang] = $value;
@@ -4058,7 +4060,7 @@ abstract class PhenyxController {
             return;
         }
 
-        $value = $value === null ? null : Tools::jsonEncode($value);
+        $value = $value === null ? null : $this->context->_tools->jsonEncode($value);
         $this->context->cache_api->putData($key, $value, $ttl);
 
     }
@@ -4071,7 +4073,7 @@ abstract class PhenyxController {
 
         $value = $this->context->cache_api->getData($key, $ttl);
 
-        return empty($value) ? null : Tools::jsonDecode($value, true);
+        return empty($value) ? null : $this->context->_tools->jsonDecode($value, true);
     }
 
 }
