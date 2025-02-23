@@ -229,6 +229,14 @@ abstract class Plugin {
             $this->context->media = new Media();
         }
         
+        if(!isset($this->context->link)) {
+            $this->context->link = new Link();
+        }
+        
+        if (!isset($this->context->_tools)) {
+            $this->context->_tools = PhenyxTool::getInstance();
+        }
+        
         $this->main_plugin = self::getIdPluginByName('ph_manager');
         
         $this->google_api_key = $this->context->phenyxConfig->get('EPH_GOOGLE_TRANSLATE_API_KEY');
