@@ -611,6 +611,11 @@ class TopMenuColumn extends PhenyxObjectModel {
             $url .= $link->getPageLink($page->page);
 
             break;
+                
+        case 11:
+            
+            return ['tpl' => './ephtopmenu_custom_hook.tpl'];
+            break;
 
         case 12:
 
@@ -1197,6 +1202,10 @@ class TopMenuColumn extends PhenyxObjectModel {
             $data_type['id'] = (int) $page->id;
             $url .= $link->getPageLink($page->page);
 
+            break;
+        case 11:
+            
+            return ['tpl' => './ephtopmenu_custom_hook.tpl'];
             break;
 
         case 12:

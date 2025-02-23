@@ -138,19 +138,6 @@ class PhenyxAutoload {
         $this->index = $classes;
     }
 	
-	
-
-
-    /**
-     * Retrieve recursively all classes in a directory and its subdirectories
-     *
-     * @param string $path Relativ path from root to the directory
-     *
-     * @return array
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     protected function getClassesFromDir($path, $hostMode = false) {
 
         $classes = [];
@@ -325,15 +312,6 @@ class PhenyxAutoload {
 		return $classes;
     }
 
-
-    /**
-     * Get instance of autoload (singleton)
-     *
-     * @return PhenyxAutoload
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public static function getInstance() {
 
         if (!PhenyxAutoload::$instance) {
@@ -343,17 +321,6 @@ class PhenyxAutoload {
         return PhenyxAutoload::$instance;
     }
 
-    /**
-     * Retrieve informations about a class in classes index and load it
-     *
-     * @param string $className
-     *
-     * @return mixed
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     *
-     */
     public function load($className) {
 
         // Retrocompatibility
@@ -408,14 +375,6 @@ class PhenyxAutoload {
 
     }
 
-    /**
-     * @param string $className
-     *
-     * @return null
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function getClassPath($className) {
 
         return (isset($this->index[$className]) && isset($this->index[$className]['path'])) ? $this->index[$className]['path'] : null;

@@ -649,6 +649,10 @@ class TopMenu extends PhenyxObjectModel {
             $url .= $link->getPageLink($page->page);
 
             break;
+        case 11:
+            
+            return ['tpl' => './ephtopmenu_custom_hook.tpl'];
+            break;
 
         case 12:
 
@@ -1259,6 +1263,10 @@ class TopMenu extends PhenyxObjectModel {
             $url .= $link->getPageLink($page->page);
 
             break;
+        case 11:
+            
+            return ['tpl' => './ephtopmenu_custom_hook.tpl'];
+            break;
 
         case 12:
 
@@ -1317,6 +1325,7 @@ class TopMenu extends PhenyxObjectModel {
             }
 
             break;
+        
 
         }
 
@@ -1514,7 +1523,7 @@ class TopMenu extends PhenyxObjectModel {
         );
 
         foreach ($menus as $menu) {
-            $topMenus[] = new TopMenu($menu['id_topmenu']);
+            $topMenus[] = TopMenu::buildObject($menu['id_topmenu'], $this->context->language->id);
         }
 
         $this->request_admin = false;
