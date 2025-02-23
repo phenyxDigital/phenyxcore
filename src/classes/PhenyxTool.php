@@ -842,6 +842,11 @@ class PhenyxTool {
 
         return html_entity_decode((string) $string, ENT_QUOTES, 'utf-8');
     }
+    
+    public function htmlEntities($string, $flags = ENT_QUOTES, $encoding = null, $double_encode = true) {
+        
+        return htmlentities($string, $flags, $encoding, $double_encode);
+    }
 
     public function safePostVars() {
 
