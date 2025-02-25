@@ -94,8 +94,7 @@ class Hook extends PhenyxObjectModel {
 
         $this->id_lang = (Language::getLanguage($idLang) !== false) ? $idLang : $this->context->phenyxConfig->get('EPH_LANG_DEFAULT');
         $this->context->_hook = $this;
-        //$this->context->hook_args = $this->getHookArgs();
-
+        
         if ($id) {
             $this->id = $id;
             $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
@@ -172,47 +171,7 @@ class Hook extends PhenyxObjectModel {
     }
 
 
-    public function getArgs($force = false) {
-
-        $args = [];
-
-        if ($force) {
-            $args_conf_id = $this->getIdByName('actionHookExtraArgs');
-        } else {
-            $args_conf_id = $this->context->phenyxConfig->get('_EPH_MAIN_ARG_ID_') ? $this->context->phenyxConfig->get('_EPH_MAIN_ARG_ID_') : $this->getIdByName('actionHookExtraArgs');
-        }
-
-        if ($args_conf_id > 0) {
-            $this->context->phenyxConfig->updateValue('_EPH_MAIN_ARG_ID_', $args_conf_id);
-            $plugins = $this->getPluginsFromHook($args_conf_id, null);
-
-            foreach ($plugins as $plugin) {
-                $pluginInstance = Plugin::getInstanceByName($plugin['name']);
-                $hookCallable = is_callable([$pluginInstance, 'hook' . $plugin['title']]);
-
-                if (($hookCallable) && Plugin::preCall($pluginInstance->name)) {
-                    $display = $this->coreCallHook($pluginInstance, 'hook' . $plugin['title'], []);
-
-                    foreach ($display as $key => $value) {
-
-                        if ($key == 'cookie') {
-                            $args[$key] = 'construct cookie';
-                        } else {
-                            $args[$key] = $value;
-                        }
-
-                    }
-
-                }
-
-            }
-
-            $this->context->phenyxConfig->updateValue('_EPH_MAIN_ARG_VALUE_', Tools::jsonEncode($args));
-        }
-
-        return $args;
-    }
-
+    
     public function getPlugins($force = false) {
 
         if (!empty($this->plugins) || $force) {

@@ -901,7 +901,6 @@ class PhenyxTools {
 
 		}
 
-		Hook::getInstance()->getArgs(true);
 		self::resetPlugin();
 
 	}
