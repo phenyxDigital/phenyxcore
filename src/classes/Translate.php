@@ -99,6 +99,16 @@ class Translate {
 
     }
     
+    public static function getInstance() {
+
+        if (!static::$instance) {
+            static::$instance = new Translate();
+        }
+
+        return static::$instance;
+    }
+
+    
     
     public function fileExists() {
 
