@@ -319,6 +319,10 @@ class PhenyxTools {
         return Context::getContext()->phenyxConfig->get($tags);
     }
     
+    public static function execHook($hook, $args = [], $return = false) {
+        
+        return Hook::getInstance()->exec($hook,  $args, null, $return);
+    }
     public static function getSmartyLink($method, $args) {
         
         $link = new Link();
