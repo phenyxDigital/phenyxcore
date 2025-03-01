@@ -63,6 +63,8 @@ abstract class Plugin {
     public $confirmUninstall;
 
     public $removable = true;
+    
+    public $configOutPlugin = false;
 
     public $has_table = false;
     /** @var string $database_version */
@@ -769,7 +771,7 @@ abstract class Plugin {
             $value = $context->cache_api->getData($cacheId);
             $plugins = empty($value) ? null : Tools::jsonDecode($value, true);
 
-            if (!is_null($plugins)) {
+            if (!is_null($plugins) && is_array($plugins) && count($plugins)) {
                 return $plugins;
             }
 
@@ -1004,6 +1006,7 @@ abstract class Plugin {
                 }
 
                 $plugin->removable = $tmpPlugin->removable;
+                $plugin->configOutPlugin = $tmpPlugin->configOutPlugin;
                 $plugin->config_controller = $tmpPlugin->config_controller;
                 $plugin->id = $pluginsInstalled[$plugin->name]['id_plugin'];
                 $plugin->installed = true;
@@ -1015,6 +1018,7 @@ abstract class Plugin {
                 $plugin->image_link = "/" . $image;
                 $plugin->is_ondisk = true;
             } else {
+                $plugin->configOutPlugin = false;
                 $plugin->removable = true;
                 $plugin->installed = false;
                 $plugin->database_version = 0;

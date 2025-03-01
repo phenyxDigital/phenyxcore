@@ -816,12 +816,17 @@ abstract class Db {
      * @return bool
      * @throws PhenyxException
      */
-    public function execute($sql, $useCache = true) {
+    public function execute($sql, $useCache = true, $params = null) {
 
         if ($sql instanceof DbQuery) {
             $sql = $sql->build();
         }
-
+       
+        if(!is_null($params) && is_array($params)) {
+                 
+            $sql = vsprintf(str_replace('?', '\'%s\'', $sql), $params);
+            
+        }
         $this->result = $this->query($sql);
 
         return (bool) $this->result;
@@ -838,7 +843,7 @@ abstract class Db {
      * @throws PhenyxDatabaseException
      * @throws PhenyxException
      */
-    public function executeS($sql, $array = true, $useCache = true) {
+    public function executeS($sql, $array = true, $params = null, $useCache = true) {
 
         if ($sql instanceof DbQuery) {
             $sql = $sql->build();
@@ -846,6 +851,11 @@ abstract class Db {
 
         $this->result = false;
         $this->last_query = $sql;
+        if(!is_null($params) && is_array($params)) {
+                 
+            $sql = vsprintf(str_replace('?', '\'%s\'', $sql), $params);
+            
+        }
 
         // This method must be used only with queries which display results
 
@@ -888,10 +898,17 @@ abstract class Db {
      * @throws PhenyxDatabaseException
      * @throws PhenyxException
      */
-    public function getRow($sql, $useCache = true) {
+    public function getRow($sql, $useCache = true, $params = null) {
 
         if ($sql instanceof DbQuery) {
             $sql = $sql->build();
+        }
+        
+        if(!is_null($params) && is_array($params)) {
+         
+            $sql = str_replace('?', '\'%s\'', $sql);
+            $sql = vsprintf($sql, $params);
+            
         }
 
         $sql = rtrim($sql, " \t\n\r\0\x0B;") . ' LIMIT 1';
@@ -924,7 +941,7 @@ abstract class Db {
      * @return string|false|null
      * @throws PhenyxException
      */
-    public function getValue($sql, $useCache = true) {
+    public function getValue($sql, $useCache = true, $params = null) {
 
         if ($sql instanceof DbQuery) {
             $sql = $sql->build();
