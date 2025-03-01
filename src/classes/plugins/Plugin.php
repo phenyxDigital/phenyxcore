@@ -769,7 +769,7 @@ abstract class Plugin {
         if ($context->cache_enable && is_object($context->cache_api)) {
             $cacheId = 'getPluginRequest';
             $value = $context->cache_api->getData($cacheId);
-            $plugins = empty($value) ? null : Tools::jsonDecode($value, true);
+            $plugins = empty($value) ? null : Tools::jsonDecode($value);
 
             if (!is_null($plugins) && is_array($plugins) && count($plugins)) {
                 return $plugins;
