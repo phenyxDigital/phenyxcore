@@ -1097,11 +1097,8 @@ abstract class PhenyxController {
 
         if (!empty($html)) {
 
-            $domAvailable = extension_loaded('dom') ? true : false;
-            $defer = (bool) $this->context->phenyxConfig->get('EPH_JS_DEFER');
-            $compress = (bool) $this->context->phenyxConfig->get('EPH_JS_HTML_BACKOFFICE_COMPRESSION');
-
-            if ($defer && $domAvailable) {
+            
+            if ($this->_defer && $this->_domAvailable) {
                 $html = $this->context->media->deferInlineScripts($html);
             }
 
@@ -1110,18 +1107,18 @@ abstract class PhenyxController {
             $this->context->smarty->assign(
                 [
                     $jsTag      => $this->context->media->getJsDef(),
-                    'js_files'  => $defer ? array_unique($this->js_files) : [],
-                    'js_inline' => ($defer && $domAvailable) ? $this->context->media->getInlineScript() : [],
-                    'js_heads'  => ($defer) ? $this->js_heads : [],
+                    'js_files'  => $this->_defer ? array_unique($this->js_files) : [],
+                    'js_inline' => ($this->_defer && $this->_domAvailable) ? $this->context->media->getInlineScript() : [],
+                    'js_heads'  => ($this->_defer) ? $this->js_heads : [],
                 ]
             );
             $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
             
-            if ($defer && (!isset($this->ajax) || !$this->ajax)) {
+            if ($this->_defer && (!isset($this->ajax) || !$this->ajax)) {
                 echo $html . $javascript;
             } else
 
-            if ($defer && $this->ajax) {
+            if ($this->_defer && $this->ajax) {
 
                 die($this->context->_tools->jsonEncode(['html', $html . $javascript]));
 
@@ -1156,9 +1153,6 @@ abstract class PhenyxController {
 
         $html = trim($html);
 
-        $domAvailable = extension_loaded('dom') ? true : false;
-        $defer = (bool) $this->context->phenyxConfig->get('EPH_JS_DEFER');
-
         $html = trim(str_replace(['</body>', '</html>'], '', $html)) . "\n";
         $this->ajax_head = str_replace(['<head>', '</head>'], '', $this->context->media->deferTagOutput('head', $html));
         $page = $this->context->media->deferIdOutput('page', $html);
@@ -1166,13 +1160,13 @@ abstract class PhenyxController {
         $this->context->smarty->assign(
             [
                 $jsTag      => $this->context->media->getJsDef(),
-                'js_files'  => $defer ? array_unique($this->js_files) : [],
+                'js_files'  => $this->_defer ? array_unique($this->js_files) : [],
                 'js_inline' => [],
             ]
         );
         $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
 
-        if ($defer) {
+        if ($this->_defer) {
             $templ = $page . $javascript;
             $return = [
                 'historyState' => $this->historyState,
@@ -1863,8 +1857,7 @@ abstract class PhenyxController {
         
         if ($this->ajax_layout) {
 
-            $defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
-
+            
             if ($this->cachable) {
 
                 if ($this->context->cache_enable) {
@@ -1884,8 +1877,7 @@ abstract class PhenyxController {
                 
             }
                         
-            $domAvailable = extension_loaded('dom') ? true : false;
-
+            
             if (($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE') || $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE')) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
 
                 if ($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE')) {
@@ -1902,10 +1894,10 @@ abstract class PhenyxController {
 
             $this->context->smarty->assign(
                 [
-                    'js_def'           => ($defer && $domAvailable) ? [] : $this->js_def,
+                    'js_def'           => ($this->_defer && $this->_domAvailable) ? [] : $this->js_def,
                     'extracss'         => $this->extracss,
                     'js_heads'         => [],
-                    'js_files'         => $defer ? [] : $this->push_js_files,
+                    'js_files'         => $this->_defer ? [] : $this->push_js_files,
                     'favicon_dir'      => __EPH_BASE_URI__ . 'content/backoffice/img/',
                     'meta_title'       => $this->page_title,
                     'meta_description' => $this->page_description,
@@ -1937,9 +1929,6 @@ abstract class PhenyxController {
         
 
         if ($this->ajax_layout) {
-
-            $defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
-
             if ($this->cachable) {
 
                 if ($this->context->cache_enable) {
@@ -1959,7 +1948,7 @@ abstract class PhenyxController {
 
             }
 
-            $domAvailable = extension_loaded('dom') ? true : false;
+          
 
             if (($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE') || $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE')) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
 
@@ -1977,10 +1966,10 @@ abstract class PhenyxController {
 
             $this->context->smarty->assign(
                 [
-                    'js_def'           => ($defer && $domAvailable) ? [] : $this->js_def,
+                    'js_def'           => ($this->_defer && $this->_domAvailable) ? [] : $this->js_def,
                     'extracss'         => $this->extracss,
                     'js_heads'         => [],
-                    'js_files'         => $defer ? [] : $this->push_js_files,
+                    'js_files'         => $this->_defer ? [] : $this->push_js_files,
                     'favicon_dir'      => __EPH_BASE_URI__ . 'content/backoffice/img/',
                     'meta_title'       => $this->page_title,
                     'meta_description' => $this->page_description,
@@ -2022,10 +2011,8 @@ abstract class PhenyxController {
 
         if (!empty($html)) {
             $javascript = "";
-            $domAvailable = extension_loaded('dom') ? true : false;
-            $defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
-
-            if ($defer && $domAvailable) {
+            
+            if ($this->_defer && $this->_domAvailable) {
                 $html = $this->context->media->deferInlineScripts($html);
             }
 
@@ -2036,9 +2023,9 @@ abstract class PhenyxController {
 
             $content = $this->context->media->deferIdOutput('content' . $this->controller_name, $html);
 
-            $js_def = ($defer && $domAvailable) ? $this->js_def : [];
-            $js_files = $defer ? array_unique($this->push_js_files) : [];
-            $js_inline = ($defer && $domAvailable) ? $this->context->media->getInlineScript() : [];
+            $js_def = ($this->_defer && $this->_domAvailable) ? $this->js_def : [];
+            $js_files = $this->_defer ? array_unique($this->push_js_files) : [];
+            $js_inline = ($this->_defer && $this->_domAvailable) ? $this->context->media->getInlineScript() : [];
 
             $this->context->smarty->assign(
                 [
@@ -2049,7 +2036,7 @@ abstract class PhenyxController {
             );
             $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
 
-            if ($defer) {
+            if ($this->_defer) {
                 $javascript = $javascript . '</content>';
             }
 
@@ -2087,10 +2074,9 @@ abstract class PhenyxController {
         if (!empty($html)) {
 
             $javascript = "";
-            $domAvailable = extension_loaded('dom') ? true : false;
-            $defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
+            
 
-            if ($defer && $domAvailable) {
+            if ($this->_defer && $this->_domAvailable) {
                 $html = $this->context->media->deferInlineScripts($html);
             }
 
@@ -2110,9 +2096,9 @@ abstract class PhenyxController {
                 $content = $this->context->media->deferIdOutput('content' . $this->controller_name, $html);
             }
 
-            $js_def = ($defer && $domAvailable) ? $this->js_def : [];
-            $js_files = $defer ? array_unique($this->push_js_files) : [];
-            $js_inline = ($defer && $domAvailable) ? $this->context->media->getInlineScript() : [];
+            $js_def = ($this->_defer && $this->_domAvailable) ? $this->js_def : [];
+            $js_files = $this->_defer ? array_unique($this->push_js_files) : [];
+            $js_inline = ($this->_defer && $this->_domAvailable) ? $this->context->media->getInlineScript() : [];
 
             $this->context->smarty->assign(
                 [
@@ -2123,7 +2109,7 @@ abstract class PhenyxController {
             );
             $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
 
-            if ($defer) {
+            if ($this->_defer) {
                 $javascript = $javascript . '</content>';
             }
             $content = str_replace('<input>', '', $content);
@@ -2205,9 +2191,7 @@ abstract class PhenyxController {
 
         if ($layout) {
 
-            $defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
-            $domAvailable = extension_loaded('dom') ? true : false;
-
+            
             if (($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE') || $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE')) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
 
                 if ($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE')) {
@@ -2224,10 +2208,10 @@ abstract class PhenyxController {
 
             $this->context->smarty->assign(
                 [
-                    'js_def'           => ($defer && $domAvailable) ? [] : $this->js_def,
+                    'js_def'           => ($this->_defer && $this->_domAvailable) ? [] : $this->js_def,
                     'extracss'         => $this->extracss,
                     'js_heads'         => [],
-                    'js_files'         => $defer ? [] : $this->extraJs,
+                    'js_files'         => $this->_defer ? [] : $this->extraJs,
                     'favicon_dir'      => __EPH_BASE_URI__ . 'content/backoffice/img/',
                     'meta_title'       => $this->page_title,
                     'meta_description' => $this->page_description,
@@ -2269,10 +2253,8 @@ abstract class PhenyxController {
 
         if (!empty($html)) {
             $javascript = "";
-            $domAvailable = extension_loaded('dom') ? true : false;
-            $defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
-
-            if ($defer && $domAvailable) {
+            
+            if ($this->_defer && $this->_domAvailable) {
                 $html = $this->context->media->deferInlineScripts($html);
             }
 
@@ -2293,9 +2275,9 @@ abstract class PhenyxController {
                 $content = $this->context->media->deferIdOutput('contentAdd' . $this->controller_name, $html);
             }
             
-            $js_def = ($defer && $domAvailable) ? $this->js_def : [];
-            $js_files = (!is_null($this->extraJs) && $defer) ? array_unique($this->extraJs) : [];
-            $js_inline = ($defer && $domAvailable) ? $this->context->media->getInlineScript() : [];
+            $js_def = ($this->_defer && $this->_domAvailable) ? $this->js_def : [];
+            $js_files = (!is_null($this->extraJs) && $this->_defer) ? array_unique($this->extraJs) : [];
+            $js_inline = ($this->_defer && $this->_domAvailable) ? $this->context->media->getInlineScript() : [];
 
             $this->context->smarty->assign(
                 [
@@ -2307,7 +2289,7 @@ abstract class PhenyxController {
             );
             $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
 
-            if ($defer) {
+            if ($this->_defer) {
                 $javascript = $javascript . '</content>';
             }
 
