@@ -41,9 +41,13 @@ class PhenyxTool {
     public function __construct() {
         
         $this->context = Context::getContext();
-        if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = new Configuration();            
+        if (!isset($this->context->_tools)) {
+            $this->context->_tools = $this;
         }
+        if (!isset($this->context->phenyxConfig)) {
+            $this->context->phenyxConfig = Configuration::getInstance();            
+        }
+        
        
         
     }

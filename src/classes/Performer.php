@@ -109,15 +109,25 @@ class Performer {
     protected $front_controller = self::FC_FRONT;
 
     protected function __construct() {
-
+        
+        if (!defined('TIME_START')) {
+	       define('TIME_START', microtime(true));
+        }
+        
         $this->context = Context::getContext();
 
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
         }
+        
+        if (!isset($this->context->_tools)) {
+            $this->context->_tools = PhenyxTool::getInstance();
+        }
+
 
         if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+            
+            $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
 
         $this->use_routes = (bool) $this->context->phenyxConfig->get('EPH_REWRITING_SETTINGS');
@@ -131,7 +141,7 @@ class Performer {
         }
 
         $this->plugins = $this->getListPlugins();
-
+        
         if (is_array($this->plugins)) {
 
             foreach ($this->plugins as $plugin) {
@@ -156,26 +166,26 @@ class Performer {
 
         }
 
-        if (Tools::getValue('fc') == 'admin') {
+        if ($this->context->_tools->getValue('fc') == 'admin') {
             $this->front_controller = static::FC_ADMIN;
             $this->controller_not_found = 'admindashboard';
         } else
 
-        if (Tools::getValue('fc') == 'plugin') {
+        if ($this->context->_tools->getValue('fc') == 'plugin') {
             $this->front_controller = static::FC_PLUGIN;
             $this->controller_not_found = 'pagenotfound';
         } else {
             $this->front_controller = static::FC_FRONT;
             $this->controller_not_found = 'pagenotfound';
         }
-
+        
         $this->loadExtraRoutes();
         $this->loadRoutes();
         $this->setRequestUri();
-
         if (Language::isMultiLanguageActivated()) {
             $this->multilang_activated = true;
         }
+        
 
     }
 
@@ -619,7 +629,7 @@ class Performer {
     }
 
     public function dispatch() {
-
+        
         $controllerClass = '';
 
         if (!$this->controller) {
@@ -673,7 +683,7 @@ class Performer {
 
         case static::FC_PLUGIN:
 
-            $pluginName = Validate::isPluginName(Tools::getValue('plugin')) ? Tools::getValue('plugin') : '';
+            $pluginName = Validate::isPluginName($this->context->_tools->getValue('plugin')) ? $this->context->_tools->getValue('plugin') : '';
             $plugin = Plugin::getInstanceByName($pluginName);
             $controllerClass = 'PageNotFoundController';
 
@@ -719,7 +729,7 @@ class Performer {
             break;
 
         case static::FC_ADMIN:
-
+                
             $tab = BackTab::getInstanceFromClassName($this->controller, Context::getContext()->language->id);
 
             if ($tab->plugin) {
@@ -765,11 +775,11 @@ class Performer {
 
                     if (Validate::isLoadedObject($tab) && $tab->id_parent == 0 && ($tabs = BackTab::getTabs(Context::getContext()->language->id, $tab->id)) && isset($tabs[0])) {
 
-                        Tools::redirectAdmin(Context::getContext()->link->getAdminLink($tabs[0]['class_name']));
+                        $this->context->_tools->redirectAdmin(Context::getContext()->link->getAdminLink($tabs[0]['class_name']));
                     }
 
                     $this->controller = 'admindashboard';
-                    Tools::redirectAdmin(Context::getContext()->link->getAdminLink('admindashboard'));
+                    $this->context->_tools->redirectAdmin(Context::getContext()->link->getAdminLink('admindashboard'));
                 }
 
                 $controllerClass = $controllers[strtolower($this->controller)];
@@ -785,9 +795,10 @@ class Performer {
         $_GET['controller'] = $controllerClass;
         // Instantiate controller
         try {
+            
             // Loading controller
             $controller = PhenyxController::getController($controllerClass);
-
+            
             // Running controller
             $controller->run();
         } catch (PhenyxException $e) {
@@ -809,13 +820,11 @@ class Performer {
 
     public function getController($idCompany = null) {
 
-        $context = Context::getContext();
-
-        if (!$context->language) {
-            $context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+        if (!$this->context->language) {
+            $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
 
-        if (isset($context->employee->id) && $context->employee->id) {
+        if (isset($this->context->employee->id) && $this->context->employee->id) {
 
             if ($this->request_uri == '/' || str_starts_with($this->request_uri, '/?')) {
                 $this->front_controller = static::FC_FRONT;
@@ -831,11 +840,11 @@ class Performer {
 
         list($uri) = explode('?', $this->request_uri);
 
-        if (isset(Context::getContext()->company) && $idCompany === null) {
-            $idCompany = (int) Context::getContext()->company->id;
+        if (isset($this->context->company) && $idCompany === null) {
+            $idCompany = (int) $this->context->company->id;
         }
 
-        $controller = Tools::getValue('controller');
+        $controller = $this->context->_tools->getValue('controller');
 
         if (isset($controller) && is_string($controller)) {
 
@@ -854,8 +863,8 @@ class Performer {
 
             } else
 
-            if (!$this->use_routes && Validate::isControllerName($controller) && Tools::isSubmit('id_' . $controller)) {
-                $id = Tools::getValue('id_' . $controller);
+            if (!$this->use_routes && Validate::isControllerName($controller) && $this->context->_tools->isSubmit('id_' . $controller)) {
+                $id = $this->context->_tools->getValue('id_' . $controller);
                 $_GET['id_' . $controller] = $id;
                 $this->controller = $controller;
 
@@ -886,7 +895,7 @@ class Performer {
                         $this->empty_route['routeID'],
                         $this->empty_route['rule'],
                         $this->empty_route['controller'],
-                        Context::getContext()->language->id,
+                        $this->context->language->id,
                         [],
                         [],
                         null
@@ -895,8 +904,8 @@ class Performer {
 
                 list($uri) = explode('?', $this->request_uri);
 
-                if (isset($this->routes[Context::getContext()->language->id])) {
-                    $routes = $this->routes[Context::getContext()->language->id];
+                if (isset($this->routes[$this->context->language->id])) {
+                    $routes = $this->routes[$this->context->language->id];
                     $identifyController = $this->context->_hook->exec('actionPerformerIdentifyRoute', ['uri' => $uri, 'routes' => $routes, 'front_controller' => $this->front_controller], null, true, false);
 
                     if (is_array($identifyController)) {
@@ -919,7 +928,7 @@ class Performer {
 
                     foreach ($routes as $route) {
 
-                        if ((isset($context->employee->id) && $context->employee->id) || $this->front_controller == static::FC_ADMIN) {
+                        if ((isset($this->context->employee->id) && $this->context->employee->id) || $this->front_controller == static::FC_ADMIN) {
 
                             if ("/" . $route['rule'] == $uri) {
                                 $controller = $route['controller'] ? $route['controller'] : $_GET['controller'];
@@ -1096,7 +1105,7 @@ class Performer {
 
             } else
 
-            if (Tools::getValue('fc') == 'plugin') {
+            if ($this->context->_tools->getValue('fc') == 'plugin') {
                 $this->default_controller = 'default';
             } else {
                 $this->default_controller = 'index';
@@ -1389,8 +1398,8 @@ class Performer {
                 $append = $m[5][$i];
                 $transformKeywords[$keyword] = [
                     'required' => isset($keywords[$keyword]['param']),
-                    'prepend'  => Tools::stripslashes($prepend),
-                    'append'   => Tools::stripslashes($append),
+                    'prepend'  => $this->context->_tools->stripslashes($prepend),
+                    'append'   => $this->context->_tools->stripslashes($append),
                 ];
                 $prependRegexp = $appendRegexp = '';
 

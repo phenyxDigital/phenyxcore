@@ -19,9 +19,6 @@ class ComposerShortCode_vc_tabs extends ComposerShortCode {
 
 	public function contentAdmin($atts, $content = null) {
         
-        
-        $file = fopen("testcontentAdminTabs.txt","w");
-       
 		$width = $custom_markup = '';
 		$shortcode_attributes = ['width' => '1/1'];
 

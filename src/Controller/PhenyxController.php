@@ -242,6 +242,10 @@ abstract class PhenyxController {
 
     public function __construct() {
 
+        if (!defined('TIME_START')) {
+	       define('TIME_START', microtime(true));
+        }
+               
         if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
             $this->profiler[] = $this->stamp('config');
         }
@@ -257,14 +261,15 @@ abstract class PhenyxController {
         if (is_null($this->display_footer)) {
             $this->display_footer = true;
         }
-
+        
         $this->context = Context::getContext();
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
             
         }
-
-        $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+        if (!isset($this->context->company)) {
+            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+        }
                 
 
         if (!isset($this->context->_hook)) {
@@ -294,8 +299,18 @@ abstract class PhenyxController {
         }
         
         
+        if (!isset($this->context->phenyxgrid)) {
+            $this->context->phenyxgrid = new ParamGrid();
+        }
         
-        $this->context->phenyxgrid = new ParamGrid();
+        $this->context->controller = $this;
+        if (!isset($this->context->cache_enable)) {
+            $this->context->cache_enable = $this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED');
+        }
+
+        if ($this->context->cache_enable && !isset($this->context->cache_api)) {
+            $this->context->cache_api = CacheApi::getInstance();
+        }
 
         $this->context->smarty->assign([
             'shopName'    => $this->context->company->company_name,
@@ -309,15 +324,9 @@ abstract class PhenyxController {
             'smarty_tag'  => date("i-s"),
         ]);
 
-        $this->context->controller = $this;
-        $this->context->cache_enable = $this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED');
-
-        if ($this->context->cache_enable) {
-            $this->context->cache_api = CacheApi::getInstance();
-        }
-
+        
         $this->getExtraPhenyxVars();
-
+        
         $this->ajax = $this->context->_tools->getValue('ajax') || $this->context->_tools->isSubmit('ajax');
 
         if (!headers_sent()
@@ -332,7 +341,6 @@ abstract class PhenyxController {
             $this->profiler[] = $this->stamp('__construct');
         }
 
-        $this->context->language = Context::getContext()->language;
 
         if (empty(static::$_plugins)) {
             static::$_plugins = $this->getPlugins();
@@ -1073,15 +1081,7 @@ abstract class PhenyxController {
         $this->context->smarty->assign($jsTag, $jsTag);
         $this->context->smarty->assign('load_time', round(microtime(true) - TIME_START, 3));
 
-        if (is_array($content)) {
-
-            foreach ($content as $tpl) {
-                $html .= $this->context->smarty->fetch($tpl);
-            }
-
-        } else {
-            $html = $this->context->smarty->fetch($content);
-        }
+        $html = $this->context->smarty->fetch($content);
 
         $html = trim($html);
 
@@ -1873,8 +1873,7 @@ abstract class PhenyxController {
                 }
                 
             }
-            
-            $this->context->smarty->setCaching(\Smarty\Smarty::CACHING_LIFETIME_CURRENT);
+                        
             $domAvailable = extension_loaded('dom') ? true : false;
 
             if (($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE') || $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE')) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
@@ -1919,7 +1918,6 @@ abstract class PhenyxController {
             );
             
             $content = $this->context->smarty->fetch($this->ajax_layout, $this->php_self);
-            $this->context->smarty->setCaching(\Smarty\Smarty::CACHING_OFF);
             $this->ajaxShowContent($content);
         }
 

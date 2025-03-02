@@ -65,7 +65,7 @@ class Hook extends PhenyxObjectModel {
     ];
 
     public function __construct($id = null, $idLang = null) {
-       
+        
         $this->className = get_class($this);
         $this->context = Context::getContext();
         if (!isset($this->context->phenyxConfig)) {
@@ -392,7 +392,7 @@ class Hook extends PhenyxObjectModel {
         $usePush = false,
         $objectReturn = false
     ) {
-
+        
         if (!isset($hookArgs['cookie']) || !$hookArgs['cookie']) {
             $hookArgs['cookie'] = $this->context->cookie;
         }
@@ -460,7 +460,7 @@ class Hook extends PhenyxObjectModel {
         } else {
             $return = static::execWithoutCache($hookName, $hookArgs, $idPlugin, $arrayReturn, $checkExceptions, $usePush, $objectReturn);
         }
-
+        
         return $return;
     }
 
@@ -473,7 +473,7 @@ class Hook extends PhenyxObjectModel {
         $usePush = false,
         $objectReturn = false
     ) {
-
+       
         if (defined('EPH_INSTALLATION_IN_PROGRESS')) {
 
             return;
@@ -568,12 +568,12 @@ class Hook extends PhenyxObjectModel {
 
                 continue;
             }
-
+            
             $hookCallable = is_callable([$pluginInstance, 'hook' . $hookName]);
             $hookRetroCallable = is_callable([$pluginInstance, 'hook' . $retroHookName]);
 
             if (($hookCallable || $hookRetroCallable) && Plugin::preCall($pluginInstance->name)) {
-
+               
                 $hookArgs['altern'] = ++$altern;
 
                 if ($usePush && isset($pluginInstance->push_filename) && file_exists($pluginInstance->push_filename)) {
@@ -598,11 +598,12 @@ class Hook extends PhenyxObjectModel {
                 } else {
                     $output = $display;
                 }
+               
 
             }
 
         }
-
+        
         return $output;
     }
 

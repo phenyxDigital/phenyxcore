@@ -196,8 +196,6 @@ class Media {
     }
 
     public function packJS($jsContent) {
-         $file = fopen("testpackJS.txt", "a");
-        fwrite($file, $jsContent . PHP_EOL);
         if (!empty($jsContent)) {
             try {
                 $jsContent = JSMin::minify($jsContent);
@@ -205,7 +203,7 @@ class Media {
 
                 if (_EPH_MODE_DEV_) {
                     echo $e->getMessage();
-                    //$file = fopen("testpackJS.txt", "a");
+                    $file = fopen("testpackJS.txt", "a");
                     fwrite($file, $e->getMessage() . PHP_EOL);
                     fwrite($file, $jsContent . PHP_EOL);
                 }

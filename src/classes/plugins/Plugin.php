@@ -3066,15 +3066,9 @@ abstract class Plugin {
                 ]
             );
 
-            if ($cache_id !== null) {
-                $this->context->smarty->setCaching(\Smarty\Smarty::CACHING_LIFETIME_CURRENT);
-            }
+            
 
             $result = $this->getCurrentSubTemplate($template, $cache_id, $compile_id)->fetch();
-
-            if ($cache_id !== null) {
-                $this->context->smarty->setCaching(\Smarty\Smarty::CACHING_OFF);
-            }
 
             $this->resetCurrentSubTemplate($template, $cache_id, $compile_id);
 
