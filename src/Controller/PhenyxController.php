@@ -209,6 +209,12 @@ abstract class PhenyxController {
     public $paramIdentifier;
     
     public $ajax_layout;
+    
+    public $_defer;
+    
+    public $_domAvailable;
+    
+    public $_compress;
 
     public function getExtraPhenyxVars() {
 
@@ -357,6 +363,10 @@ abstract class PhenyxController {
         }';
         
         $this->ajax_layout = $this->getAjaxLayout();
+        
+        $this->_defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
+        $this->_domAvailable = extension_loaded('dom') ? true : false;
+        $this->_compress = (bool) $this->context->phenyxConfig->get('EPH_JS_HTML_BACKOFFICE_COMPRESSION');
 
     }
 
