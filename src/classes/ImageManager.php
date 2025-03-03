@@ -20,13 +20,14 @@ class ImageManager {
     public function __construct() {
         
         $this->context = Context::getContext();
-        if (!isset($this->context->company)) {
-            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
-        }
+        
            
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = new Configuration();            
-        }        
+        }      
+        if (!isset($this->context->company)) {
+            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+        }
         if (!isset($this->context->_tools)) {
             $this->context->_tools = PhenyxTool::getInstance();
         }

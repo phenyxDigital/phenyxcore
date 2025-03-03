@@ -5838,7 +5838,7 @@ FileETag none
         try {
             $translation->add();
         } catch (exception $e) {
-            Logger::addLog($this->l('getGoogleTranslation', 'Tools', false, false), 1, null, 'Tools', $e->getMessage(), true, 0);
+            Logger::addLog($this->l('getGoogleTranslation', 'PhenyxTool', false, false), 1, null, 'Tools', $e->getMessage(), true, 0);
         }
         
         $return = [
