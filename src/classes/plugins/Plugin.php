@@ -238,7 +238,9 @@ abstract class Plugin {
         if (!isset($this->context->_tools)) {
             $this->context->_tools = PhenyxTool::getInstance();
         }
-        
+        if(!isset($this->context->img_manager)) {
+            $this->context->img_manager = ImageManager::getInstance();
+        }
         $this->main_plugin = self::getIdPluginByName('ph_manager');
         
         $this->google_api_key = $this->context->phenyxConfig->get('EPH_GOOGLE_TRANSLATE_API_KEY');

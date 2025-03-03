@@ -56,6 +56,8 @@ class Context {
 	/** @var Language */
 	public $language;
     
+    public $img_manager;
+    
     public $webp;
 	/** @var AdminTab */
 	public $tab;

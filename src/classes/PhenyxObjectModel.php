@@ -329,6 +329,9 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         if (!isset($this->context->_tools)) {
             $this->context->_tools = PhenyxTool::getInstance();
         }
+        if(!isset($this->context->img_manager)) {
+            $this->context->img_manager = ImageManager::getInstance();
+        }
         
         if (!isset($this->context->phenyxgrid)) {
             $this->context->phenyxgrid = new ParamGrid();

@@ -275,6 +275,9 @@ abstract class PhenyxController {
         if (!isset($this->context->_tools)) {
             $this->context->_tools = PhenyxTool::getInstance();
         }
+        if(!isset($this->context->img_manager)) {
+            $this->context->img_manager = ImageManager::getInstance();
+        }
         if (!isset($this->context->language)) {
             $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
