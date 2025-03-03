@@ -20,6 +20,10 @@ class ImageManager {
     public function __construct() {
         
         $this->context = Context::getContext();
+        if (!isset($this->context->company)) {
+            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+        }
+           
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = new Configuration();            
         }        
@@ -888,7 +892,7 @@ class ImageManager {
         $list = [];
 		$singularTypes = [
         	'img'          => ['dir' => _EPH_IMG_DIR_, 'iterate' => false],
-            'theme_img'    => ['dir' => $this->context->theme->img_theme, 'iterate' => false],
+            'theme_img'    => ['dir' => _EPH_ROOT_DIR_.$this->context->theme->img_theme, 'iterate' => false],
             'cms'          => ['dir' => _EPH_IMG_DIR_.'cms/', 'iterate' => false],
         	'plugin'       => ['dir' => _EPH_PLUGIN_DIR_, 'iterate' => true],
         	'store'        => ['dir' => _EPH_STORE_IMG_DIR_, 'iterate' => false],
