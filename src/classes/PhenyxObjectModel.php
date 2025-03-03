@@ -164,23 +164,30 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
     public $className;
 
-    public $extraVars;
+    public $extraVars = null;
+    
+    public $extraDefs = null;
 
     public $excludes = [];
 
-    public function getExtraVars($className) {
-
-        $this->className = $this->className;
+    public function getExtraVars() {
+        
         $this->extraVars = $this->context->_hook->exec('action' . $this->className . 'GetExtraVars', [], null, true);
-        if (is_array($this->extraVars) && count($this->extraVars)) {
-            foreach ($this->extraVars as $plugin => $vars) {
-                if (is_array($vars) && count($vars)) {
-                    foreach ($vars as $key => $value) {
-                        $this->{$key} = $value;
-                    }
-                }
-            }
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {
+            $temp = $this->extraVars === null ? null : Tools::jsonEncode($this->extraVars);
+            $this->context->cache_api->putData('getExtra' . $this->className . 'Vars', $temp);
         }
+       
+    }
+    
+    public function getExtraDefs() {
+        
+        $this->extraDefs = $this->context->_hook->exec('action' . $this->className . 'ExtraDefinition', [], null, true);
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {
+            $temp = $this->extraDefs === null ? null : Tools::jsonEncode($this->extraDefs);
+            $this->context->cache_api->putData('getExtra' . $this->className . 'Defs', $temp);
+        }
+       
     }
 
     /**
@@ -239,10 +246,46 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             $this->context->_hook = PhenyxObjectModel::$hook_instance;
             $this->context->hook_args = $this->context->_hook->getHookArgs();
         }
-        $this->getExtraVars($this->className);
-        $extraDef = $this->context->_hook->exec('action' . $this->className . 'ExtraDefinition', [], null, true);
-        if (is_array($extraDef) && count($extraDef)) {
-            foreach ($extraDef as $plugin => $defs) {
+        if (!isset($this->context->cache_enable)) {
+            $this->context->cache_enable = $this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED');
+        } 
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {            
+            $value = $this->context->cache_api->getData('getExtra' . $this->className . 'Vars');
+            $temp = empty($value) ? null : Tools::jsonDecode($value, true);
+
+            if (!empty($temp) && is_array($temp) && count($temp)) {
+                $this->extraVars =  $temp;
+            }
+
+        } 
+        if(is_null($this->extraVars)) {
+            $this->getExtraVars();
+        }
+        
+        if (is_array($this->extraVars) && count($this->extraVars)) {
+            foreach ($this->extraVars as $plugin => $vars) {
+                if (is_array($vars) && count($vars)) {
+                    foreach ($vars as $key => $value) {
+                        $this->{$key} = $value;
+                    }
+                }
+            }
+        }
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {            
+            $value = $this->context->cache_api->getData('getExtra' . $this->className . 'Defs');
+            $temp = empty($value) ? null : Tools::jsonDecode($value, true);
+
+            if (!empty($temp) && is_array($temp) && count($temp)) {
+                $this->extraDefs =  $temp;
+            }
+
+        } 
+        if(is_null($this->extraDefs)) {
+            $this->getExtraDefs();
+        }
+        
+        if (is_array($this->extraDefs) && count($this->extraDefs)) {
+            foreach ($this->extraDefs as $plugin => $defs) {
                 if (is_array($defs) && count($defs)) {
                     foreach ($defs as $key => $value) {
                        self::$definition['fields'][$key] = $value;
@@ -291,9 +334,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             $this->context->phenyxgrid = new ParamGrid();
         }
         
-        if (!isset($this->context->cache_enable)) {
-            $this->context->cache_enable = $this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED');
-        }  
+         
          
 
          if ($this->context->cache_enable && !is_object($this->context->cache_api)) {

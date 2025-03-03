@@ -215,36 +215,15 @@ abstract class PhenyxController {
     public $_domAvailable;
     
     public $_compress;
-
-    public function getExtraPhenyxVars() {
-
-        $extraVars = $this->context->_hook->exec('actionPhenyxControllerGetExtraVars', ['controller_type' => $this->controller_type], null, true);
-
-        if (is_array($extraVars)) {
-
-            foreach ($extraVars as $plugin => $values) {
-
-                if (is_array($values)) {
-
-                    foreach ($values as $key => $value) {
-
-                        if (isset($value)) {
-                            $this->{$key}
-
-                            = $value;
-                        } else {
-                            $this->{$key};
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-
-    }
+    
+    public $_front_css_cache;
+    
+    public $_front_jss_cache;
+    
+    public $_back_css_cache;
+    
+    public $_back_jss_cache;
+    
 
     public function __construct() {
 
@@ -329,10 +308,7 @@ abstract class PhenyxController {
             'smarty_year' => date("Y"),
             'smarty_tag'  => date("i-s"),
         ]);
-
-        
-        $this->getExtraPhenyxVars();
-        
+                
         $this->ajax = $this->context->_tools->getValue('ajax') || $this->context->_tools->isSubmit('ajax');
 
         if (!headers_sent()
@@ -367,6 +343,17 @@ abstract class PhenyxController {
         $this->_defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
         $this->_domAvailable = extension_loaded('dom') ? true : false;
         $this->_compress = (bool) $this->context->phenyxConfig->get('EPH_JS_HTML_BACKOFFICE_COMPRESSION');
+        
+        if($this->controller_type == 'front') {
+            $this->_front_css_cache = $this->context->phenyxConfig->get('EPH_CSS_THEME_CACHE');
+            $this->_front_js_cache = $this->context->phenyxConfig->get('EPH_JS_THEME_CACHE');
+            
+        }
+        if($this->controller_type == 'admin') {
+            $this->_back_css_cache = $this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE');
+            $this->_back_js_cache = $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE');
+            
+        }
 
     }
 
@@ -755,8 +742,24 @@ abstract class PhenyxController {
     }
 
     public function generateParaGridToolBar() {
+        
+        $paramToolBarItems = null;
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {            
+            $value = $this->context->cache_api->getData('get' . $this->controller_name . 'ParaGridToolBar');
+            $temp = empty($value) ? null : Tools::jsonDecode($value, true);
 
-        $paramToolBarItems = $this->context->_hook->exec('action' . $this->controller_name . 'generateParaGridToolBar', [], null, true);
+            if (!empty($temp) && is_array($temp) && count($temp)) {
+                $paramToolBarItems =  $temp;
+            }
+
+        } 
+        if(is_null($paramToolBarItems)) {
+            $paramToolBarItems = $this->context->_hook->exec('action' . $this->controller_name . 'generateParaGridToolBar', [], null, true);
+            if ($this->context->cache_enable && is_object($this->context->cache_api)) {
+                $temp = $paramToolBarItems === null ? null : Tools::jsonEncode($paramToolBarItems);
+                $this->context->cache_api->putData('get' . $this->controller_name . 'ParaGridToolBar', $temp);
+            }
+        }
 
         if (is_array($paramToolBarItems)) {
 
@@ -784,10 +787,25 @@ abstract class PhenyxController {
 
         $menuItem = [];
         $contextMenu = new ParamContextMenu($this->className, $this->controller_name);
+        $contextMenuItems = null;
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {            
+            $value = $this->context->cache_api->getData('get' . $this->controller_name . 'ParaGridContextMenu');
+            $temp = empty($value) ? null : Tools::jsonDecode($value, true);
 
-        $contextMenuItems = $this->context->_hook->exec('action' . $this->controller_name . 'generateParaGridContextMenu', ['class' => $this->className, 'contextMenuItems' => $this->contextMenuItems], null, true);
+            if (!empty($temp) && is_array($temp) && count($temp)) {
+                $contextMenuItems =  $temp;
+            }
 
-        if (!empty($contextMenuItems)) {
+        } 
+        if(is_null($contextMenuItems)) {
+            $contextMenuItems = $this->context->_hook->exec('action' . $this->controller_name . 'generateParaGridContextMenu', ['class' => $this->className, 'contextMenuItems' => $this->contextMenuItems], null, true);
+            if ($this->context->cache_enable && is_object($this->context->cache_api)) {
+                $temp = $contextMenuItems === null ? null : Tools::jsonEncode($contextMenuItems);
+                $this->context->cache_api->putData('get' . $this->controller_name . 'ParaGridContextMenu', $temp);
+            }
+        }
+
+        if (!empty($contextMenuItems) && is_array($contextMenuItems)) {
 
             foreach ($contextMenuItems as $plugin => $contextMenuItem) {
 
@@ -834,9 +852,8 @@ abstract class PhenyxController {
         $this->context->phenyxgrid->paramController = !empty($this->paramController_name) ? $this->paramController_name : $this->controller_name;
         $this->context->phenyxgrid->paramTable = !empty($this->paramTable) ? $this->paramTable : $this->table;
         $this->context->phenyxgrid->paramIdentifier = !empty($this->paramIdentifier) ? $this->paramIdentifier : $this->identifier;
-
-
-        $extraVars = $this->context->_hook->exec('action' . $this->controller_name . 'ParaGridScript', ['controller_name' => $this->controller_name, 'phenyxgrid' => $this->context->phenyxgrid]);
+        
+        $extraVars = $this->context->_hook->exec('action' . $this->controller_name . 'ParaGridScript', ['controller_name' => $this->controller_name, 'phenyxgrid' => $this->context->phenyxgrid]);        
 
 
         $option = $this->context->phenyxgrid->generateParaGridOption();
@@ -1878,13 +1895,13 @@ abstract class PhenyxController {
             }
                         
             
-            if (($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE') || $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE')) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
+            if (($this->_back_css_cache || $this->_back_js_cache) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
 
-                if ($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE')) {
+                if ($this->_back_css_cache) {
                     $this->extracss = $this->context->media->admincccCss($this->extracss);
                 }
 
-                if ($this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE')) {
+                if ($this->_back_js_cache) {
                     $this->push_js_files = $this->context->media->admincccJS($this->push_js_files);
                 }
 
@@ -1950,13 +1967,13 @@ abstract class PhenyxController {
 
           
 
-            if (($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE') || $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE')) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
+            if (($this->_back_css_cache || $this->_back_js_cache) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
 
-                if ($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE')) {
+                if ($this->_back_css_cache) {
                     $this->extracss = $this->context->media->admincccCss($this->extracss);
                 }
 
-                if ($this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE')) {
+                if ($this->_back_js_cache) {
                     $this->push_js_files = $this->context->media->admincccJS($this->push_js_files);
                 }
 
@@ -2192,13 +2209,13 @@ abstract class PhenyxController {
         if ($layout) {
 
             
-            if (($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE') || $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE')) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
+            if (($this->_back_css_cache || $this->_back_js_cache) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
 
-                if ($this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE')) {
+                if ($this->_back_css_cache) {
                     $this->extracss = $this->context->media->admincccCss($this->extracss);
                 }
 
-                if ($this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE')) {
+                if ($this->_back_js_cache) {
                     $this->extraJs = $this->context->media->admincccJS($this->extraJs);
                 }
 

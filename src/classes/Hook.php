@@ -473,6 +473,8 @@ class Hook extends PhenyxObjectModel {
         $usePush = false,
         $objectReturn = false
     ) {
+        
+        $time_start = microtime(true);
        
         if (defined('EPH_INSTALLATION_IN_PROGRESS')) {
 
@@ -598,6 +600,11 @@ class Hook extends PhenyxObjectModel {
                 } else {
                     $output = $display;
                 }
+                
+                
+                $file = fopen("testHookPerf.txt","a");
+                fwrite($file, "Final Micro time for : " .$hookName.' Plugin : '.$pluginInstance->name.' '. round(microtime(true) - $time_start, 3) . PHP_EOL);
+                
                
 
             }
