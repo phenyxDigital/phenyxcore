@@ -19,7 +19,6 @@ class ImageManager {
     
     public function __construct() {
         
-        $this->className = get_class($this);
         $this->context = Context::getContext();
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = new Configuration();            
