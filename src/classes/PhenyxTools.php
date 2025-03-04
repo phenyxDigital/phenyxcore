@@ -217,7 +217,7 @@ class PhenyxTools {
 			$filePath = $file->getPathname();
 			$filePath = str_replace(_EPH_ROOT_DIR_, '', $filePath);
 
-			if (in_array($file->getFilename(), ['.', '..', '.htaccess', 'composer.lock', 'settings.inc.php', '.php-ini', '.php-version'])) {
+			if (in_array($file->getFilename(), ['.', '..', '.htaccess', 'composer.lock', 'settings.inc.php', '.gitattributes', '.php-ini', '.php-version'])) {
 				continue;
 			}
 
@@ -308,6 +308,7 @@ class PhenyxTools {
 					json_encode($md5List, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
 				);
 				chmod(_EPH_CONFIG_DIR_ . 'json/new_json.json', 0777);
+                return true;
 			}
 
 		}
