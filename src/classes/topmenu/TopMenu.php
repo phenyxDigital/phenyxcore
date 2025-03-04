@@ -2,6 +2,7 @@
 #[AllowDynamicProperties]
 class TopMenu extends PhenyxObjectModel {
 
+    protected static $instance;
     protected static $_forceCompile;
     protected static $_caching;
     protected static $_compileCheck;
@@ -1402,11 +1403,16 @@ class TopMenu extends PhenyxObjectModel {
         return $columnWrap;
     }
     
+    public static function getInstance($id = null, $idLang = null) {
 
-    public static function getInstance() {
+        if (!static::$hook_instance) {
+            static::$hook_instance = new TopMenu($id, $idLang);
+        }
 
-        return new TopMenu();
+        return static::$hook_instance;
     }
+    
+
 
     public function add($autodate = true, $nullValues = false) {
 

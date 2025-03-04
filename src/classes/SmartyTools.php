@@ -213,11 +213,11 @@ class SmartyTools {
         
         $context = Context::getContext();
         if (!isset($context->phenyxConfig)) {
-            $context->phenyxConfig = new Configuration();
+            $context->phenyxConfig = Configuration::getInstance();
             
         }
         if (!isset($context->company)) {
-            $context->company = new Company($context->phenyxConfig->get('EPH_COMPANY_ID'));
+            $context->company = Company::getInstance($context->phenyxConfig->get('EPH_COMPANY_ID'));
             
         }
         if (!isset($context->language)) {

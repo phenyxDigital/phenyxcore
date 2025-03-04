@@ -74,10 +74,10 @@ class BackTab extends PhenyxObjectModel {
 
     }
 
-    public static function getInstance() {
+    public static function getInstance($id = null, $idLang = null) {
 
         if (!BackTab::$instance) {
-            BackTab::$instance = new BackTab();
+            BackTab::$instance = new BackTab($id, $idLang);
         }
 
         return BackTab::$instance;

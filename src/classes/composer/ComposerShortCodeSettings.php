@@ -13,7 +13,7 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 		$this->loadDefaultParams();
 		$output = $el_position = '';
 		$groups_content = [];
-		$vc_manager = new Composer();
+		$vc_manager = Composer::getInstance();
         fwrite($file,print_r($this->settings, true));
 		if (isset($this->settings['params'])) {
 			$shortcode_attributes = [];

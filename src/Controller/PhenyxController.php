@@ -253,12 +253,12 @@ abstract class PhenyxController {
             
         }
         if (!isset($this->context->company)) {
-            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
         }
                 
 
         if (!isset($this->context->_hook)) {
-            $this->context->_hook = new Hook();
+            $this->context->_hook = Hook::getInstance();
         }
 
         if (!isset($this->context->hook_args)) {

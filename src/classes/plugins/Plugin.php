@@ -205,7 +205,7 @@ abstract class Plugin {
             $this->context = Context::getContext();
         }
         if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = new Configuration();
+            $this->context->phenyxConfig = Configuration::getInstance();
             
         }
         
@@ -214,7 +214,7 @@ abstract class Plugin {
         }
         if (!isset($this->context->company)) {
 
-            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
         }
         if (!isset($this->context->language)) {
             $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
@@ -2712,7 +2712,7 @@ abstract class Plugin {
             $this->context = Context::getContext();
         }
         if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = new Configuration();
+            $this->context->phenyxConfig = Configuration::getInstance();
             
         }
         if (!isset($this->context->company)) {

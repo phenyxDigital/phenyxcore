@@ -69,7 +69,7 @@ class Hook extends PhenyxObjectModel {
         $this->className = get_class($this);
         $this->context = Context::getContext();
         if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = new Configuration();
+            $this->context->phenyxConfig = Configuration::getInstance();
             
         }
         
@@ -108,10 +108,10 @@ class Hook extends PhenyxObjectModel {
 
     }
 
-    public static function getInstance() {
+    public static function getInstance($id = null, $idLang = null) {
 
         if (!static::$hook_instance) {
-            static::$hook_instance = new Hook();
+            static::$hook_instance = new Hook($id, $idLang);
         }
 
         return static::$hook_instance;

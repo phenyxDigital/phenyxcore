@@ -20,7 +20,7 @@ class DbAdminQuery {
     public $extraWheres = [];
     
     public function __construct() {
-        $this->_hook = new Hook();
+        $this->_hook = Hook::getInstance();
 		$this->context = Context::getContext();
         if (isset($this->context->controller) && isset($this->context->controller->controller_name)) {
             $this->controller_name = $this->context->controller->controller_name;

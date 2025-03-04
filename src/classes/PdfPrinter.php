@@ -19,11 +19,11 @@ class PdfPrinter extends Mpdf {
         $this->_smarty = $this->context->smarty;
         
         if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = new Configuration();
+            $this->context->phenyxConfig = Configuration::getInstance();
             
         }
         if (!isset($this->context->company)) {
-            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
             
         }
         if (!isset($this->context->language)) {

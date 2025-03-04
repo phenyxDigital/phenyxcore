@@ -242,7 +242,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         
         $this->context = Context::getContext();
         if (!PhenyxObjectModel::$hook_instance) {
-            PhenyxObjectModel::$hook_instance = new Hook();
+            PhenyxObjectModel::$hook_instance = Hook::getInstance();
             $this->context->_hook = PhenyxObjectModel::$hook_instance;
             $this->context->hook_args = $this->context->_hook->getHookArgs();
         }
@@ -301,11 +301,11 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         
         
         if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = new Configuration();
+            $this->context->phenyxConfig = Configuration::getInstance();
             
         }
         if (!isset($this->context->company)) {
-            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
             
         }
         if (!isset($this->context->language)) {
@@ -471,12 +471,12 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
     }
 
-    public static function getInstance() {
+    public static function getInstance($id = null, $idLang = null) {
 
         $class_name = get_called_class();
 
         if (!$class_name::$instance) {
-            $class_name::$instance = new $class_name();
+            $class_name::$instance = new $class_name($id, $idLang);
         }
 
         return $class_name::$instance;

@@ -223,7 +223,7 @@ class ComposerBase {
 		}
 
 		if (!empty($page_id)) {
-            $phenyxConfig = new Configuration();
+            $phenyxConfig = Configuration::getInstance();
 			$id = $page_id;
 			$optionname = "_wpb_{$page_type}_{$id}_{$id_lang}_css";
 

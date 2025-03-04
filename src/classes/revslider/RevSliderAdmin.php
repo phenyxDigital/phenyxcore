@@ -17,7 +17,7 @@ class RevSliderAdmin extends RevSliderFunctionsAdmin {
         
         $this->context = Context::getContext();
         if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = new Configuration();
+            $this->context->phenyxConfig = Configuration::getInstance();
             
         }
 

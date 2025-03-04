@@ -78,10 +78,10 @@ class GsiteMap extends PhenyxObjectModel {
 
 	}
 
-	public static function getInstance() {
+	public static function getInstance($id = null, $idLang = null) {
 
 		if (!GsiteMap::$instance) {
-			GsiteMap::$instance = new GsiteMap();
+			GsiteMap::$instance = new GsiteMap($id, $idLang);
 		}
 
 		return GsiteMap::$instance;
@@ -608,8 +608,7 @@ class GsiteMap extends PhenyxObjectModel {
     public function getRobotsContent() {
 
         $tab = [];
-        $hook = new Hook();
-
+        
         // Special allow directives
         $tab['Allow'] = ['*/plugins/*.css', '*/plugins/*.js'];
 
@@ -620,7 +619,7 @@ class GsiteMap extends PhenyxObjectModel {
         $disallowControllers = [
             'footer', 'get-file',  'identity', 'my-account',  'password',  'statistics', 'guest-tracking'
         ];
-        $disallows = $hook->exec('actionDisallowControllers', [], null, true);
+        $disallows = $this->context->_hook->exec('actionDisallowControllers', [], null, true);
 
 		if (is_array($disallows)) {
 

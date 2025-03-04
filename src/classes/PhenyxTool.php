@@ -4386,8 +4386,8 @@ FileETag none
      */
     public function getTimeZone() {
 
-        $phenyxConfig = new Configuration();
-        $timezone = $phenyxConfig->get('EPH_TIMEZONE');
+       
+        $timezone = $this->context->phenyxConfig->get('EPH_TIMEZONE');
 
         if (!$timezone) {
             // Fallback use php timezone settings.
@@ -4519,7 +4519,7 @@ FileETag none
             
             }
             if (!isset($this->context->company)) {
-                $this->context->company = new Company($phenyxConfig->get('EPH_COMPANY_ID'));
+                $this->context->company = Company::getInstance($phenyxConfig->get('EPH_COMPANY_ID'));
             
             }
             if(!isset($this->context->theme)) {
@@ -5265,8 +5265,7 @@ FileETag none
 
 
     public function singleFontsUrl() {
-
-        $phenyxConfig = new Configuration();
+        
         $url = '//fonts.googleapis.com/css?family=';
         $main_str = '';
         $subsets_str = '';
@@ -5277,10 +5276,10 @@ FileETag none
         if (isset($font_types) && !empty($font_types)) {
 
             foreach ($font_types as $font_type) {
-                $famil = $phenyxConfig->get($font_type . '_family');
+                $famil = $this->context->phenyxConfig->get($font_type . '_family');
                 $all_fonts[$famil]['fonts'] = $famil;
-                $all_fonts[$famil]['variants'] = $phenyxConfig->get($font_type . '_variants');
-                $subset = $phenyxConfig->get($font_type . '_subsets');
+                $all_fonts[$famil]['variants'] = $this->context->phenyxConfig->get($font_type . '_variants');
+                $subset = $this->context->phenyxConfig->get($font_type . '_subsets');
 
                 if (isset($subset) && !empty($subset)) {
                     $subsetarr = @explode(",", $subset);

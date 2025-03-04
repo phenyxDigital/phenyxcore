@@ -106,7 +106,7 @@ class Encryptor {
      */
     private static function getCipherTool() {
 
-        $phenyxConfig = new Configuration();
+        $phenyxConfig = Configuration::getInstance();
         $algo = (int) $phenyxConfig->get('EPH_CIPHER_ALGORITHM');
 
         if ($algo === static::ALGO_PHP_ENCRYPTION && static::supportsPhpEncryption()) {

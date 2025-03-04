@@ -4391,7 +4391,7 @@ FileETag none
      */
     public static function getTimeZone() {
 
-        $phenyxConfig = new Configuration();
+        $phenyxConfig = Configuration::getInstance();
         $timezone = $phenyxConfig->get('EPH_TIMEZONE');
 
         if (!$timezone) {
@@ -4525,7 +4525,7 @@ FileETag none
             
             }
             if (!isset($context->company)) {
-                $context->company = new Company($phenyxConfig->get('EPH_COMPANY_ID'));
+                $context->company = Company::getInstance($phenyxConfig->get('EPH_COMPANY_ID'));
             
             }
             if(!isset($context->theme)) {

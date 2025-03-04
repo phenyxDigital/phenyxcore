@@ -37,7 +37,7 @@ class Translation extends PhenyxObjectModel {
         $this->className = get_class($this);
         $this->context = Context::getContext();
         if (!PhenyxObjectModel::$hook_instance) {
-            PhenyxObjectModel::$hook_instance = new Hook();
+            PhenyxObjectModel::$hook_instance = Hook::getInstance();
             $this->context->_hook = PhenyxObjectModel::$hook_instance;
         }
         if (!isset(PhenyxObjectModel::$loaded_classes[$this->className])) {
@@ -109,10 +109,10 @@ class Translation extends PhenyxObjectModel {
         
     }
 
-    public static function getInstance() {
+    public static function getInstance($id = null, $idLang = null) {
 
         if (!Translation::$instance) {
-            Translation::$instance = new Translation();
+            Translation::$instance = new Translation($id, $idLang);
         }
 
         return Translation::$instance;

@@ -23,10 +23,10 @@ class ImageManager {
         
            
         if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = new Configuration();            
+            $this->context->phenyxConfig = Configuration::getInstance();            
         }      
         if (!isset($this->context->company)) {
-            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
         }
         if (!isset($this->context->_tools)) {
             $this->context->_tools = PhenyxTool::getInstance();
@@ -37,7 +37,7 @@ class ImageManager {
             $this->context->theme = $defaul_theme;
         }
         if (!isset($this->context->_hook)) {
-            $this->context->_hook = new Hook();
+            $this->context->_hook = Hook::getInstance();
         }
                 
         $this->context->img_manager = $this;

@@ -189,10 +189,10 @@ class Configuration extends PhenyxObjectModel {
         
     }
     
-    public static function getInstance() {
+    public static function getInstance($id = null, $idLang = null) {
        
 		if (!isset(static::$instance)) {
-			static::$instance = new Configuration();
+			static::$instance = new Configuration($id, $idLang);
 		}
         
 		return static::$instance;

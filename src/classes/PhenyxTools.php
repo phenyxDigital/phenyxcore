@@ -30,7 +30,7 @@ class PhenyxTools {
             $this->context->phenyxConfig =  Configuration::getInstance();
             
         }
-		$this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+		$this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
 		$this->context->theme = new Theme((int) $this->context->company->id_theme);
 		$this->default_theme = $this->context->theme->directory;
 		$this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
