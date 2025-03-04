@@ -40,6 +40,10 @@ class Hook extends PhenyxObjectModel {
     public $plugins = [];
 
     public $available_plugins = [];
+    
+    public static $counter = 1;
+    
+    public static $total_time = 0;
     /**
      * @see PhenyxObjectModel::$definition
      */
@@ -169,8 +173,6 @@ class Hook extends PhenyxObjectModel {
 
         return $args;
     }
-
-
     
     public function getPlugins($force = false) {
 
@@ -473,8 +475,10 @@ class Hook extends PhenyxObjectModel {
         $usePush = false,
         $objectReturn = false
     ) {
-        
-        $time_start = microtime(true);
+        if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
+            $time_start = microtime(true);
+            
+        }
        
         if (defined('EPH_INSTALLATION_IN_PROGRESS')) {
 
@@ -601,9 +605,16 @@ class Hook extends PhenyxObjectModel {
                     $output = $display;
                 }
                 
-                
-                $file = fopen("testHookPerf.txt","a");
-                fwrite($file, "Final Micro time for : " .$hookName.' Plugin : '.$pluginInstance->name.' '. round(microtime(true) - $time_start, 3) . PHP_EOL);
+                if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
+                    if(static::$counter == 1) {
+                        $file = fopen("testHookPerf.txt","w");
+                    } else {
+                        $file = fopen("testHookPerf.txt","a");
+                    }          
+                    static::$total_time = static::$total_time + round(microtime(true) - $time_start, 3);
+                    fwrite($file, "Final Micro time for : " .$hookName.' range : '.static::$counter.' Plugin : '.$pluginInstance->name.' '. round(microtime(true) - $time_start, 3) . PHP_EOL.static::$total_time.PHP_EOL);
+                    static::$counter ++;
+                }
                 
                
 

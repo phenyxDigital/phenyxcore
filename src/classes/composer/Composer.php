@@ -7,6 +7,7 @@ use Thunder\Shortcode\Shortcode\ShortcodeInterface;
 class Composer {
 
     protected static $instance;
+    public static $initialized = false;
     public $context;
     public $post_custom_css;
     public $cawobj;
@@ -729,12 +730,16 @@ class Composer {
 
     public function init() {
 
+        if (static::$initialized) {
+            return;
+        }
         $this->vcallmod();
         $this->add_custom_param_code();
         $this->setMode();
         $this->vc()->initAdmin();
         $this->mapper()->buildShortCodeTag();
         $this->is_admin() && $this->asAdmin();
+        static::$initialized = true;
     }
 
     protected function asAdmin() {
