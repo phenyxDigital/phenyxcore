@@ -37,6 +37,8 @@ class Context {
 	
 	/** @var Customer */
 	public $user;
+    
+    public $guest;
 	/** @var Cookie */
 	public $cookie;
     

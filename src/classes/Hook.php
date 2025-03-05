@@ -34,12 +34,6 @@ class Hook extends PhenyxObjectModel {
     public $title;
 
     public $description;
-
-    public $tag_value;
-
-    public $plugins = [];
-
-    public $available_plugins = [];
     
     public static $counter = 1;
     
@@ -50,21 +44,12 @@ class Hook extends PhenyxObjectModel {
     public static $definition = [
         'table'     => 'hook',
         'primary'   => 'id_hook',
-        'multilang' => true,
         'fields'    => [
             'name'              => ['type' => self::TYPE_STRING, 'validate' => 'isHookName', 'required' => true, 'size' => 64],
-            'target'            => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName'],
-            'position'          => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
-            'is_tag'            => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName'],
-            'metas'             => ['type' => self::TYPE_NOTHING, 'validate' => 'isJSON'],
-            'plugins'           => ['type' => self::TYPE_NOTHING],
-            'available_plugins' => ['type' => self::TYPE_NOTHING],
-            'live_edit'         => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-            /* Lang fields */
-            'generated'         => ['type' => self::TYPE_BOOL, 'lang' => true],
-            'title'             => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName'],
-            'description'       => ['type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml'],
-            'tag_value'         => ['type' => self::TYPE_STRING, 'lang' => true],
+            'title'             => ['type' => self::TYPE_STRING,  'validate' => 'isGenericName'],
+            'description'       => ['type' => self::TYPE_HTML,  'validate' => 'isCleanHtml'],
+            'static'         => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+            
         ],
     ];
 
@@ -103,9 +88,6 @@ class Hook extends PhenyxObjectModel {
             $this->id = $id;
             $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
             $entityMapper->load($this->id, $idLang, $this, $this->def, false);
-            $this->plugins = $this->getPlugins();
-            $this->available_plugins = $this->getPossiblePluginList();
-            $this->metas = Tools::jsonDecode($this->metas, true);
         }
         
         
@@ -123,19 +105,14 @@ class Hook extends PhenyxObjectModel {
 
     public function add($autoDate = true, $nullValues = false) {
 
-        $this->plugins = Tools::jsonEncode($this->plugins);
-        $this->available_plugins = Tools::jsonEncode($this->available_plugins);
-        $this->metas = Tools::jsonEncode($this->metas);
-        CacheApi::clean('hook_idsbyname');
+       
 
         return parent::add($autoDate, $nullValues);
     }
 
     public function update($nullValues = false) {
 
-        $this->plugins = Tools::jsonEncode($this->plugins);
-        $this->available_plugins = Tools::jsonEncode($this->available_plugins);
-        $this->metas = Tools::jsonEncode($this->metas);
+       
         $return = parent::update($nullValues);
 
         return $return;
@@ -174,96 +151,7 @@ class Hook extends PhenyxObjectModel {
         return $args;
     }
     
-    public function getPlugins($force = false) {
-
-        if (!empty($this->plugins) || $force) {
-            return Tools::jsonDecode($this->plugins, true);
-        }
-
-        $plugins = $this->getHookPluginExecList($this->name);
-        $collection = [];
-
-        if (is_array($plugins)) {
-
-            foreach ($plugins as &$plugin) {
-                $tmpInstance = Plugin::getInstanceById($plugin['id_plugin']);
-
-                if (!$tmpInstance->active) {
-                    continue;
-                }
-
-                $position = Db::getInstance()->getValue(
-                    (new DbQuery())
-                        ->select('position')
-                        ->from('hook_plugin')
-                        ->where('`id_hook` =' . $this->id)
-                        ->where('`id_plugin` =' . $plugin['id_plugin'])
-                );
-                $collection[$tmpInstance->name] = [
-                    'id_plugin'   => $plugin['id_plugin'],
-                    'displayName' => $tmpInstance->displayName,
-                    'id_hook'     => $this->id,
-                    'position'    => $position,
-                ];
-
-            }
-
-        }
-
-        $this->plugins = $collection;
-        $this->update();
-        return $collection;
-    }
-
-    public function getPossiblePluginList($force = false) {
-
-        if (!empty($this->available_plugins) || $force) {
-            return Tools::jsonDecode($this->available_plugins, true);
-        }
-
-        if ($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $cacheId = 'getPossiblePluginList';
-            $value = $this->context->cache_api->getData($cacheId);
-            $temp = empty($value) ? null : Tools::jsonDecode($value, true);
-
-            if (!empty($temp)) {
-                return $temp;
-            }
-
-        }
-
-        $collection = [];
-        $plugins = Plugin::getPluginsOnDisk();
-
-        foreach ($plugins as $plugin) {
-
-            if (is_array($this->plugins) && array_key_exists($plugin->name, $this->plugins)) {
-                continue;
-            }
-
-            $tmpInstance = Plugin::getInstanceById($plugin->id);
-
-            if ($tmpInstance->active && is_callable([$tmpInstance, 'hook' . ucfirst($this->name)])) {
-                $collection[$tmpInstance->name] = [
-                    'id_plugin' => $tmpInstance->id,
-                    'name'      => $tmpInstance->name,
-                ];
-            }
-
-        }
-
-        $this->available_plugins = $collection;
-        $this->update();
-
-        if ($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $temp = $collection === null ? null : Tools::jsonEncode($collection);
-            $this->context->cache_api->putData($cacheId, $temp);
-        }
-
-        return $collection;
-
-    }
-
+    
     public function getHooksCollection($idLang = null) {
 
         $collection = [];
@@ -284,15 +172,14 @@ class Hook extends PhenyxObjectModel {
     public function getHooks($position = false) {
 
         $query = new DbQuery();
-        $query->select('h.*, hl.*');
-        $query->from('hook', 'h');
-        $query->leftJoin('hook_lang', 'hl', 'hl.`id_hook` = h.`id_hook` AND hl.`id_lang` = ' . $this->context->language->id);
+        $query->select('*');
+        $query->from('hook');
 
         if ($position) {
-            $query->where('h`position` = 1');
+            $query->where('`position` = 1');
         }
 
-        $query->orderBy('h.`name`');
+        $query->orderBy('`name`');
 
         return Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS($query);
     }
@@ -335,10 +222,9 @@ class Hook extends PhenyxObjectModel {
                 ->select('DISTINCT(hm.`id_hook`), h.*')
                 ->from('hook_plugin', 'hm')
                 ->leftJoin('hook', 'h', 'h.`id_hook` = hm.`id_hook`')
-                ->leftJoin('hook_lang', 'hl', 'hl.`id_hook` = h.`id_hook` AND hl.`id_lang` = ' . $this->context->language->id)
                 ->leftJoin('plugin', 'm', 'm.`id_plugin` = hm.`id_plugin`')
                 ->orderBy('hm.`position` ASC')
-                ->where('h.live_edit = 1 AND m.active = 1')
+                ->where('m.active = 1')
         );
     }
 
@@ -349,10 +235,9 @@ class Hook extends PhenyxObjectModel {
         if (!$use_cache || !CacheApi::isStored($cacheId)) {
 
             $results = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS('
-                SELECT h.id_hook, h.name AS h_name, hl.title, hl.description, h.position, h.live_edit, hm.position AS hm_position, m.id_plugin, m.name, m.active
+                SELECT h.id_hook, h.name AS h_name, h.title, h.description, h.position, h.static, hm.position AS hm_position, m.id_plugin, m.name, m.active
                 FROM `' . _DB_PREFIX_ . 'hook_plugin` hm
                 STRAIGHT_JOIN `' . _DB_PREFIX_ . 'hook` h ON (h.id_hook = hm.id_hook)
-                STRAIGHT_JOIN `' . _DB_PREFIX_ . 'hook_lang` hl ON (hl.id_hook = h.id_hook AND hl.id_lang = ' . (int) Context::getContext()->language->id . ')
                 STRAIGHT_JOIN `' . _DB_PREFIX_ . 'plugin` AS m ON (m.id_plugin = hm.id_plugin)
                 ORDER BY hm.position'
             );
@@ -369,7 +254,7 @@ class Hook extends PhenyxObjectModel {
                     'title'       => $result['title'],
                     'description' => $result['description'],
                     'hm.position' => $result['position'],
-                    'live_edit'   => $result['live_edit'],
+                    'static'      => $result['static'],
                     'm.position'  => $result['hm_position'],
                     'id_plugin'   => $result['id_plugin'],
                     'name'        => $result['name'],
@@ -668,7 +553,7 @@ class Hook extends PhenyxObjectModel {
 
             // SQL Request
             $sql = new DbQuery();
-            $sql->select('h.`name` as hook, m.`id_plugin`, h.`id_hook`, m.`name` as plugin, h.`live_edit`, hm.`position`');
+            $sql->select('h.`name` as hook, m.`id_plugin`, h.`id_hook`, m.`name` as plugin, h.`static`, hm.`position`');
             $sql->from('plugin', 'm');
             $sql->innerJoin('hook_plugin', 'hm', 'hm.`id_plugin` = m.`id_plugin`');
             $sql->innerJoin('hook', 'h', 'hm.`id_hook` = h.`id_hook`');
@@ -732,7 +617,7 @@ class Hook extends PhenyxObjectModel {
                         'plugin'    => $row['plugin'],
                         'id_plugin' => $row['id_plugin'],
                         'position'  => $row['position'],
-                        'live_edit' => $row['live_edit'],
+                        'static' => $row['static'],
                     ];
                 }
 

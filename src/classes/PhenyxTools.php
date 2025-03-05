@@ -829,23 +829,6 @@ class PhenyxTools {
 
 		}
 
-		$query = 'SELECT DISTINCT(id_hook)  FROM `' . _DB_PREFIX_ . 'hook_lang`  ORDER BY id_hook ASC';
-		$hooks = Db::getInstance()->executeS($query);
-
-		foreach ($hooks as $hook) {
-			$parent = Db::getInstance()->getValue(
-				(new DbQuery())
-					->select('`id_hook`')
-					->from('hook')
-					->where('`id_hook` = ' . (int) $hook['id_hook'])
-			);
-
-			if (!$parent) {
-				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_lang` WHERE id_hook = ' . $hook['id_hook'];
-				Db::getInstance()->execute($sql);
-			}
-
-		}
 
 		$query = 'SELECT DISTINCT(id_hook)  FROM `' . _DB_PREFIX_ . 'hook_plugin`  ORDER BY id_hook ASC';
 		$hooks = Db::getInstance()->executeS($query);

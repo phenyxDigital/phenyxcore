@@ -2763,11 +2763,8 @@ abstract class Plugin {
                 $newHook = new Hook();
                 $newHook->name = pSQL($hookName);
                 $newHook->title = pSQL($hookName);
-                $newHook->live_edit = (bool) preg_match('/^display/i', $newHook->name);
+                $newHook->static = (bool) preg_match('/^display/i', $newHook->name);
                 $newHook->position = 1;
-                $newHook->available_plugins = [];
-                $newHook->metas = [];
-                $newHook->plugins = [];
                 $newHook->add();
                 $idHook = $newHook->id;
 
@@ -2793,9 +2790,6 @@ abstract class Plugin {
             $hookPlugin->id_hook = (int) $idHook;
             $return = $hookPlugin->add(true, false, $position);
 
-            $hook = new Hook($idHook);
-            $hook->getPlugins(true);
-            $hook->getPossiblePluginList(true);
             $this->context->_hook->exec('actionPluginRegisterHookAfter', ['object' => $this, 'hook_name' => $hookName]);
         }
 
