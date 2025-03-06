@@ -20,7 +20,7 @@ class PhenyxServiceContainer {
     public static function getInstance() {
 
 		if (!isset(static::$instance)) {
-			static::$instance = new ServiceContainer();
+			static::$instance = new PhenyxServiceContainer();
 		}
 
 		return static::$instance;
