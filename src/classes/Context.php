@@ -44,6 +44,8 @@ class Context {
     
     public $_hook;
     
+    public $_session;
+    
     public $hook_args;
 	/** @var Link */
 	public $link;

@@ -169,6 +169,11 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
     public $extraDefs = null;
 
     public $excludes = [];
+    
+    
+    private $services;
+    
+    public $_session;
 
     public function getExtraVars() {
         
@@ -414,7 +419,17 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
             unset($this->excludes);
         }
+        
+        $this->services = PhenyxServiceContainer::getInstance();
+        $this->services->registerService($this->className, $this->className);
+        
+        $this->_session = PhenyxSession::getInstance();
 
+    }
+    
+    public function setServiceContainer($container) {
+        
+        $this->services = $container;
     }
 
     public static function buildObject($id, $id_lang = null, $className = null) {
