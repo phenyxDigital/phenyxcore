@@ -67,7 +67,7 @@ class Composer {
         global $globalShortcodeHandler;
         $this->context = Context::getContext();
         if (!isset($this->context->media)) {
-            $this->context->media = new Media();
+            $this->context->media = Media::getInstance();
         }
 
         self::$sds_action_hooks['wpb_single_image_src'] = [ & $this, 'wpb_single_image_src'];

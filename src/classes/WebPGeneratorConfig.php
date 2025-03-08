@@ -6,6 +6,8 @@
 class WebPGeneratorConfig {
 
     /** Required for PHP < 5.6 compatibility */
+    protected static $instance;
+    
     public static $className = 'WebPGeneratorConfig';
 
     public static $multiLang = [];
@@ -46,6 +48,15 @@ class WebPGeneratorConfig {
         
 
     }
+    
+    public static function getInstance() {
+       
+		if (!isset(static::$instance)) {
+			static::$instance = new WebPGeneratorConfig();
+		}
+        
+		return static::$instance;
+	}
     
     /**
      * Save a config value

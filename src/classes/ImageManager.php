@@ -289,7 +289,7 @@ class ImageManager {
 
     public function actionOnImageResizeAfter($dstFile, $newFile) {
 
-        $webp = new WebPGeneratorConfig();
+        $webp = WebPGeneratorConfig::getInstance();
 		$config = $webp->getConverterSettings();
 		
 		

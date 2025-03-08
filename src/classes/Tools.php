@@ -5914,7 +5914,7 @@ FileETag none
             return true;
         }
 
-        return $this->context->img_manager->actionOnImageResizeAfter($destination, $newFile);
+        return Context::getContext()->img_manager->actionOnImageResizeAfter($destination, $newFile);
 
     }
     

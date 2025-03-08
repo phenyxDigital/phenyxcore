@@ -10,6 +10,7 @@ use tubalmartin\CssMin\Minifier;
  */
 class Media {
 
+    protected static $instance;
     const FAVICON = 1;
     const FAVICON_57 = 2;
     const FAVICON_72 = 3;
@@ -95,6 +96,15 @@ class Media {
         
 
     }
+    
+    public static function getInstance() {
+       
+		if (!isset(static::$instance)) {
+			static::$instance = new Media();
+		}
+        
+		return static::$instance;
+	}
 
     public function minifyHTML($htmlContent) {
 

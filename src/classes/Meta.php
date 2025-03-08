@@ -7,6 +7,7 @@
  */
 class Meta extends PhenyxObjectModel {
     
+    protected static $instance;
     // @codingStandardsIgnoreStart
     public $page;
 	public $controller;
@@ -45,6 +46,15 @@ class Meta extends PhenyxObjectModel {
     public function __construct($id = null) {
 
 		parent::__construct($id);
+	}
+    
+    public static function getInstance($id = null, $idLang = null) {
+       
+		if (!isset(static::$instance)) {
+			static::$instance = new Meta($id, $idLang);
+		}
+        
+		return static::$instance;
 	}
     
      public function add($autoDate = true, $nullValues = true) {

@@ -228,7 +228,7 @@ abstract class Plugin {
         }
         
         if (!isset($this->context->media)) {
-            $this->context->media = new Media();
+            $this->context->media = Media::getInstance();
         }
         
         if(!isset($this->context->link)) {

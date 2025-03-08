@@ -324,7 +324,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         }
         
         if (!isset($this->context->media)) {
-            $this->context->media = new Media();
+            $this->context->media = Media::getInstance();
         }
         
         if(!isset($this->context->link)) {
