@@ -1405,11 +1405,11 @@ class TopMenu extends PhenyxObjectModel {
     
     public static function getInstance($id = null, $idLang = null) {
 
-        if (!static::$hook_instance) {
-            static::$hook_instance = new TopMenu($id, $idLang);
+        if (!static::$instance) {
+            static::$instance = new TopMenu($id, $idLang);
         }
 
-        return static::$hook_instance;
+        return static::$instance;
     }
     
 
