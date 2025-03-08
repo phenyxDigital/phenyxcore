@@ -14,8 +14,8 @@ class HelperImageUploader extends HelperUploader {
      * @version 1.8.5.0
      */
     public function getMaxSize() {
-
-        return (int) Tools::getMaxUploadSize();
+        
+        return (int) $this->context->_tools->getMaxUploadSize();
     }
 
     /**
@@ -59,30 +59,30 @@ class HelperImageUploader extends HelperUploader {
             return false;
         }
 
-        $postMaxSize = Tools::convertBytes(ini_get('post_max_size'));
+        $postMaxSize = $this->context->_tools->convertBytes(ini_get('post_max_size'));
 
-        $uploadMaxFilesize = Tools::convertBytes(ini_get('upload_max_filesize'));
+        $uploadMaxFilesize = $this->context->_tools->displayError(ini_get('upload_max_filesize'));
 
         if ($postMaxSize && ($this->_getServerVars('CONTENT_LENGTH') > $postMaxSize)) {
-            $file['error'] = Tools::displayError('The uploaded file exceeds the post_max_size directive in php.ini');
+            $file['error'] = $this->context->_tools->displayError('The uploaded file exceeds the post_max_size directive in php.ini');
 
             return false;
         }
 
         if ($uploadMaxFilesize && ($this->_getServerVars('CONTENT_LENGTH') > $uploadMaxFilesize)) {
-            $file['error'] = Tools::displayError('The uploaded file exceeds the upload_max_filesize directive in php.ini');
+            $file['error'] = $this->context->_tools->displayError('The uploaded file exceeds the upload_max_filesize directive in php.ini');
 
             return false;
         }
 
-        if ($error = $this->context->img_manager->validateUpload($file, Tools::getMaxUploadSize($this->getMaxSize()), $this->getAcceptTypes())) {
+        if ($error = $this->context->img_manager->validateUpload($file, $this->context->_tools->getMaxUploadSize($this->getMaxSize()), $this->getAcceptTypes())) {
             $file['error'] = $error;
 
             return false;
         }
 
         if ($file['size'] > $this->getMaxSize()) {
-            $file['error'] = sprintf(Tools::displayError('File (size : %1s) is too big (max : %2s)'), $file['size'], $this->getMaxSize());
+            $file['error'] = sprintf($this->context->_tools->displayError('File (size : %1s) is too big (max : %2s)'), $file['size'], $this->getMaxSize());
 
             return false;
         }

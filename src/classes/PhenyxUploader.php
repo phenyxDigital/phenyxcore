@@ -15,6 +15,8 @@ class PhenyxUploader {
     private $_max_size;
     private $_name;
     private $_save_path;
+    
+    public $context;
 
     /**
      * Uploader constructor.
@@ -29,6 +31,7 @@ class PhenyxUploader {
         $this->setName($name);
         $this->setCheckFileSize(true);
         $this->_files = [];
+        $this->context = Context::getContext();
     }
 
     /**

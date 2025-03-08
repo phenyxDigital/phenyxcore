@@ -718,7 +718,7 @@ class InstallXmlLoader {
                     @chmod($targetFile, 0644);
                 }
                 // Resize the image if no cache was prepared in fixtures
-                else if (!ImageManager::resize($fromPath . $identifier . '.' . $extension, $targetFile, $type['width'], $type['height'])) {
+                else if (!$this->context->img_manager->resize($fromPath . $identifier . '.' . $extension, $targetFile, $type['width'], $type['height'])) {
                     $this->setError($this->language->l('Cannot create image "%1$s" for entity "%2$s"', $identifier . '-' . $type['name'], $entity));
                 }
 
@@ -1012,7 +1012,7 @@ class InstallXmlLoader {
                 @chmod($targetFile, 0644);
             }
             // Resize the image if no cache was prepared in fixtures
-            else if (!ImageManager::resize($path . $identifier . '.jpg', $targetFile, $type['width'], $type['height'])) {
+            else if (!$this->context->img_manager->resize($path . $identifier . '.jpg', $targetFile, $type['width'], $type['height'])) {
                 $this->setError($this->language->l('Cannot create image "%1$s" for entity "%2$s"', $identifier . '-' . $type['name'], 'product'));
             }
 
