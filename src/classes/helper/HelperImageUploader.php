@@ -75,7 +75,7 @@ class HelperImageUploader extends HelperUploader {
             return false;
         }
 
-        if ($error = ImageManager::validateUpload($file, Tools::getMaxUploadSize($this->getMaxSize()), $this->getAcceptTypes())) {
+        if ($error = $this->context->img_manager->validateUpload($file, Tools::getMaxUploadSize($this->getMaxSize()), $this->getAcceptTypes())) {
             $file['error'] = $error;
 
             return false;
