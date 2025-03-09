@@ -3763,7 +3763,6 @@ abstract class PhenyxController {
         $peformances = [];
         $total_hook_time = 0;
         $total_memory_time = 0;
-        $file = fopen("testdisplayProfilingHooks.txt","w");
        
         foreach ($perfs as $hook => $value) {
             
@@ -3779,7 +3778,7 @@ abstract class PhenyxController {
             
         }
         
-        fwrite($file,print_r($peformances, true).PHP_EOL);
+       
         
         $this->content_ajax .= '
         <div id="hooksPerf"><div class="col-lg-12">
@@ -3792,9 +3791,6 @@ abstract class PhenyxController {
                 </tr>';
 
         foreach ($peformances as $hook => $perf) {
-            fwrite($file,print_r($pef, true).PHP_EOL);
-            fwrite($file,$perf['memory'].PHP_EOL);
-            fwrite($file,$this->getMemoryColor($perf['memory']).PHP_EOL);
             $this->content_ajax .= '
                 <tr>
                     <td>
@@ -3829,15 +3825,12 @@ abstract class PhenyxController {
         $peformances = [];     
         $total_plugin_time = 0;
         $total_plugins_memory = 0;
-        $file = fopen("testdisplayProfilingPlugins.txt","w");
         foreach ($perfs as $plugin => $value) {
             
             $time = $value['time'];
-            fwrite($file,$time.PHP_EOL);
             $total_plugin_time = $total_plugin_time +$value['time'];
               
             $memory = $value['memory'];
-            fwrite($file,$memory.PHP_EOL);
             $total_plugins_memory = $total_plugins_memory + $value['memory'];
             
             $peformances[$plugin] = [
@@ -3846,7 +3839,7 @@ abstract class PhenyxController {
             ];
             
         }
-          fwrite($file,print_r($peformances, true).PHP_EOL);
+         
 
         $this->content_ajax .= '
         <div id="pluginsPerf"><div class="col-lg-12">
