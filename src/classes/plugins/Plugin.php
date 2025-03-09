@@ -182,6 +182,10 @@ abstract class Plugin {
     
     public $has_api_key;
     
+     private $services;
+    
+    public $_session;
+    
     public $ajax = false;
 
     public function __construct($name = null, $context = null) {
@@ -204,6 +208,7 @@ abstract class Plugin {
         if(!isset($this->context)) {
             $this->context = Context::getContext();
         }
+        $this->_session = PhenyxSession::getInstance();
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
             

@@ -1417,7 +1417,12 @@ class TopMenu extends PhenyxObjectModel {
     public function add($autodate = true, $nullValues = false) {
 
         $this->position = Topmenu::getHigherPosition() + 1;
-        return parent::add($autodate, $nullValues);
+        $result =  parent::add($autodate, $nullValues);
+        if($result) {
+            $this->_session->remove('getAdminMenus');
+            $this->_session->remove('getFrontMenus');
+        }
+        return $result;
     }
 
     public static function getHigherPosition() {
@@ -1436,6 +1441,8 @@ class TopMenu extends PhenyxObjectModel {
         $result = parent::update($nullValues);
         
         if($result) {            
+            $this->_session->remove('getAdminMenus');
+            $this->_session->remove('getFrontMenus');
             $this->backName = $this->getBackOutputNameValue();
             $this->link_output_value = $this->getFrontOutputValue();
             $this->columnsWrap = $this->getColumnsWrap();
@@ -1453,7 +1460,8 @@ class TopMenu extends PhenyxObjectModel {
         foreach ($wraps as $wrap) {
             $wrap->delete();
         }
-
+        $this->_session->remove('getAdminMenus');
+        $this->_session->remove('getFrontMenus');
         return parent::delete();
     }
 
@@ -1496,20 +1504,25 @@ class TopMenu extends PhenyxObjectModel {
         ], 'id_topmenu = ' . (int) $idMenu);
     }
 
-    public static function getMenus($id_lang, $active = true, $groupRestrict = false) {
+    public function getMenus($id_lang, $active = true, $groupRestrict = false) {
 
-        $topMenus = [];
-        $query = new DbQuery();
-        $query->select('id_topmenu');
-        $query->from('topmenu');
-        if($active) {
-            $query->where('active = 1');
-        }
-        $query->orderBy('position');
-        $menus = Db::getInstance()->executeS($query);
+        $topMenus = $this->_session->get('getFrontMenus');
+        if(empty($topMenus)) {
+            $topMenus = [];
+            $query = new DbQuery();
+            $query->select('id_topmenu');
+            $query->from('topmenu');
+            if($active) {
+                $query->where('active = 1');
+            }
+            $query->orderBy('position');
+            $menus = Db::getInstance()->executeS($query);
 
-        foreach ($menus as $menu) {
-            $topMenus[] = TopMenu::buildObject($menu['id_topmenu'], $id_lang);
+            foreach ($menus as $menu) {
+                $topMenus[] = TopMenu::buildObject($menu['id_topmenu'], $id_lang);
+            }
+            
+            $this->_session->set('getFrontMenus', $topMenus);
         }
 
         return $topMenus;
@@ -1518,22 +1531,28 @@ class TopMenu extends PhenyxObjectModel {
 
     public function getAdminMenus() {
 
-        $this->request_admin = true;
-        PhenyxObjectModel::$admin_request = true;
-        $topMenus = [];
-        $menus = Db::getInstance()->executeS(
-            (new DbQuery())
-            ->select('`id_topmenu`')
-            ->from('topmenu')
-            ->orderBy('position')
-        );
+        $topMenus = $this->_session->get('getAdminMenus');
+        if(empty($topMenus)) {
+            $this->request_admin = true;
+            PhenyxObjectModel::$admin_request = true;
+            $topMenus = [];
+            $menus = Db::getInstance()->executeS(
+                (new DbQuery())
+                ->select('`id_topmenu`')
+                ->from('topmenu')
+                ->orderBy('position')
+            );
 
-        foreach ($menus as $menu) {
-            $topMenus[] = TopMenu::buildObject($menu['id_topmenu'], $this->context->language->id);
+            foreach ($menus as $menu) {
+                $topMenus[] = TopMenu::buildObject($menu['id_topmenu'], $this->context->language->id);
+            }
+
+            $this->request_admin = false;
+             PhenyxObjectModel::$admin_request = false;
+            
+            $this->_session->set('getAdminMenus', $topMenus);
         }
-
-        $this->request_admin = false;
-        PhenyxObjectModel::$admin_request = false;
+       
         return $topMenus;
 
     }
@@ -1614,7 +1633,7 @@ class TopMenu extends PhenyxObjectModel {
     public static function displayMenuForm() {
 
         $this->context = Context::getContext();
-        $menus = TopMenu::getMenus($this->context->cookie->id_lang, false);
+        $menus = TopMenu::getInstance()->getMenus($this->context->cookie->id_lang, false);
 
         if (is_array($menus) && count($menus)) {
 

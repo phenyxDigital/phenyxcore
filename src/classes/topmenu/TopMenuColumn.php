@@ -1326,7 +1326,12 @@ class TopMenuColumn extends PhenyxObjectModel {
 
     public function add($autodate = true, $nullValues = false) {
 
-        return parent::add($autodate, $nullValues);
+        $result = parent::add($autodate, $nullValues);
+        if($result) {
+            $this->_session->remove('getAdminMenus');
+            $this->_session->remove('getFrontMenus');
+        }
+        return $result;
     }
 
     public function update($nullValues = false) {
@@ -1334,6 +1339,8 @@ class TopMenuColumn extends PhenyxObjectModel {
         $result = parent::update($nullValues);
         
         if($result) {            
+            $this->_session->remove('getAdminMenus');
+            $this->_session->remove('getFrontMenus');
             $this->backName = $this->getBackOutputNameValue();
             $this->link_output_value = $this->getFrontOutputValue();
             $this->elements = $this->getElements();
@@ -1351,7 +1358,8 @@ class TopMenuColumn extends PhenyxObjectModel {
         foreach ($elements as $element) {
             $element->delete();
         }
-
+        $this->_session->remove('getAdminMenus');
+        $this->_session->remove('getFrontMenus');
         return parent::delete();
     }
 

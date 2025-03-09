@@ -62,7 +62,7 @@ class PhenyxSession extends PhenyxServices {
         
         unset($_SESSION[self::SESSION_NAMESPACE][$key]);
     }
-
+    
     public function destroy() {
         
         session_destroy();
