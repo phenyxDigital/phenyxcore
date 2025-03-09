@@ -38,6 +38,8 @@ class Hook extends PhenyxObjectModel {
     public static $counter = 1;
     
     public static $total_time = 0;
+    
+    public $memoryStart;
     /**
      * @see PhenyxObjectModel::$definition
      */
@@ -88,6 +90,12 @@ class Hook extends PhenyxObjectModel {
             $this->id = $id;
             $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
             $entityMapper->load($this->id, $idLang, $this, $this->def, false);
+        }
+        
+        $this->_session = PhenyxSession::getInstance();
+        
+        if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
+            $this->memoryStart = memory_get_usage(true);
         }
         
         
@@ -360,15 +368,19 @@ class Hook extends PhenyxObjectModel {
         $usePush = false,
         $objectReturn = false
     ) {
-        if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
-            $time_start = microtime(true);
-            
-        }
-       
+        
         if (defined('EPH_INSTALLATION_IN_PROGRESS')) {
 
             return;
         }
+        if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
+            
+                    $perfs = $this->_session->get('HookPerformance');
+                    $plugperfs = $this->_session->get('pluginPerformance');
+                    $time_start = microtime(true);
+                    $memoryStart = memory_get_usage(true);
+            
+                }
 
         static $disableNonNativePlugins = null;
 
@@ -464,6 +476,8 @@ class Hook extends PhenyxObjectModel {
             $hookRetroCallable = is_callable([$pluginInstance, 'hook' . $retroHookName]);
 
             if (($hookCallable || $hookRetroCallable) && Plugin::preCall($pluginInstance->name)) {
+                
+       
                
                 $hookArgs['altern'] = ++$altern;
 
@@ -480,7 +494,7 @@ class Hook extends PhenyxObjectModel {
 
                     $display = $this->coreCallHook($pluginInstance, 'hook' . $retroHookName, $hookArgs);
                 }
-
+                
                 if ($arrayReturn) {
                     $output[$pluginInstance->name] = $display;
                 } else
@@ -491,14 +505,43 @@ class Hook extends PhenyxObjectModel {
                 }
                 
                 if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
-                    if(static::$counter == 1) {
-                        $file = fopen("testHookPerf.txt","w");
+                    
+                    if(!empty($perfs) && is_array($perfs)) {
+                        $perfs[$hookName] = [
+                            'time' => round(microtime(true) - $time_start, 3),
+                            'memory' => $this->memoryStart - memory_get_usage(true)
+                        ];
+                        
                     } else {
-                        $file = fopen("testHookPerf.txt","a");
-                    }          
-                    static::$total_time = static::$total_time + round(microtime(true) - $time_start, 3);
-                    fwrite($file, "Final Micro time for : " .$hookName.' range : '.static::$counter.' Plugin : '.$pluginInstance->name.' '. round(microtime(true) - $time_start, 3) . PHP_EOL.static::$total_time.PHP_EOL);
-                    static::$counter ++;
+                        if(!is_array($perfs)) {
+                            $perfs = [];
+                        }
+                        $perfs[$hookName] = [
+                            'time' => round(microtime(true) - $time_start, 3),
+                            'memory' => $this->memoryStart - memory_get_usage(true)
+                        ];
+                    }
+                    
+                    
+                    if(!empty($plugperfs) && is_array($plugperfs)) {
+                        $plugperfs[$pluginInstance->name] = [
+                            'time' => round(microtime(true) - $time_start, 3),
+                            'memory' => $this->memoryStart - memory_get_usage(true)
+                        ];
+                        
+                    } else {
+                        if(!is_array($perfs)) {
+                            $plugperfs = [];
+                        }
+                        $plugperfs[$pluginInstance->name] = [
+                            'time' => round(microtime(true) - $time_start, 3),
+                            'memory' => $this->memoryStart - memory_get_usage(true)
+                        ];
+                    }
+                    $this->_session->set('HookPerformance', $perfs);
+                    $this->_session->set('pluginPerformance', $plugperfs);
+                    
+                    
                 }
                 
                

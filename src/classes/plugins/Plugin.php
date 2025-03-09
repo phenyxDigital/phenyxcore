@@ -537,14 +537,13 @@ abstract class Plugin {
     }
 
     protected static function coreLoadPlugin($pluginName, $full) {
-
+       
         if (Plugin::$_log_plugins_perfs === null) {
-            $modulo = _EPH_ADMIN_DEBUG_PROFILING_ ? 1 : Context::getContext()->phenyxConfig->get('EPH_log_plugins_perfs_MODULO');
-            Plugin::$_log_plugins_perfs = ($modulo && mt_rand(0, $modulo - 1) == 0);
-
-            if (Plugin::$_log_plugins_perfs) {
-                Plugin::$_log_plugins_perfs_session = mt_rand();
-            }
+            if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
+                Plugin::$_log_plugins_perfs = true;
+                Plugin::$_log_plugins_perfs_session = PhenyxSession::getInstance()->getId();
+            } 
+            
 
         }
 
@@ -581,11 +580,11 @@ abstract class Plugin {
             // @codingStandardsIgnoreEnd
             $timeEnd = microtime(true);
             $memoryEnd = memory_get_usage(true);
-
+            
             Db::getInstance()->insert(
-                'plugins_perfs',
+                'plugin_perfs',
                 [
-                    'session'      => (int) Plugin::$_log_plugins_perfs_session,
+                    'session'      => Plugin::$_log_plugins_perfs_session,
                     'plugin'       => pSQL($pluginName),
                     'method'       => '__construct',
                     'time_start'   => pSQL($timeStart),

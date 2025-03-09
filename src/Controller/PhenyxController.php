@@ -224,6 +224,10 @@ abstract class PhenyxController {
     
     public $_back_jss_cache;
     
+    public $_session;
+    
+    public $memoryStart;
+    
 
     public function __construct() {
 
@@ -233,6 +237,7 @@ abstract class PhenyxController {
                
         if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
             $this->profiler[] = $this->stamp('config');
+            $this->memoryStart = memory_get_usage(true);
         }
 
         if (is_null($this->display_header)) {
@@ -357,6 +362,9 @@ abstract class PhenyxController {
             $this->_back_js_cache = $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE');
             
         }
+        
+        
+        $this->_session = PhenyxSession::getInstance();
 
     }
 
@@ -3336,7 +3344,7 @@ abstract class PhenyxController {
 
         return '<span style="color:green">-</span>';
     }
-
+  
     private function getPeakMemoryColor($n) {
 
         $n /= 1048576;
@@ -3658,7 +3666,10 @@ abstract class PhenyxController {
                 <li><a href="#stopwatch">' . $this->la('Stopwatch SQL') . '</a></li>
                 <li><a href="#sql_doubles">' . $this->la('Doubles') . '</a></li>
                 <li><a href="#stress_tables">' . $this->la('Tables stress') . '</a></li>
-                ' . (isset(PhenyxObjectModel::$debug_list) ? '<li><a href="#objectModels">' . $this->la('ObjectModel instances') . '</a></li>' : '') . '
+                ' . (isset(PhenyxObjectModel::$debug_list) ? '
+                <li><a href="#objectModels">' . $this->la('ObjectModel instances') . '</a></li>' : '') . '
+                <li><a href="#hooksPerf">' . $this->la('Hooks Performance') . '</a></li>
+                <li><a href="#pluginsPerf">' . $this->la('Plugins Performance') . '</a></li>
                 <li><a href="#includedFiles">' . $this->la('Included Files') . '</a></li>
             </ul>
         <div id="tabs-profilling-content" class="tabs-controller-content">';
@@ -3746,63 +3757,100 @@ abstract class PhenyxController {
 
     protected function displayProfilingHooks() {
 
-        $count_hooks = count($this->hooks_perfs);
-
+        $perfs = $this->_session->get('HookPerformance');
+       
+        $count_hooks = count($perfs);
+        $peformances = [];
+        $total_hook_time = 0;
+        $total_memory_time = 0;
+        $file = fopen("testdisplayProfilingHooks.txt","w");
+       
+        foreach ($perfs as $hook => $value) {
+            
+            $time = $value['time'];
+            $total_hook_time = $total_hook_time +$value['time'];
+            $memory = $value['memory'];
+            $total_memory_time = $total_memory_time + $value['memory'];
+            $peformances[$hook] = [
+                'time' => $time,
+                'memory' => $memory
+            ];
+            
+            
+        }
+        
+        fwrite($file,print_r($peformances, true).PHP_EOL);
+        
         $this->content_ajax .= '
-        <div class="col-lg-6">
+        <div id="hooksPerf"><div class="col-lg-12">
+        <h2><a name="includedFiles">' . $this->la('Hooks Performance') . '</a></h2>
             <table class="table table-condensed">
                 <tr>
-                    <th>Hook</th>
-                    <th>Time</th>
-                    <th>Memory Usage</th>
+                    <th>'.$this->la('Hook').'</th>
+                    <th>'.$this->la('Time').'</th>
+                    <th>'.$this->la('Memory Usage').'</th>
                 </tr>';
 
-        foreach ($this->hooks_perfs as $hook => $hooks_perfs) {
+        foreach ($peformances as $hook => $perf) {
+            fwrite($file,print_r($pef, true).PHP_EOL);
+            fwrite($file,$perf['memory'].PHP_EOL);
+            fwrite($file,$this->getMemoryColor($perf['memory']).PHP_EOL);
             $this->content_ajax .= '
                 <tr>
                     <td>
                         <a href="javascript:void(0);" onclick="$(\'.' . $hook . '_plugins_details\').toggle();">' . $hook . '</a>
                     </td>
                     <td>
-                        ' . $this->getLoadTimeColor($hooks_perfs['time']) . ' ms
+                        ' . $this->getLoadTimeColor($perf['time']) . ' ms
                     </td>
                     <td>
-                        ' . $this->getMemoryColor($hooks_perfs['memory']) . ' Mb
+                        ' . $this->getMemoryColor($perf['memory']) . ' Mb
                     </td>
                 </tr>';
 
-            foreach ($hooks_perfs['plugins'] as $plugin => $perfs) {
-                $this->content_ajax .= '
-                <tr class="' . $hook . '_plugins_details" style="background-color:#EFEFEF;display:none">
-                    <td>
-                        =&gt; ' . $plugin . '
-                    </td>
-                    <td>
-                        ' . $this->getLoadTimeColor($perfs['time']) . ' ms
-                    </td>
-                    <td>
-                        ' . $this->getMemoryColor($perfs['memory']) . ' Mb
-                    </td>
-                </tr>';
-            }
+            
 
         }
 
         $this->content_ajax .= '  <tr>
                     <th><b>' . ($count_hooks == 1 ? '1 hook' : (int) $count_hooks . ' hooks') . '</b></th>
-                    <th>' . $this->getLoadTimeColor($this->total_plugins_time) . ' ms</th>
-                    <th>' . $this->getMemoryColor($this->total_plugins_memory) . ' Mb</th>
+                    <th>' . $this->getLoadTimeColor($total_hook_time) . ' ms</th>
+                    <th>' . $this->getMemoryColor($total_memory_time) . ' Mb</th>
                 </tr>
             </table>
-        </div>';
+        </div></div>';
     }
 
     protected function displayProfilingPlugins() {
 
-        $count_plugins = count($this->plugins_perfs);
+        $perfs = $this->_session->get('pluginPerformance');
+        
+        $count_plugins = count($perfs);
+        $peformances = [];     
+        $total_plugin_time = 0;
+        $total_plugins_memory = 0;
+        $file = fopen("testdisplayProfilingPlugins.txt","w");
+        foreach ($perfs as $plugin => $value) {
+            
+            $time = $value['time'];
+            fwrite($file,$time.PHP_EOL);
+            $total_plugin_time = $total_plugin_time +$value['time'];
+              
+            $memory = $value['memory'];
+            fwrite($file,$memory.PHP_EOL);
+            $total_plugins_memory = $total_plugins_memory + $value['memory'];
+            
+            $peformances[$plugin] = [
+                'time' => $time,
+                'memory' => $memory
+            ];
+            
+        }
+          fwrite($file,print_r($peformances, true).PHP_EOL);
 
         $this->content_ajax .= '
-        <div class="col-lg-6">
+        <div id="pluginsPerf"><div class="col-lg-12">
+        <h2><a name="pluginsPerf">' . $this->la('Plugins Performance') . '</a></h2>
             <table class="table table-condensed">
                 <tr>
                     <th>Plugin</th>
@@ -3811,44 +3859,31 @@ abstract class PhenyxController {
                     <th>Memory Usage</th>
                 </tr>';
 
-        foreach ($this->plugins_perfs as $plugin => $plugins_perfs) {
+        foreach ($peformances as $plugin => $perf) {
             $this->content_ajax .= '
                 <tr>
                     <td>
                         <a href="javascript:void(0);" onclick="$(\'.' . $plugin . '_hooks_details\').toggle();">' . $plugin . '</a>
                     </td>
                     <td>
-                        ' . $this->getLoadTimeColor($plugins_perfs['time']) . ' ms
+                        ' . $this->getLoadTimeColor($perf['time']) . ' ms
                     </td>
                     <td>
-                        ' . $this->getMemoryColor($plugins_perfs['memory']) . ' Mb
+                        ' . $this->getMemoryColor($perf['memory']) . ' Mb
                     </td>
                 </tr>';
 
-            foreach ($plugins_perfs['methods'] as $hook => $perfs) {
-                $this->content_ajax .= '
-                <tr class="' . $plugin . '_hooks_details" style="background-color:#EFEFEF;display:none">
-                    <td>
-                        =&gt; ' . $hook . '
-                    </td>
-                    <td>
-                        ' . $this->getLoadTimeColor($perfs['time']) . ' ms
-                    </td>
-                    <td>
-                        ' . $this->getMemoryColor($perfs['memory']) . ' Mb
-                    </td>
-                </tr>';
-            }
+            
 
         }
 
         $this->content_ajax .= '  <tr>
                     <th><b>' . ($count_plugins == 1 ? '1 plugin' : (int) $count_plugins . ' plugins') . '</b></th>
-                    <th>' . $this->getLoadTimeColor($this->total_plugins_time) . ' ms</th>
-                    <th>' . $this->getMemoryColor($this->total_plugins_memory) . ' Mb</th>
+                    <th>' . $this->getLoadTimeColor($total_plugin_time) . ' ms</th>
+                    <th>' . $this->getMemoryColor($total_plugins_memory) . ' Mb</th>
                 </tr>
             </table>
-        </div>';
+        </div></div>';
     }
 
     protected function displayProfilingStopwatch() {
@@ -3992,8 +4027,8 @@ abstract class PhenyxController {
         $this->displayProfilingConfiguration();
         $this->displayProfilingRun();
         $this->content_ajax .= '</div><div class="row">';
-        $this->displayProfilingHooks();
-        $this->displayProfilingPlugins();
+        
+        
         $this->displayProfilingLinks();
 
         $this->displayProfilingStopwatch();
@@ -4003,7 +4038,8 @@ abstract class PhenyxController {
         if (isset(PhenyxObjectModel::$debug_list)) {
             $this->displayProfilingObjectModel();
         }
-
+        $this->displayProfilingHooks();
+        $this->displayProfilingPlugins();
         $this->displayProfilingFiles();
 
         $this->content_ajax .= '</div>';
