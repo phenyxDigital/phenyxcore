@@ -5499,9 +5499,7 @@ FileETag none
                     $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'hook_plugin_exceptions WHERE id_plugin = ' . $plugin['id_plugin'];
                     Db::getInstance()->execute($sql);
                     $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'plugin WHERE id_plugin = ' . $plugin['id_plugin'];
-                    Db::getInstance()->execute($sql);
-                    $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'plugins_perfs WHERE plugin LIKE \'' . $plugin['name'] . '\'';
-                    Db::getInstance()->execute($sql);
+                    Db::getInstance()->execute($sql);                    
                     $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'plugin_access WHERE id_plugin = ' . $plugin['id_plugin'];
                     Db::getInstance()->execute($sql);
                     $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'plugin_carrier WHERE id_plugin = ' . $plugin['id_plugin'];

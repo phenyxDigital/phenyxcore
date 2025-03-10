@@ -29,12 +29,8 @@ abstract class Plugin {
     // @codingStandardsIgnoreStart
     /** @var array used by AdminTab to determine which lang file to use (admin.php or plugin lang file) */
     public static $classInPlugin = [];
-    /** @var bool Define if we will log plugins performances for this session */
-    public static $_log_plugins_perfs = null;
     /** @var array $hosted_plugins_blacklist */
     public static $hosted_plugins_blacklist = ['autoupgrade'];
-    /** @var bool Random session for plugins perfs logs */
-    public static $_log_plugins_perfs_session = null;
     /** @var array Array cache filled with plugins informations */
     protected static $plugins_cache;
     /** @var array Array cache filled with plugins instances */

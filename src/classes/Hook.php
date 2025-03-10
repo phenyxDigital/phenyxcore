@@ -791,29 +791,6 @@ class Hook extends PhenyxObjectModel {
 
     public function coreCallHook($plugin, $method, $params) {
 
-        // Define if we will log plugins performances for this session
-
-        if (Plugin::$_log_plugins_perfs === null) {
-            $modulo = _EPH_DEBUG_PROFILING_ ? 1 : $this->context->phenyxConfig->get('EPH_log_plugins_perfs_MODULO');
-            Plugin::$_log_plugins_perfs = ($modulo && mt_rand(0, $modulo - 1) == 0);
-
-            if (Plugin::$_log_plugins_perfs) {
-                Plugin::$_log_plugins_perfs_session = mt_rand();
-            }
-
-        }
-
-        // Immediately return the result if we do not log performances
-
-        if (!Plugin::$_log_plugins_perfs) {
-            return $plugin->{$method}
-
-            ($params);
-        }
-
-        // Store time and memory before and after hook call and save the result in the database
-
-        // Call hook
         $r = $plugin->{$method}
 
         ($params);
