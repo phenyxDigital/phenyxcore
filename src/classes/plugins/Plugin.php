@@ -2923,8 +2923,7 @@ abstract class Plugin {
             return $result;
         }
         $exceptions_cache = [];
-        $dbSlave = Db::getInstance(_EPH_USE_SQL_SLAVE_);
-        $result = $dbSlave->executeS(
+        $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
             (new DbQuery())
             ->select('*')
             ->from('hook_plugin_exceptions')
@@ -2975,37 +2974,32 @@ abstract class Plugin {
         return $array_return;
     }
 
-    public static function getExceptionsStatic($id_plugin, $id_hook, $context, $dispatch = false) {
+    public static function getExceptionsStatic($id_plugin, $id_hook,  $dispatch = false) {
 
-        $cache_id = 'exceptionsCache';
+        $result = PhenyxSession::getInstance()->get('getExceptions_'.$idHook.'_'.$dispatch);
+        if(!empty($result) && is_array($result)) {
+            return $result;
+        }
+        
+        $exceptions_cache = [];
+        $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
+            (new DbQuery())
+            ->select('*')
+            ->from('hook_plugin_exceptions')
+        );
 
-        if (!CacheApi::isStored($cache_id)) {
-            $exceptions_cache = [];
-            $dbSlave = Db::getInstance(_EPH_USE_SQL_SLAVE_);
-            $result = $dbSlave->executeS(
-                (new DbQuery())
-                    ->select('*')
-                    ->from('hook_plugin_exceptions')
-            );
+        foreach ($result as $row) {
 
-            foreach ($result as $row) {
-
-                if (!$row['file_name']) {
-                    continue;
-                }
-
-                $key = $row['id_hook'] . '-' . $row['id_plugin'];
-
-                if (!isset($exceptions_cache[$key])) {
-                    $exceptions_cache[$key] = [];
-                }
-
-                $exceptions_cache[$key][] = $row['file_name'];
+            if (!$row['file_name']) {
+                continue;
             }
 
-            CacheApi::store($cache_id, $exceptions_cache);
-        } else {
-            $exceptions_cache = CacheApi::retrieve($cache_id);
+            $key = $row['id_hook'] . '-' . $row['id_plugin'];
+
+            if (!isset($exceptions_cache[$key])) {
+                $exceptions_cache[$key] = [];
+            }
+            $exceptions_cache[$key][] = $row['file_name'];
         }
 
         $key = $id_hook . '-' . $id_plugin;
@@ -3032,6 +3026,8 @@ abstract class Plugin {
             }
 
         }
+        
+        PhenyxSession::getInstance()->set('getExceptions_'.$idHook.'_'.$dispatch, $array_return);
 
         return $array_return;
     }

@@ -431,7 +431,7 @@ class Hook extends PhenyxObjectModel {
             }
 
             if ($checkExceptions) {
-                $exceptions = Plugin::getExceptionsStatic($array['id_plugin'], $array['id_hook'], $this->context);
+                $exceptions = Plugin::getExceptionsStatic($array['id_plugin'], $array['id_hook']);
 
                 $controller = Performer::getInstance()->getController();
                 $controllerObj = $this->context->controller;
