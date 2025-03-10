@@ -2917,8 +2917,62 @@ abstract class Plugin {
     }
 
     public function getExceptions($idHook, $dispatch = false) {
+        
+        $result = $this->_session->get('getExceptions_'.$idHook.'_'.$dispatch);
+        if(!empty($result) && is_array($result)) {
+            return $result;
+        }
+        $exceptions_cache = [];
+        $dbSlave = Db::getInstance(_EPH_USE_SQL_SLAVE_);
+        $result = $dbSlave->executeS(
+            (new DbQuery())
+            ->select('*')
+            ->from('hook_plugin_exceptions')
+        );
+        
+        foreach ($result as $row) {
 
-        return Plugin::getExceptionsStatic($this->id, $idHook, $this->context, $dispatch);
+            if (!$row['file_name']) {
+                continue;
+            }
+
+            $key = $row['id_hook'] . '-' . $row['id_plugin'];
+
+            if (!isset($exceptions_cache[$key])) {
+                $exceptions_cache[$key] = [];
+            }
+
+            $exceptions_cache[$key][] = $row['file_name'];
+        }
+        
+        $key = $id_hook . '-' . $id_plugin;
+        $array_return = [];
+
+        if ($dispatch) {
+
+            if (isset($exceptions_cache[$key], $exceptions_cache[$key])) {
+                $array_return = $exceptions_cache[$key];
+            }
+
+        } else {
+
+            if (isset($exceptions_cache[$key]) && is_array($exceptions_cache[$key])) {
+
+                foreach ($exceptions_cache[$key] as $file) {
+
+                    if (!in_array($file, $array_return)) {
+                        $array_return[] = $file;
+                    }
+
+                }
+
+            }
+
+        }
+        $this->_session->set('getExceptions_'.$idHook.'_'.$dispatch, $array_return);
+        
+
+        return $array_return;
     }
 
     public static function getExceptionsStatic($id_plugin, $id_hook, $context, $dispatch = false) {
@@ -2959,15 +3013,15 @@ abstract class Plugin {
 
         if ($dispatch) {
 
-            if (isset($exceptions_cache[$key], $exceptions_cache[$key][$context->company->id])) {
-                $array_return[$context->company->id] = $exceptions_cache[$key][$context->company->id];
+            if (isset($exceptions_cache[$key], $exceptions_cache[$key])) {
+                $array_return = $exceptions_cache[$key];
             }
 
         } else {
 
-            if (isset($exceptions_cache[$key]) && is_array($exceptions_cache[$key][$context->company->id])) {
+            if (isset($exceptions_cache[$key]) && is_array($exceptions_cache[$key])) {
 
-                foreach ($exceptions_cache[$key][$context->company->id] as $file) {
+                foreach ($exceptions_cache[$key] as $file) {
 
                     if (!in_array($file, $array_return)) {
                         $array_return[] = $file;
