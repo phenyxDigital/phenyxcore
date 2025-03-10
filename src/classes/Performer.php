@@ -356,6 +356,69 @@ class Performer {
 
         return $pluginsControllers;
     }
+    
+    public function getPluginsControllers($type = 'all', $plugin = null) {
+        
+        $pluginsControllers = [];
+
+        if (is_null($plugin)) {
+
+            $plugins = Plugin::getPluginsOnDisk(true);
+        } else
+
+        if (!is_array($plugin)) {
+            $plugins = [Plugin::getInstanceByName($plugin)];
+        } else {
+            $plugins = [];
+
+            foreach ($plugin as $_mod) {
+                $plugins[] = Plugin::getInstanceByName($_mod);
+            }
+
+        }
+
+        foreach ($plugins as $mod) {
+            if ($type == 'front') {
+                if (is_dir(_EPH_PLUGIN_DIR_ . $mod->name . '/')) {
+                    $controllers = Performer::getControllers(_EPH_PLUGIN_DIR_ . $mod->name . '/controllers/front/');
+                    if(is_array($controllers)&& count($controllers)) {
+                        foreach($controllers as $key => $frontController) {
+                            $pluginsControllers[$mod->name][] = [$key => $frontController];
+                        }                   
+                    }
+                } else  if (is_dir(_EPH_SPECIFIC_PLUGIN_DIR_ . $mod->name . '/')) {
+                    $controllers = Performer::getControllers(_EPH_SPECIFIC_PLUGIN_DIR_ . $mod->name . '/controllers/front/');
+                    if(is_array($controllers)&& count($controllers)) {
+                        foreach($controllers as $key => $frontController) {
+                            $pluginsControllers[$mod->name][] = [$key => $frontController];
+                        }                   
+                    }
+                }
+            }
+            if ($type == 'admin') {
+                if (is_dir(_EPH_PLUGIN_DIR_ . $mod->name . '/')) {
+                    $controllers = Performer::getControllers(_EPH_PLUGIN_DIR_ . $mod->name . '/controllers/admin/');
+                    if(is_array($controllers)&& count($controllers)) {
+                        foreach($controllers as $key =>  $backController) {
+                            $pluginsControllers[$mod->name][] = [$key => $backController];
+                        }                   
+                    }
+                    
+                } else  if (is_dir(_EPH_SPECIFIC_PLUGIN_DIR_ . $mod->name . '/')) {
+                    $controllers = Performer::getControllers(_EPH_SPECIFIC_PLUGIN_DIR_ . $mod->name . '/controllers/admin/');
+                    if(is_array($controllers)&& count($controllers)) {
+                        foreach($controllers as $key =>  $backController) {
+                            $pluginsControllers[$mod->name][] = [$key => $backController];
+                        }                   
+                    }
+                }
+                
+            }
+        }
+        
+
+        return $pluginsControllers;
+    }
 
     public function setRequestUri() {
 

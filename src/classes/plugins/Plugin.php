@@ -2918,9 +2918,11 @@ abstract class Plugin {
 
     public function getExceptions($idHook, $dispatch = false) {
         
+        $file = fopen("testgetExceptions.txt","w");
+        fwrite($file,$idHook.PHP_EOL);
         $result = $this->_session->get('getExceptions_'.$idHook.'_'.$dispatch);
         if(!empty($result) && is_array($result)) {
-            return $result;
+            //return $result;
         }
         $exceptions_cache = [];
         $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
@@ -2944,7 +2946,7 @@ abstract class Plugin {
             $exceptions_cache[$key][] = $row['file_name'];
         }
         
-        $key = $id_hook . '-' . $id_plugin;
+        $key = $idHook . '-' . $this->id;
         $array_return = [];
 
         if ($dispatch) {
@@ -2969,6 +2971,7 @@ abstract class Plugin {
 
         }
         $this->_session->set('getExceptions_'.$idHook.'_'.$dispatch, $array_return);
+        fwrite($file, print_r($array_return, true));
         
 
         return $array_return;

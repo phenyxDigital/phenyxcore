@@ -436,9 +436,6 @@ class Hook extends PhenyxObjectModel {
                 $controller = Performer::getInstance()->getController();
                 $controllerObj = $this->context->controller;
 
-                if (isset($controllerObj->plugin) && Validate::isLoadedObject($controllerObj->plugin)) {
-                    $controller = 'plugin-' . $controllerObj->plugin->name . '-' . $controller;
-                }
 
                 if (is_array($exceptions) && in_array($controller, $exceptions)) {
 
