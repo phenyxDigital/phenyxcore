@@ -538,19 +538,6 @@ abstract class Plugin {
 
     protected static function coreLoadPlugin($pluginName, $full) {
        
-        if (Plugin::$_log_plugins_perfs === null) {
-            if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
-                Plugin::$_log_plugins_perfs = true;
-                Plugin::$_log_plugins_perfs_session = PhenyxSession::getInstance()->getId();
-            } 
-            
-
-        }
-
-        if (Plugin::$_log_plugins_perfs) {
-            $timeStart = microtime(true);
-            $memoryStart = memory_get_usage(true);
-        }
 
         if (file_exists(_EPH_PLUGIN_DIR_ . $pluginName . '/' . $pluginName . '.php')) {
             include_once _EPH_PLUGIN_DIR_ . $pluginName . '/' . $pluginName . '.php';
@@ -575,27 +562,6 @@ abstract class Plugin {
         if (!$r && class_exists($pluginName, false)) {
             $r = static::$_INSTANCE[$pluginName] = Adapter_ServiceLocator::get($pluginName);
         }
-        
-        if (Plugin::$_log_plugins_perfs) {
-            // @codingStandardsIgnoreEnd
-            $timeEnd = microtime(true);
-            $memoryEnd = memory_get_usage(true);
-            
-            Db::getInstance()->insert(
-                'plugin_perfs',
-                [
-                    'session'      => Plugin::$_log_plugins_perfs_session,
-                    'plugin'       => pSQL($pluginName),
-                    'method'       => '__construct',
-                    'time_start'   => pSQL($timeStart),
-                    'time_end'     => pSQL($timeEnd),
-                    'memory_start' => (int) $memoryStart,
-                    'memory_end'   => (int) $memoryEnd,
-                ]
-            );
-        }
-
-        
 
         return $r;
     }
