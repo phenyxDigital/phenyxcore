@@ -2965,7 +2965,7 @@ abstract class Plugin {
 
         } else {
 
-            if (isset($exceptions_cache[$key], $exceptions_cache[$key][$context->company->id])) {
+            if (isset($exceptions_cache[$key]) && is_array($exceptions_cache[$key][$context->company->id])) {
 
                 foreach ($exceptions_cache[$key][$context->company->id] as $file) {
 

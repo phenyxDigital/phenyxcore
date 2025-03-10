@@ -3570,41 +3570,7 @@ abstract class PhenyxController {
         $this->total_cache_size = $this->getVarSize($cache);
 
         // Retrieve plugin perfs
-        $result = Db::getInstance()->ExecuteS('
-            SELECT *
-            FROM ' . _DB_PREFIX_ . 'plugins_perfs
-            WHERE session = ' . (int) Plugin::$_log_plugins_perfs_session . '
-            AND time_start >= ' . (float) $start_time . '
-            AND time_end <= ' . (float) $this->profiler[count($this->profiler) - 1]['time']
-        );
-
-        foreach ($result as $row) {
-            $tmp_time = $row['time_end'] - $row['time_start'];
-            $tmp_memory = $row['memory_end'] - $row['memory_start'];
-            $this->total_plugins_time += $tmp_time;
-            $this->total_plugins_memory += $tmp_memory;
-
-            if (!isset($this->plugins_perfs[$row['plugin']])) {
-                $this->plugins_perfs[$row['plugin']] = ['time' => 0, 'memory' => 0, 'methods' => []];
-            }
-
-            $this->plugins_perfs[$row['plugin']]['time'] += $tmp_time;
-            $this->plugins_perfs[$row['plugin']]['methods'][$row['method']]['time'] = $tmp_time;
-            $this->plugins_perfs[$row['plugin']]['memory'] += $tmp_memory;
-            $this->plugins_perfs[$row['plugin']]['methods'][$row['method']]['memory'] = $tmp_memory;
-
-            if (!isset($this->hooks_perfs[$row['method']])) {
-                $this->hooks_perfs[$row['method']] = ['time' => 0, 'memory' => 0, 'plugins' => []];
-            }
-
-            $this->hooks_perfs[$row['method']]['time'] += $tmp_time;
-            $this->hooks_perfs[$row['method']]['plugins'][$row['plugin']]['time'] = $tmp_time;
-            $this->hooks_perfs[$row['method']]['memory'] += $tmp_memory;
-            $this->hooks_perfs[$row['method']]['plugins'][$row['plugin']]['memory'] = $tmp_memory;
-        }
-
-        uasort($this->plugins_perfs, 'phenyxshop_querytime_sort');
-        uasort($this->hooks_perfs, 'phenyxshop_querytime_sort');
+        
 
         $queries = Db::getInstance()->queries;
         uasort($queries, 'phenyxshop_querytime_sort');
