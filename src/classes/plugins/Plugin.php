@@ -2976,7 +2976,7 @@ abstract class Plugin {
 
     public static function getExceptionsStatic($id_plugin, $id_hook,  $dispatch = false) {
 
-        $result = PhenyxSession::getInstance()->get('getExceptions_'.$idHook.'_'.$dispatch);
+        $result = PhenyxSession::getInstance()->get('getExceptions_'.$id_hook.'_'.$dispatch);
         if(!empty($result) && is_array($result)) {
             return $result;
         }
@@ -3027,7 +3027,7 @@ abstract class Plugin {
 
         }
         
-        PhenyxSession::getInstance()->set('getExceptions_'.$idHook.'_'.$dispatch, $array_return);
+        PhenyxSession::getInstance()->set('getExceptions_'.$id_hook.'_'.$dispatch, $array_return);
 
         return $array_return;
     }
