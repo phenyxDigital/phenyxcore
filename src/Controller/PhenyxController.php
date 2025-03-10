@@ -222,7 +222,7 @@ abstract class PhenyxController {
     
     public $_back_css_cache;
     
-    public $_back_jss_cache;
+    public $_back_js_cache;
     
     public $_session;
     
@@ -353,13 +353,13 @@ abstract class PhenyxController {
         $this->_compress = (bool) $this->context->phenyxConfig->get('EPH_JS_HTML_BACKOFFICE_COMPRESSION');
         
         if($this->controller_type == 'front') {
-            $this->_front_css_cache = $this->context->phenyxConfig->get('EPH_CSS_THEME_CACHE');
-            $this->_front_js_cache = $this->context->phenyxConfig->get('EPH_JS_THEME_CACHE');
+            $this->_front_css_cache = $this->context->phenyxConfig->get('EPH_CSS_THEME_CACHE', null, false);
+            $this->_front_js_cache = $this->context->phenyxConfig->get('EPH_JS_THEME_CACHE', null, false);
             
         }
         if($this->controller_type == 'admin') {
-            $this->_back_css_cache = $this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE');
-            $this->_back_js_cache = $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE');
+            $this->_back_css_cache = $this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE', null, false);
+            $this->_back_js_cache = $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE', null, false);
             
         }
         
