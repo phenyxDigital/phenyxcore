@@ -2606,14 +2606,6 @@ abstract class Plugin {
         return true;
     }
 
-    public function unregisterExceptions($hookId, $companyList = null) {
-
-        return Db::getInstance()->delete(
-            'hook_plugin_exceptions',
-            '`id_plugin` = ' . (int) $this->id . ' AND `id_hook` = ' . (int) $hookId
-        );
-    }
-
     public function enableDevice($device) {
 
         Db::getInstance()->update(
@@ -2765,36 +2757,36 @@ abstract class Plugin {
     public function editExceptions($idHook, $excepts) {
 
         $result = true;
-
-        foreach ($excepts as $companyId => $except) {
-            $companyList = [$companyId];
-            $this->unregisterExceptions($idHook, $companyList);
-            $result &= $this->registerExceptions($idHook, $except, $companyList);
+        
+        $this->unregisterExceptions($idHook);
+        foreach ($excepts as  $except) {
+            
+            $result &= $this->registerExceptions($idHook, $except);
 
         }
 
         return $result;
     }
+    
+    public function unregisterExceptions($hookId) {
 
-    public function registerExceptions($idHook, $excepts, $companyList = null) {
+        return Db::getInstance()->delete(
+            'hook_plugin_exceptions',
+            '`id_plugin` = ' . (int) $this->id . ' AND `id_hook` = ' . (int) $hookId
+        );
+    }
 
-        foreach ($excepts as $except) {
+    public function registerExceptions($idHook, $except) {
+       
+        $insertException = [
+            'id_plugin' => (int) $this->id,
+            'id_hook'   => (int) $idHook,
+            'file_name' => pSQL($except),
+        ];
+        $result = Db::getInstance()->insert('hook_plugin_exceptions', $insertException);
 
-            if (!$except) {
-                continue;
-            }
-
-            $insertException = [
-                'id_plugin' => (int) $this->id,
-                'id_hook'   => (int) $idHook,
-                'file_name' => pSQL($except),
-            ];
-            $result = Db::getInstance()->insert('hook_plugin_exceptions', $insertException);
-
-            if (!$result) {
-                return false;
-            }
-
+        if (!$result) {
+            return false;
         }
 
         return true;
@@ -2917,9 +2909,7 @@ abstract class Plugin {
     }
 
     public function getExceptions($idHook, $dispatch = false) {
-        
-        $file = fopen("testgetExceptions.txt","w");
-        fwrite($file,$idHook.PHP_EOL);
+                
         $result = $this->_session->get('getExceptions_'.$idHook.'_'.$dispatch);
         if(!empty($result) && is_array($result)) {
             //return $result;
@@ -2971,9 +2961,7 @@ abstract class Plugin {
 
         }
         $this->_session->set('getExceptions_'.$idHook.'_'.$dispatch, $array_return);
-        fwrite($file, print_r($array_return, true));
         
-
         return $array_return;
     }
 

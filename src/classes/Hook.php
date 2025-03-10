@@ -431,9 +431,13 @@ class Hook extends PhenyxObjectModel {
             }
 
             if ($checkExceptions) {
+                $file = fopen("testcheckExceptions.txt","a");
+                fwrite($file,$array['id_plugin'].PHP_EOL);
+                fwrite($file,$array['id_hook'].PHP_EOL);
                 $exceptions = Plugin::getExceptionsStatic($array['id_plugin'], $array['id_hook']);
-
+                fwrite($file,print_r($exceptions, true).PHP_EOL);
                 $controller = Performer::getInstance()->getController();
+                fwrite($file,$controller.PHP_EOL);
                 $controllerObj = $this->context->controller;
 
 
