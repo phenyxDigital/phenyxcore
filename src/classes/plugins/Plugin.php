@@ -2564,7 +2564,6 @@ abstract class Plugin {
     }
 
     public function unregisterHook($id_hook) {
-
         $id_hook_plugin = Db::getInstance()->getValue((new DbQuery())
             ->select('hm.`id_hook_plugin`')
             ->from('hook_plugin', 'hm')
@@ -2572,8 +2571,11 @@ abstract class Plugin {
             ->where('hm.`id_plugin` = ' . (int) $this->id)
             ->where('h.`id_hook` = ' . $id_hook));
         if($id_hook_plugin) {
+            $hookName = $this->context->_hook->getNameById((int) $id_hook);
+            $this->context->_hook->exec('actionModuleUnRegisterHookBefore', ['object' => $this, 'hook_name' => $hookName]);
             $hookPlugin = new HookPlugin($id_hook_plugin);
             return $hookPlugin->delete();
+            $this->context->_hook->exec('actionModuleUnRegisterHookAfter', ['object' => $this, 'hook_name' => $hookName]);
         }
 
         return true;

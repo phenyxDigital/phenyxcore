@@ -32,35 +32,16 @@ abstract class PluginStats extends Plugin {
     protected $_direction = null;
     // @codingStandardsIgnoreEnd
 
-    /**
-     * @param int $idEmployee
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function setEmployee($idEmployee) {
 
         $this->_employee = new Employee($idEmployee);
     }
 
-    /**
-     * @param $id_lang
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function setLang($id_lang) {
 
         $this->_id_lang = $id_lang;
     }
-
-    /**
-     * @param      $layers
-     * @param bool $legend
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
+    
     protected function setDateGraph($layers, $legend = false) {
 
         // Get dates in a manageable format
@@ -221,12 +202,6 @@ abstract class PluginStats extends Plugin {
 
     }
 
-    /**
-     * @param $datas
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     protected function csvExportGraph($datas) {
 
         $context = Context::getContext();
@@ -357,10 +332,6 @@ abstract class PluginStats extends Plugin {
         $this->_displayCsv();
     }
 
-    /**
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     protected function _displayCsv() {
 
         if (ob_get_level() && ob_get_length() > 0) {
@@ -373,16 +344,6 @@ abstract class PluginStats extends Plugin {
         exit;
     }
 
-    /**
-     * @param mixed $render
-     * @param mixed $type
-     * @param mixed $width
-     * @param mixed $height
-     * @param mixed $layers
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function createGraph($render, $type, $width, $height, $layers) {
 
         if (!file_exists($file = _EPH_ROOT_DIR_ . '/includes/plugins/' . $render . '/' . $render . '.php')) {
@@ -424,32 +385,13 @@ abstract class PluginStats extends Plugin {
         $this->_render->setLimit($this->_start, $this->_limit);
     }
 
-    /**
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function draw() {
 
         $this->_render->draw();
     }
 
-    /**
-     * @param mixed $option
-     * @param int   $layers
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function setOption($option, $layers = 1) {}
 
-    /**
-     * @param array $params
-     *
-     * @return array|mixed|string
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function engineGraph($params) {
 
         $context = Context::getContext();
@@ -553,15 +495,6 @@ abstract class PluginStats extends Plugin {
 
     }
 
-    /**
-     * @param null         $employee
-     * @param Context|null $context
-     *
-     * @return bool|Employee|null
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     protected static function getEmployee($employee = null, $context = null) {
 
         if (!Validate::isLoadedObject($employee)) {
@@ -594,25 +527,11 @@ abstract class PluginStats extends Plugin {
         return $employee;
     }
 
-    /**
-     * @return string
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function getDate() {
 
         return PluginGraph::getDateBetween($this->_employee);
     }
 
-    /**
-     * @param null $employee
-     *
-     * @return string
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public static function getDateBetween($employee = null) {
 
         if ($employee = PluginGraph::getEmployee($employee)) {
@@ -622,24 +541,10 @@ abstract class PluginStats extends Plugin {
         return ' \'' . date('Y-m') . '-01 00:00:00\' AND \'' . date('Y-m-t') . ' 23:59:59\' ';
     }
 
-    /**
-     * @return mixed
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function getLang() {
 
         return $this->_id_lang;
     }
 
-    /**
-     * @param $layers
-     *
-     * @return mixed
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     abstract protected function getData($layers);
 }

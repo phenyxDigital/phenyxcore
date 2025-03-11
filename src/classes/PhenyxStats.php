@@ -285,16 +285,16 @@ class PhenyxStats  {
             return Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
                 '
             SELECT SUM(od.`product_quantity` * IF(
-                od.`purchase_supplier_price` > 0,
-                od.`purchase_supplier_price` / `conversion_rate`,
-                od.`original_product_price` * ' . (int) Context::getContext()->phenyxConfig->get('CONF_AVERAGE_PRODUCT_MARGIN') . ' / 100
-            )) as total_purchase_price
-            FROM `' . _DB_PREFIX_ . 'orders` o
-            LEFT JOIN `' . _DB_PREFIX_ . 'order_detail` od ON o.id_order = od.id_order
-            LEFT JOIN `' . _DB_PREFIX_ . 'order_state` os ON o.current_state = os.id_order_state
-            WHERE `invoice_date` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59" AND os.logable = 1
-            '
+                    od.`product_wholesale_price` > 0,
+                    od.`product_wholesale_price` / `conversion_rate`,
+                    od.`original_price_tax_excl` * ' . (int) Context::getContext()->phenyxConfig->get('CONF_AVERAGE_PRODUCT_MARGIN') . ' / 100
+                )) as total_purchase_price
+            FROM `' . _DB_PREFIX_ . 'customer_pieces` o
+            LEFT JOIN `' . _DB_PREFIX_ . 'customer_piece_detail` od ON o.id_customer_piece = od.id_customer_piece
+            LEFT JOIN `' . _DB_PREFIX_ . 'customer_piece_state` os ON o.current_state = os.id_customer_piece_state
+            WHERE `date_add` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59" AND os.logable = 1'
             );
+            
         }
 
     }
