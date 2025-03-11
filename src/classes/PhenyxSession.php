@@ -63,6 +63,29 @@ class PhenyxSession extends PhenyxServices {
         unset($_SESSION[self::SESSION_NAMESPACE][$key]);
     }
     
+    public function removeStartingKey($key) {
+        foreach($_SESSION[self::SESSION_NAMESPACE] as $k => $value) {
+            if (str_starts_with($k, $key)) {
+                unset($_SESSION[self::SESSION_NAMESPACE][$k]);
+            }
+        }
+        
+        
+    }
+    
+    public function getSessionValues() {
+
+		ini_set('memory_limit', '-1');
+		$result = [];
+
+		foreach($_SESSION[self::SESSION_NAMESPACE] as $key => $value) {
+			$result[$key] = Validate::isJSON($value) ? Tools::jsonDecode($value, true) : $value;
+		}
+
+		ksort($result);
+		return $result;
+	}
+    
     public function destroy() {
         
         session_destroy();

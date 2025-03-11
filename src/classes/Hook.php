@@ -237,45 +237,42 @@ class Hook extends PhenyxObjectModel {
     }
 
     public function getHookPluginList($use_cache = true) {
-
-        $cacheId = 'hook_plugin_list';
-
-        if (!$use_cache || !CacheApi::isStored($cacheId)) {
-
-            $results = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS('
-                SELECT h.id_hook, h.name AS h_name, h.title, h.description, h.position, h.static, hm.position AS hm_position, m.id_plugin, m.name, m.active
-                FROM `' . _DB_PREFIX_ . 'hook_plugin` hm
-                STRAIGHT_JOIN `' . _DB_PREFIX_ . 'hook` h ON (h.id_hook = hm.id_hook)
-                STRAIGHT_JOIN `' . _DB_PREFIX_ . 'plugin` AS m ON (m.id_plugin = hm.id_plugin)
-                ORDER BY hm.position'
-            );
-            $list = [];
-
-            foreach ($results as $result) {
-
-                if (!isset($list[$result['id_hook']])) {
-                    $list[$result['id_hook']] = [];
-                }
-
-                $list[$result['id_hook']][$result['id_plugin']] = [
-                    'id_hook'     => $result['id_hook'],
-                    'title'       => $result['title'],
-                    'description' => $result['description'],
-                    'hm.position' => $result['position'],
-                    'static'      => $result['static'],
-                    'm.position'  => $result['hm_position'],
-                    'id_plugin'   => $result['id_plugin'],
-                    'name'        => $result['name'],
-                    'active'      => $result['active'],
-                ];
-            }
-
-            CacheApi::store($cacheId, $list);
-
+        
+        $list = $this->_session->get('hook_plugin_list');
+        if(!empty($list) && is_array($list)) {
             return $list;
         }
 
-        return CacheApi::retrieve($cacheId);
+        $results = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS('
+            SELECT h.id_hook, h.name AS h_name, h.title, h.description, h.position, h.static, hm.position AS hm_position, m.id_plugin, m.name, m.active
+            FROM `' . _DB_PREFIX_ . 'hook_plugin` hm
+            STRAIGHT_JOIN `' . _DB_PREFIX_ . 'hook` h ON (h.id_hook = hm.id_hook)
+            STRAIGHT_JOIN `' . _DB_PREFIX_ . 'plugin` AS m ON (m.id_plugin = hm.id_plugin)
+            ORDER BY hm.position'
+        );
+        $list = [];
+
+        foreach ($results as $result) {
+
+            if (!isset($list[$result['id_hook']])) {
+                $list[$result['id_hook']] = [];
+            }
+
+            $list[$result['id_hook']][$result['id_plugin']] = [
+                'id_hook'     => $result['id_hook'],
+                'title'       => $result['title'],
+                'description' => $result['description'],
+                'hm.position' => $result['position'],
+                'static'      => $result['static'],
+                'm.position'  => $result['hm_position'],
+                'id_plugin'   => $result['id_plugin'],
+                'name'        => $result['name'],
+                'active'      => $result['active'],
+            ];
+        }
+        $this->_session->set('hook_plugin_list', $list);
+
+        return $list;
     }
 
     public function exec(
@@ -431,17 +428,19 @@ class Hook extends PhenyxObjectModel {
             }
 
             if ($checkExceptions) {
-                $file = fopen("testcheckExceptions.txt","a");
-                fwrite($file,$array['id_plugin'].PHP_EOL);
-                fwrite($file,$array['id_hook'].PHP_EOL);
+                
                 $exceptions = Plugin::getExceptionsStatic($array['id_plugin'], $array['id_hook']);
-                fwrite($file,print_r($exceptions, true).PHP_EOL);
+                
                 $controller = Performer::getInstance()->getController();
-                fwrite($file,$controller.PHP_EOL);
                 $controllerObj = $this->context->controller;
 
 
                 if (is_array($exceptions) && in_array($controller, $exceptions)) {
+                    $file = fopen("testcheckExceptions.txt","w");
+                    fwrite($file,$controller.PHP_EOL);
+                    fwrite($file,print_r($exceptions, true).PHP_EOL);
+                    fwrite($file,$array['id_plugin'].PHP_EOL);
+                    fwrite($file,$array['id_hook'].PHP_EOL);
 
                     continue;
                 }

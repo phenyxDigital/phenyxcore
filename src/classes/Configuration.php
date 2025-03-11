@@ -185,6 +185,7 @@ class Configuration extends PhenyxObjectModel {
             $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
             $entityMapper->load($id, $idLang, $this, $this->def, static::$cache_objects);
         }
+        $this->_session = PhenyxSession::getInstance();
        
         
     }
@@ -198,15 +199,6 @@ class Configuration extends PhenyxObjectModel {
 		return static::$instance;
 	}
     
-    
-    // @codingStandardsIgnoreEnd
-
-    /**
-     * @return bool|null
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function configurationIsLoaded() {
 
         return isset(static::$_cache['configuration'])
@@ -214,33 +206,15 @@ class Configuration extends PhenyxObjectModel {
         && count(static::$_cache['configuration']);
     }
 
-    /**
-     * WARNING: For testing only. Do NOT rely on this method, it may be removed at any time.
-     *
-     * @todo    Delegate static calls from Configuration to an instance of a class to be created.
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function clearConfigurationCacheForTesting() {
 
         static::$_cache = [];
     }
 
-    /**
-     * @param string   $key
-     * @param int|null $idLang
-     *
-     * @return string
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function getGlobalValue($key, $idLang = null) {
 
         return $this->get($key, $idLang);
     }
-
     
     public function get($key, $idLang = null, $use_cache = true) {
 
@@ -304,8 +278,7 @@ class Configuration extends PhenyxObjectModel {
 
         return false;
     }    
-   
-    
+       
     public function getKey($key, $idLang = null) {
 
         if (defined('_EPH_DO_NOT_LOAD_CONFIGURATION_') && _EPH_DO_NOT_LOAD_CONFIGURATION_) {
@@ -366,16 +339,18 @@ class Configuration extends PhenyxObjectModel {
     
     public function loadConfigurationFromDB() {
         
-        static::$_cache['configuration'] = [];
-        $rows = null;        
-       
-        if($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $value = $this->context->cache_api->getData('loadConfigurationFromDB', 864000);
-            $temp = empty($value) ? null : Tools::jsonDecode($value, true);
-            if(!empty($temp)) {
-                $rows = $temp;
-            }
+        if(!is_object($this->_session)) {
+            $this->_session = PhenyxSession::getInstance();
         }
+        
+        $rows = null;  
+        $result = $this->_session->get('loadConfigurationFromDB');
+        if(!empty($result) && is_array($result)) {
+            $rows = $result;
+        }
+        
+        static::$_cache['configuration'] = [];
+           
         if(is_null($rows)) {
             $rows = Db::getInstance()->executeS(
                 (new DbQuery())
@@ -388,11 +363,8 @@ class Configuration extends PhenyxObjectModel {
         if (!is_array($rows)) {
             return;
         }
+        $this->_session->set('loadConfigurationFromDB', $rows);
         
-        if($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $temp = $rows === null ? null : Tools::jsonEncode($rows);
-            $this->context->cache_api->putData('loadConfigurationFromDB', $temp);
-        }	
 
         foreach ($rows as $row) {
             $lang = ($row['id_lang']) ? $row['id_lang'] : 0;

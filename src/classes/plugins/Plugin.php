@@ -2788,6 +2788,7 @@ abstract class Plugin {
         if (!$result) {
             return false;
         }
+        $this->_session->removeStartingKey('getExceptions_'.$idHook);
 
         return true;
     }
@@ -2910,9 +2911,9 @@ abstract class Plugin {
 
     public function getExceptions($idHook, $dispatch = false) {
                 
-        $result = $this->_session->get('getExceptions_'.$idHook.'_'.$dispatch);
-        if(!empty($result) && is_array($result)) {
-            //return $result;
+        $array_return = $this->_session->get('getExceptions_'.$idHook.'_'.$dispatch);
+        if(!empty($array_return) && is_array($array_return)) {
+            return $array_return;
         }
         $exceptions_cache = [];
         $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
