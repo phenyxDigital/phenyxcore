@@ -361,10 +361,12 @@ abstract class PhenyxController {
             $this->_back_css_cache = $this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE', null, false);
             $this->_back_js_cache = $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE', null, false);
             
+        }        
+        
+        if(!is_object($this->_session)) {
+            $this->_session = PhenyxSession::getInstance();
         }
         
-        
-        $this->_session = PhenyxSession::getInstance();
 
     }
 

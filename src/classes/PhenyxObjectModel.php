@@ -419,11 +419,14 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
             unset($this->excludes);
         }
-        
-        $this->services = PhenyxServiceContainer::getInstance();
+        if(!is_object($this->services)) {
+            $this->services = PhenyxServiceContainer::getInstance();
+        }
         $this->services->registerService($this->className, $this->className);
+        if(!is_object($this->_session)) {
+            $this->_session = PhenyxSession::getInstance();
+        }
         
-        $this->_session = PhenyxSession::getInstance();
 
     }
     

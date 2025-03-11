@@ -73,6 +73,16 @@ class PhenyxSession extends PhenyxServices {
         
     }
     
+    public function removeEndByKey($key) {
+        foreach($_SESSION[self::SESSION_NAMESPACE] as $k => $value) {
+            if (str_ends_with($k, $key)) {
+                unset($_SESSION[self::SESSION_NAMESPACE][$k]);
+            }
+        }
+        
+        
+    }
+    
     public function getSessionValues() {
 
 		ini_set('memory_limit', '-1');
