@@ -10,6 +10,12 @@ class PluginGridEngine extends Plugin {
     // @codingStandardsIgnoreStart
     protected $_type;
     private $_values;
+    private $_title;
+    private $_width;
+    private $_height;
+    private $_totalCount;
+    private $_start;
+    private $_limit;
     private static $_columns;
     // @codingStandardsIgnoreEnd
 

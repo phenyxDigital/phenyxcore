@@ -386,10 +386,9 @@ abstract class PluginGraph extends Plugin {
      * @version 1.8.1.0 Initial version
      */
     public function engine($params) {
-
-        $context = Context::getContext();
+        
         $render = $this->context->phenyxConfig->get('EPH_STATS_RENDER');
-        $idEmployee = (int) $context->user->id;
+        $idEmployee = (int) $context->employee->id;
         $idLang = (int) $context->language->id;
 
         if (!isset($params['layers'])) {

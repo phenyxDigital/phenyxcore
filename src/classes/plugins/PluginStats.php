@@ -7,6 +7,8 @@
  */
 abstract class PluginStats extends Plugin {
 
+    const ENGINE_GRAPH = 'graph';
+    const ENGINE_GRID = 'grid';
     // @codingStandardsIgnoreStart
     /** @var Employee $_employee */
     protected $_employee;
@@ -30,6 +32,8 @@ abstract class PluginStats extends Plugin {
     protected $_sort = null;
     /**@var string sort direction DESC/ASC */
     protected $_direction = null;
+    
+    public $_id_lang;
     // @codingStandardsIgnoreEnd
 
     public function setEmployee($idEmployee) {
@@ -396,8 +400,8 @@ abstract class PluginStats extends Plugin {
 
         $context = Context::getContext();
         $render = $this->context->phenyxConfig->get('EPH_STATS_RENDER');
-        $idEmployee = (int) $context->employee->id;
-        $idLang = (int) $context->language->id;
+        $idEmployee = (int) $this->context->employee->id;
+        $idLang = (int) $this->context->language->id;
 
         if (!isset($params['layers'])) {
             $params['layers'] = 1;
@@ -421,7 +425,7 @@ abstract class PluginStats extends Plugin {
         $urlParams['engine'] = 'graph';
         $urlParams['id_employee'] = $idEmployee;
         $urlParams['id_lang'] = $idLang;
-        $drawer = 'drawer.php?' . http_build_query(array_map('Tools::safeOutput', $urlParams), '', '&');
+        $drawer = '/app/drawer.php?' . http_build_query(array_map('Tools::safeOutput', $urlParams), '', '&');
 
         if (file_exists(_EPH_ROOT_DIR_ . '/includes/plugins/' . $render . '/' . $render . '.php')) {
             require_once _EPH_ROOT_DIR_ . '/includes/plugins/' . $render . '/' . $render . '.php';
@@ -434,9 +438,9 @@ abstract class PluginStats extends Plugin {
     }
 
     public function engineGrid($params) {
-
+        
         $render = $this->context->phenyxConfig->get('EPH_STATS_GRID_RENDER');
-        $grider = 'grider.php?render=' . $render . '&engine=grid&plugin=' . Tools::safeOutput(Tools::getValue('plugin'));
+        $grider = '/app/grider.php?render=' . $render . '&engine=grid&plugin=' . Tools::safeOutput(Tools::getValue('plugin'));
 
         $context = Context::getContext();
         $grider .= '&id_employee=' . (int) $context->employee->id;
@@ -484,17 +488,16 @@ abstract class PluginStats extends Plugin {
         if (isset($params['dir']) && Validate::isSortDirection($params['dir'])) {
             $grider .= '&dir=' . $params['dir'];
         }
-
+       
         if (file_exists(_EPH_ROOT_DIR_ . '/includes/plugins/' . $render . '/' . $render . '.php')) {
             require_once _EPH_ROOT_DIR_ . '/includes/plugins/' . $render . '/' . $render . '.php';
 
             return call_user_func([$render, 'hookGridEngine'], $params, $grider);
         } else {
-            return (new PluginGridEngine(isset($params['type']) ? $params['type'] : null))->hookGridEngine($params, $grider);
+            return call_user_func(['PluginGridEngine', 'hookGridEngine'], $params, $grider);
         }
-
     }
-
+    
     protected static function getEmployee($employee = null, $context = null) {
 
         if (!Validate::isLoadedObject($employee)) {
