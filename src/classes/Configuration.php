@@ -284,8 +284,8 @@ class Configuration extends PhenyxObjectModel {
             return false;
         }
         
-        if($this->context->cache_enable) {
-            $temp = $this->context->cache_api->getData('cnfig_'.$key, $context, 864000);
+        if($this->context->cache_enable && is_object($this->context->cache_api)) {
+            $temp = $this->context->cache_api->getData('cnfig_'.$key);
             if(!empty($temp)) {
                 return $temp;
             }
@@ -309,8 +309,8 @@ class Configuration extends PhenyxObjectModel {
         if ($this->hasKey($key, $idLang) && isset(static::$_cache['configuration'][$idLang]['global'][$key])) {
 			
             $result = purifyFetch(static::$_cache['configuration'][$idLang]['global'][$key]);
-            if($this->context->cache_enable) {
-                $this->context->cache_api->putData('cnfig_'.$key, $result, $context);
+            if($this->context->cache_enable && is_object($this->context->cache_api)) {
+                $this->context->cache_api->putData('cnfig_'.$key, $result);
             }
 			
             return $result;
@@ -321,8 +321,8 @@ class Configuration extends PhenyxObjectModel {
                     ->from('configuration')
                     ->where('`name` LIKE \'' . $key . '\'')
             );
-            if($this->context->cache_enable) {
-                $this->context->cache_api->putData('cnfig_'.$key, $value, $context);
+            if($this->context->cache_enable && is_object($this->context->cache_api)) {
+                $this->context->cache_api->putData('cnfig_'.$key, $value);
             }
             static::$_cache['configuration'][$idLang]['global'][$key] = $value;
             return $value;
@@ -452,14 +452,7 @@ class Configuration extends PhenyxObjectModel {
     
     public function updateValue($key, $values, $html = false, $script = false) {
 
-        if (class_exists('Context')) {
-            $this->context = Context::getContext();   
-            $cache = $this->context->cache_api;
-        }
-
         $this->validateKey($key);
-
-        
 
         if (!is_array($values)) {
             $values = [$values];
@@ -525,9 +518,9 @@ class Configuration extends PhenyxObjectModel {
             }
 
         }
-        if(class_exists('Context') && $this->context->cache_enable && is_object($this->context->cache_api)) {
-            $temp = $value === null ? null : Tools::jsonEncode($value);
-            $cache->putData('cnfig_'.$key, $temp);
+        if($this->context->cache_enable && is_object($this->context->cache_api)) {
+            $temp = $value === null ? null : $value;
+            $this->context->cache_api->putData('cnfig_'.$key, $temp);
         }	
 
         $this->set($key, $values);
