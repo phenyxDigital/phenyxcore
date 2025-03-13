@@ -809,7 +809,7 @@ class Tools {
 
         if (_EPH_DISPLAY_COMPATIBILITY_WARNING_) {
             trigger_error($error, E_USER_WARNING);
-            Logger::addLog($message, 3, $class);
+            PhenyxLogger::addLog($message, 3, $class);
         }
 
     }
@@ -2794,7 +2794,7 @@ FileETag none
             die($msg);
         }
 
-        return Logger::addLog($msg);
+        return PhenyxLogger::addLog($msg);
     }
 
     public static function nl2br($str) {
@@ -5844,7 +5844,7 @@ FileETag none
         try {
             $translation->add();
         } catch (exception $e) {
-            Logger::addLog($this->l('getGoogleTranslation', 'Tools', false, false), 1, null, 'Tools', $e->getMessage(), true, 0);
+            PhenyxLogger::addLog($this->l('getGoogleTranslation', 'Tools', false, false), 1, null, 'Tools', $e->getMessage(), true, 0);
         }
         
         $return = [

@@ -38,14 +38,14 @@ class IoPlugin extends Plugin {
         return implode('|', $cache_array);
     }
 
-    public static function getPluginsOnDisk($useConfig = false, $loggedOnAddons = false, $idEmployee = false, $full = false) {
+    public static function getPhenyxPluginsOnDisk($id_licence) {
         
-        global $_PLUGINS;
-
+        $license = new License($id_licence);
         $context = Context::getContext();
+        $link = new Link();
         $phenyxPlugins = [];
         $phenyxDepends = [];
-        $customer_plugins = $context->license->plugins;
+        $customer_plugins = isset($license->plugins) ? $license->plugins : null;
         
         if(is_array($customer_plugins) && count($customer_plugins)) {
             foreach($customer_plugins as $plugin => $value) {
@@ -63,13 +63,12 @@ class IoPlugin extends Plugin {
         $errors = [];
 
         $pluginsDir = Plugin::getPluginsDirOnDisk();
-
+        
         $pluginsInstalled = [];
         $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
             (new DbQuery())
-                ->select('m.id_plugin, m.`name`, m.`version`, m.active, m.enable_device, mp.`interest`')
-                ->from('plugin', 'm')
-                ->leftJoin('plugin_preference', 'mp', 'mp.`plugin` = m.`name` AND mp.`id_employee` = ' . (int) $idEmployee)
+                ->select('id_plugin, `name`, `version`, active, enable_device')
+                ->from('plugin')
         );
 
         foreach ($result as $row) {
@@ -77,12 +76,7 @@ class IoPlugin extends Plugin {
         }
 
         foreach ($pluginsDir as $plugin) {
-
-            if (Plugin::useTooMuchMemory()) {
-                $errors[] = Tools::displayError('All plugins cannot be loaded due to memory limit restrictions, please increase your memory_limit value on your server configuration');
-                break;
-            }
-
+            
             if (!class_exists($plugin, false)) {
 
                 if (file_exists(_EPH_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php')) {
@@ -231,11 +225,10 @@ class IoPlugin extends Plugin {
                 $plugin->id = $pluginsInstalled[$plugin->name]['id_plugin'];
                 $plugin->installed = true;
                 $plugin->database_version = $pluginsInstalled[$plugin->name]['version'];
-                $plugin->interest = $pluginsInstalled[$plugin->name]['interest'];
                 $plugin->enable_device = $pluginsInstalled[$plugin->name]['enable_device'];
                 $plugin->active = $pluginsInstalled[$plugin->name]['active'];
                 $plugin->dependencies = $tmpPlugin->dependencies;
-                $plugin->image_link = $context->link->getBaseFrontLink() . $image;
+                $plugin->image_link = $link->getBaseFrontLink() . $image;
                 $plugin->is_ondisk = false;
                 
                 foreach($phenyxPlugins as $plug => $value) {
@@ -250,7 +243,7 @@ class IoPlugin extends Plugin {
                 $plugin->installed = false;
                 $plugin->database_version = 0;
                 $plugin->interest = 0;
-                $plugin->image_link = $context->link->getBaseFrontLink() . $image;
+                $plugin->image_link = $link->getBaseFrontLink() . $image;
                 $plugin->dependencies = $tmpPlugin->dependencies;
                 $plugin->is_ondisk = false;
                 

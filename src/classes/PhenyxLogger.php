@@ -40,7 +40,7 @@ class PhenyxLogger extends PhenyxObjectModel {
         'fields'  => [
             'severity'    => ['type' => self::TYPE_INT, 'validate' => 'isInt', 'required' => true],
             'error_code'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
-            'message'     => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'required' => true],
+            'message'     => ['type' => self::TYPE_HTML, 'required' => true],
             'object_id'   => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
             'id_employee' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
             'object_type' => ['type' => self::TYPE_STRING, 'validate' => 'isName'],
