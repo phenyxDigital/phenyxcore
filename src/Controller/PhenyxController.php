@@ -274,6 +274,10 @@ abstract class PhenyxController {
             $this->context->media = Media::getInstance();
         }
         
+        if (!isset($this->context->_session)) {
+            $this->context->_session = PhenyxSession::getInstance();
+        }
+        
         if (!isset($this->context->link)) {
             $this->context->link = new Link();
         }
@@ -364,7 +368,7 @@ abstract class PhenyxController {
         }        
         
         if(!is_object($this->_session)) {
-            $this->_session = PhenyxSession::getInstance();
+            $this->_session = $this->context->_session;
         }
         
 
@@ -1798,7 +1802,7 @@ abstract class PhenyxController {
         $this->ajaxDisplay();
 
     }
-
+    
     public function ajaxProcessOpenTargetController() {
 
         if ($this->cachable) {

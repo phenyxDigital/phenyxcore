@@ -327,6 +327,10 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             $this->context->media = Media::getInstance();
         }
         
+        if (!isset($this->context->_session)) {
+            $this->context->_session = PhenyxSession::getInstance();
+        }
+        
         if(!isset($this->context->link)) {
             $this->context->link = new Link();
         }
@@ -424,7 +428,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         }
         $this->services->registerService($this->className, $this->className);
         if(!is_object($this->_session)) {
-            $this->_session = PhenyxSession::getInstance();
+            $this->_session = $this->context->_session;
         }
         
 
@@ -992,6 +996,46 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             }
 
         }
+        
+        if (isset($definition['have_meta']) && $definition['have_meta']) {
+            
+            $result = Db::getInstance()->executeS(
+                (new DbQuery())
+                    ->select('*')
+                    ->from(bqSQL($definition['table']) . '_meta`')
+                    ->where('`' . bqSQL($definition['primary']) . '` = ' . (int) $this->id)
+            );
+
+            if (!$result) {
+                return false;
+            }
+            
+            foreach ($result as &$row) {
+
+                foreach ($row as $field => &$value) {
+
+                    if (isset($definition['fields'][$field])) {
+                        $value = PhenyxObjectModel::formatValue($value, $definition['fields'][$field]['type'], false, true, !empty($definition['fields'][$field]['allow_null']));
+                    }
+
+                }
+
+            }
+
+            foreach ($result as $row2) {
+                $row2[$definition['primary']] = (int) $objectId;
+
+                if (!Db::getInstance()->insert($definition['table'] . '_meta', $row2)) {
+                    return false;
+                }
+
+            }
+                       
+            
+          
+
+        }
+
 
         $objectDuplicated = new $definition['classname']((int) $objectId);
 
@@ -1114,6 +1158,13 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
 
         if (!empty($this->def['multilang'])) {
             $result &= Db::getInstance()->delete($this->def['table'] . '_lang', '`' . bqSQL($this->def['primary']) . '` = ' . (int) $this->id);
+        }
+        
+        if (isset($this->def['have_meta']) && $this->def['have_meta']) {
+                       
+            $result &= Db::getInstance()->delete($this->def['table'] . '_meta', '`' . bqSQL($this->def['primary']) . '` = ' . (int) $this->id);
+          
+
         }
 
         $this->context->_hook->exec('actionObjectDeleteAfter', ['object' => $this]);
