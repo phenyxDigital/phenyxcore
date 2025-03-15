@@ -180,8 +180,10 @@ class PhenyxUploader {
         if ($file['error']) {
             return false;
         }
+        
 
         $postMaxSize = $this->getPostMaxSizeBytes();
+        
 
         if ($postMaxSize && ($this->_getServerVars('CONTENT_LENGTH') > $postMaxSize)) {
             $file['error'] = Tools::displayError('The uploaded file exceeds the post_max_size directive in php.ini');
@@ -262,7 +264,7 @@ class PhenyxUploader {
      * @version 1.8.1.0 Initial version
      */
     public function getPostMaxSizeBytes() {
-
+        
         $postMaxSize = ini_get('post_max_size');
         $bytes = (int) trim($postMaxSize);
         $last = strtolower(substr($postMaxSize, -1));
@@ -271,11 +273,10 @@ class PhenyxUploader {
         case 'g':
             $bytes *= 1024;
         case 'm':
-            $bytes *= 1024;
+            $bytes *= 1024000;
         case 'k':
-            $bytes *= 1024;
+            $bytes *= 1024000000;
         }
-
         return $bytes;
     }
 
