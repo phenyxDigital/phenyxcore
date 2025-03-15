@@ -511,8 +511,6 @@ class ImageManager {
 
         // Detect mime content type
         $mimeType = false;
-        $file = fopen("testisRealImage.txt","w");
-        fwrite($file,$filename);
         if (!$mimeTypeList) {
             $mimeTypeList = ['image/gif', 'image/jpg', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/x-png'];
         }

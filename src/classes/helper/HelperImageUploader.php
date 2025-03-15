@@ -59,23 +59,23 @@ class HelperImageUploader extends HelperUploader {
             return false;
         }
        
-        $postMaxSize = $this->context->_tools->convertBytes(ini_get('post_max_size'));
+        $postMaxSize = Tools::convertBytes(ini_get('post_max_size'));
 
-        $uploadMaxFilesize = $this->context->_tools->convertBytes(ini_get('upload_max_filesize'));
+        $uploadMaxFilesize = Tools::convertBytes(ini_get('upload_max_filesize'));
         
         if ($postMaxSize && ($this->_getServerVars('CONTENT_LENGTH') > $postMaxSize)) {
-            $file['error'] = $this->context->_tools->displayError('The uploaded file exceeds the post_max_size directive in php.ini');
+            $file['error'] = Tools::displayError('The uploaded file exceeds the post_max_size directive in php.ini');
 
             return false;
         }
 
         if ($uploadMaxFilesize && ($this->_getServerVars('CONTENT_LENGTH') > $uploadMaxFilesize)) {
-            $file['error'] = $this->context->_tools->displayError('The uploaded file exceeds the upload_max_filesize directive in php.ini');
+            $file['error'] = Tools::displayError('The uploaded file exceeds the upload_max_filesize directive in php.ini');
 
             return false;
         }
 
-        if ($error = $this->context->img_manager->validateUpload($file, $this->context->_tools->getMaxUploadSize($this->getMaxSize()), $this->getAcceptTypes())) {
+        if ($error = ImageManager::getInstance()->validateUpload($file, Tools::getMaxUploadSize($this->getMaxSize()), $this->getAcceptTypes())) {
             $file['error'] = $error;
 
             return false;
