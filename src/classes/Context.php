@@ -55,6 +55,8 @@ class Context {
 	public $employee;
 	/** @var AdminController|FrontController */
 	public $controller;
+    
+    public $tabs_controllers;
 	/** @var string */
 	public $override_controller_name_for_translations;
 	/** @var Language */
