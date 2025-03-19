@@ -406,6 +406,7 @@ class Translate {
         static $langCache = [];
 
         $name = $plugin instanceof Plugin ? $plugin->name : $plugin;
+        
         if (!isset($this->context->theme)) {
             $this->context->company = Company::initialize();
             $this->context->theme = new Theme((int) $this->context->company->id_theme);
@@ -429,8 +430,7 @@ class Translate {
             
             foreach ($filesByPriority as $file) {
 
-                if (file_exists($file)) {      
-                    
+                if (file_exists($file)) {    
                     include($file);
                     if(isset($_PLUGINS) && is_array($_PLUGINS)) {
                         $_PLUGIN = array_merge(
@@ -448,10 +448,11 @@ class Translate {
             $_PLUGINS = $_PLUGIN;
 
         }
+        
 
         $string = preg_replace("/\\\*'/", "\'", $string);
         $key = md5($string);
-
+        
         $cacheKey = $name . '|' . $string . '|' . $source . '|' . (int) $js;
         $ret = null;
 
@@ -469,7 +470,7 @@ class Translate {
             $defaultKey = trim(strtolower('<{' . $name . '}ephenyx>' . $source) . '_' . $key);
             $PhenyxShopKey = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) . '_' . $key);   
             $PhenyxShopKey2 = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) .  $key); 
-
+        
             if ('controller' == substr($source, -10, 10)) {
                 $file = substr($source, 0, -10);
                 $currentKeyFile = strtolower('<{' . $name . '}' . $theme . '>' . $file) . '_' . $key;
@@ -513,8 +514,8 @@ class Translate {
                 return $ret;
             } else
 
-            if (!empty($_PLUGINS[$PhenyxShopKey])) {
-                $ret = stripslashes($_PLUGINS[$PhenyxShopKey]);
+            if (!empty($_PLUGINS[$PhenyxShopKey2])) {
+                $ret = stripslashes($_PLUGINS[$PhenyxShopKey2]);
                 if ($sprintf !== null) {
                     $ret = $this->checkAndReplaceArgs($ret, $sprintf);
                 }
