@@ -163,9 +163,7 @@ abstract class PhenyxController {
     public $bootstrap = false;
 
     public $lang = false;
-
-    public $configurationField = 0;
-
+    
     public $updateableFields;
 
     protected $fields_form;

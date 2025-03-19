@@ -137,8 +137,8 @@ class DbPDO extends Db {
         
          try {
             return isset($this->link) ? $this->link->query($sql) : null;
-        } catch (PDOException $e) {
-             PhenyxLogger::addLog($e->getMessage().' for query : <br>'.$sql, 4);
+        } catch (PhenyxException $e) {
+             PhenyxLogger::addLog($e->displayMessage().' for query : <br>'.$sql, 4);
             return false;
         }
         //return isset($this->link) ? $this->link->query($sql) : null;
