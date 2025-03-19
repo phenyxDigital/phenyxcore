@@ -87,7 +87,7 @@ class EmployeeConfiguration extends PhenyxObjectModel {
             return false;
         }
         
-        $result = $this->context->_session->get('getEmployeeConfig_'.$this->context->employee->id.'_'.$this->context->employee->id_lang);
+        $result = $this->context->_session->get('getEmployeeConfig_'.$key.'_'.$this->context->employee->id.'_'.$this->context->employee->id_lang);
         if(!empty($result) && is_array($result)) {
             return $result;
         }
@@ -105,7 +105,7 @@ class EmployeeConfiguration extends PhenyxObjectModel {
 				$result = $this->context->_tools->jsonDecode($result, true);
 			}
             
-        $this->context->_session->set('getEmployeeConfig_'.$this->context->employee->id.'_'.$this->context->employee->id_lang, $result);   
+        $this->context->_session->set('getEmployeeConfig_'.$key.'_'.$this->context->employee->id.'_'.$this->context->employee->id_lang, $result);   
             
         return $result;
             

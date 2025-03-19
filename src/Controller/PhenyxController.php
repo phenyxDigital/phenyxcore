@@ -226,6 +226,8 @@ abstract class PhenyxController {
     
     public $memoryStart;
     
+     public $configurationField;
+    
 
     public function __construct() {
 
@@ -1756,24 +1758,21 @@ abstract class PhenyxController {
         }
 
         if (method_exists($this, 'get' . $this->className . 'Fields')) {
-            $this->addJsDef([
-                'AjaxLink' . $this->controller_name => $this->context->link->getAdminLink($this->controller_name),
-                'paragridFields' . $this->controller_name                   => is_array($this->configurationField) ? $this->configurationField : $this->{'get' . $this->className . 'Fields'}
-
-                (),
-
+            $this->configurationField = $this->{'get' . $this->className . 'Fields'}();
+            $data->assign([
+                'manageHeaderFields' => $this->manageHeaderFields,
+                'customHeaderFields' => $this->manageFieldsVisibility($This->configurationField),
             ]);
+            
 
-        } else {
-            $this->addJsDef([
-                'AjaxLink' . $this->controller_name => $this->context->link->getAdminLink($this->controller_name),
-            ]);
-        }
+        } 
+        
+        $this->addJsDef([
+            'AjaxLink' . $this->controller_name => $this->context->link->getAdminLink($this->controller_name),
+        ]);
 
         $data->assign([
             'paragridScript'     => $this->paragridScript,
-            'manageHeaderFields' => $this->manageHeaderFields,
-            'customHeaderFields' => $this->manageFieldsVisibility($this->configurationField),
             'controller'         => $this->controller_name,
             'tableName'          => $this->table,
             'className'          => $this->className,
@@ -1850,26 +1849,20 @@ abstract class PhenyxController {
             }
 
         }
-
         if (method_exists($this, 'get' . $this->className . 'Fields')) {
-            $this->addJsDef([
-                'AjaxLink' . $this->controller_name => $this->context->link->getAdminLink($this->controller_name),
-                'paragridFields'. $this->controller_name                    => is_array($this->configurationField) ? $this->configurationField : $this->{'get' . $this->className . 'Fields'}
-
-                (),
-
+            $configurationField = $this->{'get' . $this->className . 'Fields'}();
+            $data->assign([
+                'manageHeaderFields' => $this->manageHeaderFields,
+                'customHeaderFields' => $this->manageFieldsVisibility($configurationField),
             ]);
+        } 
 
-        } else {
-            $this->addJsDef([
-                'AjaxLink' . $this->controller_name => $this->context->link->getAdminLink($this->controller_name),
-            ]);
-        }
+        $this->addJsDef([
+            'AjaxLink' . $this->controller_name => $this->context->link->getAdminLink($this->controller_name),
+        ]);
 
         $data->assign([
             'paragridScript'     => $this->paragridScript,
-            'manageHeaderFields' => $this->manageHeaderFields,
-            'customHeaderFields' => $this->manageFieldsVisibility($this->configurationField),
             'controller'         => $this->controller_name,
             'tableName'          => $this->table,
             'className'          => $this->className,
@@ -2141,7 +2134,7 @@ abstract class PhenyxController {
                     'js_inline' => $js_inline,
                 ]
             );
-            $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
+            $javascript = '<cntscript>'.$this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl').'</cntscript>';
 
             if ($this->_defer) {
                 $javascript = $javascript . '</content>';
