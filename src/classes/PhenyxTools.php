@@ -1333,7 +1333,9 @@ class PhenyxTools {
 
 				if (is_dir(_EPH_PLUGIN_DIR_ . $plugin . '/translations/' . $this->context->language->iso_code)) {
 					$plugs[] = $plugin;
-				}
+				} else if(is_dir(_EPH_SPECIFIC_PLUGIN_DIR_. $plugin . '/translations/' . $this->context->language->iso_code)) {
+                    $plugs[] = $plugin;
+                }
 
 			}
 
