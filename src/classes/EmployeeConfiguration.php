@@ -72,10 +72,10 @@ class EmployeeConfiguration extends PhenyxObjectModel {
         return $return;
     }
     
-    public static function getInstance() {
+    public static function getInstance($id = null, $idLang = null) {
 
         if (!static::$instance) {
-            static::$instance = new EmployeeConfiguration();
+            static::$instance = new EmployeeConfiguration($id, $idLang);
         }
 
         return static::$instance;
