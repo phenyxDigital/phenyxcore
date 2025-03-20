@@ -193,6 +193,8 @@ abstract class PhenyxController {
     public $page_description;
 
     public $ajax_li;
+    
+    public $dialog_title;
 
     public $ajax_content;
 
@@ -2325,6 +2327,128 @@ abstract class PhenyxController {
             $result = [
                 'success'    => true,
                 'li'         => $this->ajax_li,
+                'html'       => $content,
+                'page_title' => $this->page_title,
+                'load_time'  => sprintf($this->la('Load time %s seconds'), round(microtime(true) - TIME_START, 3)),
+            ];
+
+            if (_EPH_ADMIN_DEBUG_PROFILING_) {
+                $result['profiling_mode'] = true;
+                $result['profiling'] = $this->displayProfiling();
+            }
+
+            die($this->context->_tools->jsonEncode($result));
+
+        }
+
+    }
+    
+    public function ajaxModalEditDisplay() {
+
+        $layout = $this->getAjaxLayout();
+
+        if ($layout) {
+
+            
+            if (($this->_back_css_cache || $this->_back_js_cache) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
+
+                if ($this->_back_css_cache) {
+                    $this->extracss = $this->context->media->admincccCss($this->extracss);
+                }
+
+                if ($this->_back_js_cache) {
+                    $this->extraJs = $this->context->media->admincccJS($this->extraJs);
+                }
+
+            }
+
+            $controller = $this->context->_tools->getValue('controller');
+
+            $this->context->smarty->assign(
+                [
+                    'js_def'           => ($this->_defer && $this->_domAvailable) ? [] : $this->js_def,
+                    'extracss'         => $this->extracss,
+                    'js_heads'         => [],
+                    'js_files'         => $this->_defer ? [] : $this->extraJs,
+                    'favicon_dir'      => __EPH_BASE_URI__ . 'content/backoffice/img/',
+                    'meta_title'       => $this->page_title,
+                    'meta_description' => $this->page_description,
+                ]
+            );
+
+            $dir = $this->context->smarty->getTemplateDir(0);
+            $override_dir = $this->context->smarty->getTemplateDir(1) . DIRECTORY_SEPARATOR;
+            $pluginListDir = $this->context->smarty->getTemplateDir(0) . 'helpers' . DIRECTORY_SEPARATOR . 'plugins_list' . DIRECTORY_SEPARATOR;
+
+            $headerTpl = file_exists($dir . 'ajax_header.tpl') ? $dir . 'ajax_header.tpl' : 'ajax_header.tpl';
+            $footerTpl = file_exists($dir . 'ajax_footer.tpl') ? $dir . 'ajax_footer.tpl' : 'ajax_footer.tpl';
+
+            $this->context->smarty->assign(
+                [
+                    'content'     => $this->ajax_content,
+                    'ajax_header' => $this->context->smarty->fetch($headerTpl),
+                    'ajax_footer' => $this->context->smarty->fetch($footerTpl),
+                ]
+            );
+
+            $content = $this->context->smarty->fetch($layout);
+            $this->ajaxShowModalEditContent($content);
+        } else {
+
+        }
+
+    }
+    
+    protected function ajaxShowModalEditContent($content) {
+        
+        $this->context->cookie->write();
+        $html = '';
+        $jsTag = 'js_def';
+        $this->context->smarty->assign($jsTag, $jsTag);
+        $html = $content;
+
+        $html = trim($html);
+
+        if (!empty($html)) {
+            $javascript = "";
+            
+            if ($this->_defer && $this->_domAvailable) {
+                $html = $this->context->media->deferInlineScripts($html);
+            }
+
+
+            $header = $this->context->media->deferTagOutput('ajax_head', $html) . '<content>';
+            $html = trim(str_replace($header, '', $html)) . "\n";
+
+            if (isset($this->object->id) && $this->object->id > 0) {
+                $content = $this->context->media->deferIdOutput('contentEdit' . $this->controller_name, $html);
+            } else {
+                $content = $this->context->media->deferIdOutput('contentAdd' . $this->controller_name, $html);
+            }
+            
+            $js_def = ($this->_defer && $this->_domAvailable) ? $this->js_def : [];
+            $js_files = (!is_null($this->extraJs) && $this->_defer) ? array_unique($this->extraJs) : [];
+            $js_inline = ($this->_defer && $this->_domAvailable) ? $this->context->media->getInlineScript() : [];
+
+            $this->context->smarty->assign(
+                [
+                    'js_def'    => $js_def,
+                    'js_files'  => $js_files,
+                    'js_inline' => $js_inline,
+                    'js_heads'  => [],
+                ]
+            );
+            $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
+
+            if ($this->_defer) {
+                $javascript = $javascript . '</content>';
+            }
+
+            $content =  $header . $content . $javascript;
+
+            $result = [
+                'success'    => true,
+                'title'         => $this->dialog_title,
                 'html'       => $content,
                 'page_title' => $this->page_title,
                 'load_time'  => sprintf($this->la('Load time %s seconds'), round(microtime(true) - TIME_START, 3)),

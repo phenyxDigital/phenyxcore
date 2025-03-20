@@ -48,24 +48,16 @@ class EmployeeConfiguration extends PhenyxObjectModel {
         $objectData = parent::buildObject($id, $id_lang, $className);
         $objectData['value'] = Tools::jsonDecode($objectData['value'], true);
               
-        return PhenyxTool::getInstance()->jsonDecode(PhenyxTool::getInstance()->jsonEncode($objectData));
+        return Tools::jsonDecode(PhenyxTool::getInstance()->jsonEncode($objectData));
     }  
 
 	public function add($autoDate = true, $nullValues = false) {
         
-        if(is_array($this->value)) {
-            $this->value = $this->context->_tools->jsonEncode($this->value);
-        }
-
-		return parent::add($autoDate, $nullValues);
+       	return parent::add($autoDate, $nullValues);
 
 	}
     
     public function update($nullValues = false) {
-
-        if(is_array($this->value)) {
-            $this->value = $this->context->_tools->jsonEncode($this->value);
-        }
        
         $return = parent::update($nullValues);
 
@@ -88,8 +80,8 @@ class EmployeeConfiguration extends PhenyxObjectModel {
         }
         
         $result = $this->context->_session->get('getEmployeeConfig_'.$key.'_'.$this->context->employee->id.'_'.$this->context->employee->id_lang);
-        if(!empty($result) && is_array($result)) {
-            return $result;
+        if(!empty($result)) {
+            return $result = Validate::isJSON($result) ? Tools::jsonDecode($result, true) : $result;
         }
     
         
@@ -101,11 +93,13 @@ class EmployeeConfiguration extends PhenyxObjectModel {
 			->leftJoin('employee_configuration_lang', 'ecl', 'ecl.`id_employee_configuration` = ec.`id_employee_configuration` AND ecl.`id_lang` = ' . $this->context->employee->id_lang)
 			->where('ec.`name` LIKE \'' . $key . '\' AND ec.id_employee = '.$this->context->employee->id)
         );
-        if (!is_null($result) && is_string($result) && Validate::isJSON($result)) {
-				$result = $this->context->_tools->jsonDecode($result, true);
-			}
+        if (!empty($result)) {
+            $this->context->_session->set('getEmployeeConfig_'.$key.'_'.$this->context->employee->id.'_'.$this->context->employee->id_lang, $result);  
+            $result = Validate::isJSON($result) ? Tools::jsonDecode($result, true) : $result;
             
-        $this->context->_session->set('getEmployeeConfig_'.$key.'_'.$this->context->employee->id.'_'.$this->context->employee->id_lang, $result);   
+        }
+            
+         
             
         return $result;
             
@@ -115,40 +109,36 @@ class EmployeeConfiguration extends PhenyxObjectModel {
 
 	public function updateValue($key, $values) {
 		
+        $file = fopen("testUpdateElokiyeeValue.txt","w");
 		if(!isset($this->context->employee->id)) {
             return false;
         }
+        fwrite($file,$key.PHP_EOL);
+        fwrite($file,print_r($values, true).PHP_EOL);
 		
-		$hasKey = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
-			(new DbQuery())
-				->select('`id_employee_configuration`')
-				->from('employee_configuration')
-				->where('`id_employee` = ' . (int) $this->context->employee->id . ' AND `name` LIKE \'' . $this->context->_tools->jsonEncode($key) . '\'')
-		);
+		$hasKey = $this->hasKey($key);
 
 		if ($hasKey > 0) {
+            fwrite($file,'has key'.PHP_EOL);
 			$configuration = new EmployeeConfiguration($hasKey);
             foreach (Language::getLanguages(false) as $lang) {
-                $configuration->value[$lang['id_lang']] = $values;
+                $configuration->value[$lang['id_lang']] = is_array($values) ?  Tools::jsonEncode($values) : $values;
             }
 			$result = $configuration->update();
-			if($result) {
-                return true;
+			
+		} else {
+            fwrite($file,'no key'.PHP_EOL);
+            $configuration = new EmployeeConfiguration();
+            $configuration->id_employee = $this->context->employee->id;
+            $configuration->name = $key;
+            foreach (Language::getLanguages(false) as $lang) {
+                $configuration->value[$lang['id_lang']] = is_array($values) ?  Tools::jsonEncode($values) : $values;
             }
-            $result = [
-                'success' => false,
-                'message' => sprintf($this->la('We encounter a problem updating %s %s preference'), $this->context->employee->firstname, $this->context->employee->lastname),
-		    ];
-		}
 
-		$configuration = new EmployeeConfiguration();
-		$configuration->id_employee = $this->context->employee->id;
-		$configuration->name = $key;
-		foreach (Language::getLanguages(false) as $lang) {
-            $configuration->value[$lang['id_lang']] = $values;
+		    $result = $configuration->add();
         }
 
-		$result = $configuration->add();
+		
        
         if($result) {
             return true;
@@ -157,9 +147,20 @@ class EmployeeConfiguration extends PhenyxObjectModel {
             'success' => false,
             'message' => sprintf($this->la('We encounter a problem creating %s %s preference'), $employee->firstname, $employee->lastname),
 		];
-        die(PhenyxTool::getInstance()->jsonEncode($result));
+        die(Tools::jsonEncode($result));
 
 		
 	}
+    
+    public function hasKey($key) {
+        
+        return  Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+			(new DbQuery())
+				->select('`id_employee_configuration`')
+				->from('employee_configuration')
+				->where('`id_employee` = ' . (int) $this->context->employee->id . ' AND `name` LIKE \'' . $key . '\'')
+		);
+        
+    }
 
 }
