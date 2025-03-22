@@ -9,6 +9,14 @@ use \Curl\Curl;
 class Translation extends PhenyxObjectModel {
 
     protected static $instance;
+    
+    public $dbUser;
+    
+    public $dbPasswd;
+    
+    public $dbName;
+    
+    public $dbServer;
 
     /**
      * @see PhenyxObjectModel::$definition
@@ -51,12 +59,20 @@ class Translation extends PhenyxObjectModel {
 
         }
         
+        $this->dbUser = 'AdminPhenyxTraduction';
+        
+        $this->dbPasswd = '?188f2jwC';
+        
+        $this->dbName = 'phenyx_traduction';
+        
+        $this->dbServer = 'quizzical-hopper.155-133-130-82.plesk.page';
+        
         $this->translations = $this->getGlobalTranslations($isos);   
 
         if ($id) {
             $this->id = $id;
             $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
-            $entityMapper->load($this->id, null, $this, $this->def, false);           
+            $entityMapper->load($this->id, null, $this, $this->def, false,  $this->dbUser, $this->dbPasswd, $this->dbName, $this->dbServer);           
 		}
 
     }
@@ -72,7 +88,7 @@ class Translation extends PhenyxObjectModel {
         
         foreach ($isos as $lang) {   
             
-            $translations[$lang['iso_code']] = Db::getInstance()->executeS(
+            $translations[$lang['iso_code']] = Db::getCrmInstance($this->dbUser, $this->dbPasswd, $this->dbName, $this->dbServer)->executeS(
                 (new DbQuery())
                 ->select('*')
                 ->from('translation')
@@ -139,7 +155,7 @@ class Translation extends PhenyxObjectModel {
 
     public function getExistingTranslation($iso_code, $origin) {
 
-       return Db::getInstance()->getValue(
+       return Db::getCrmInstance($this->dbUser, $this->dbPasswd, $this->dbName, $this->dbServer)->getValue(
             (new DbQuery())
             ->select('`translation`')
             ->from('translation')
@@ -150,7 +166,7 @@ class Translation extends PhenyxObjectModel {
     
     public function getExistingObjectTranslation($iso_code, $origin) {
 
-       $id_translation = Db::getInstance()->getValue(
+       $id_translation = Db::getCrmInstance($this->dbUser, $this->dbPasswd, $this->dbName, $this->dbServer)->getValue(
             (new DbQuery())
             ->select('`id_translation`')
             ->from('translation')
@@ -169,7 +185,7 @@ class Translation extends PhenyxObjectModel {
 
         $javareturn = [];
 
-        $results = Db::getInstance()->executeS(
+        $results = Db::getCrmInstance($this->dbUser, $this->dbPasswd, $this->dbName, $this->dbServer)->executeS(
             (new DbQuery())
             ->select('*')
             ->from('translation')

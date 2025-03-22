@@ -26,13 +26,13 @@ class Adapter_EntityMapper {
      * @since 1.9.1.0
      * @version 1.8.1.0 Initial version
      */
-    public function load($id, $idLang, $entity, $entityDefs, $shouldCacheObjects) {
+    public function load($id, $idLang, $entity, $entityDefs, $shouldCacheObjects, $dbUser= _DB_USER_, $dbPasswd = _DB_PASSWD_, $dbName = _DB_NAME_, $dServer = _DB_SERVER_, $dbPrefix = _DB_PREFIX_) {
 
         // Load object from database if object id is present
         $cacheId = 'objectmodel_' . $entityDefs['classname'] . '_' . (int) $id . '_' . (int) $idLang;
 
         if (!$shouldCacheObjects || !CacheApi::isStored($cacheId)) {
-            $sql = new DbQuery();
+            $sql = new DbQuery($dbPrefix);
             $sql->from($entityDefs['table'], 'a');
             $sql->where('a.`' . bqSQL($entityDefs['primary']) . '` = ' . (int) $id);
 
@@ -48,15 +48,15 @@ class Adapter_EntityMapper {
 
             }
             
-            if ($objectData = Db::getInstance()->getRow($sql)) {
+            if ($objectData = Db::getCrmInstance($dbUser, $dbPasswd, $dbName, $dServer)->getRow($sql)) {
 
                 if (!$idLang && isset($entityDefs['multilang']) && $entityDefs['multilang']) {
-                    $sql = (new DbQuery())
+                    $sql = (new DbQuery($dbPrefix))
                         ->select('*')
                         ->from($entityDefs['table'] . '_lang')
                         ->where('`' . $entityDefs['primary'] . '` = ' . (int) $id);
 
-                    if ($objectDatasLang = Db::getInstance()->executeS($sql)) {
+                    if ($objectDatasLang = Db::getCrmInstance($dbUser, $dbPasswd, $dbName, $dServer)->executeS($sql)) {
 
                         foreach ($objectDatasLang as $row) {
 
@@ -82,11 +82,11 @@ class Adapter_EntityMapper {
                 }
                 
                 if (isset($entityDefs['have_meta']) && $entityDefs['have_meta']) {
-                    $sql = (new DbQuery())
+                    $sql = (new DbQuery($dbPrefix))
                         ->select('*')
                         ->from($entityDefs['table'] . '_meta')
                         ->where('`' . $entityDefs['primary'] . '` = ' . (int) $id);
-                    if ($objectDatasMeta = Db::getInstance()->executeS($sql)) {
+                    if ($objectDatasMeta = Db::getCrmInstance($dbUser, $dbPasswd, $dbName, $dServer)->executeS($sql)) {
 
                         foreach ($objectDatasMeta as $row) {
 
