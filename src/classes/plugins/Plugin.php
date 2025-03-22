@@ -769,18 +769,6 @@ abstract class Plugin {
 
         $pluginsDir = Plugin::getPluginsDirOnDisk();
         
-        $pluginsInstalled = [];
-        $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
-            (new DbQuery())
-                ->select('m.id_plugin, m.`name`, m.`version`, m.active, m.enable_device, mp.`interest`')
-                ->from('plugin', 'm')
-                ->leftJoin('plugin_preference', 'mp', 'mp.`plugin` = m.`name` AND mp.`id_employee` = ' . (int) $idEmployee)
-        );
-
-        foreach ($result as $row) {
-            
-            $pluginsInstalled[$row['name']] = $row;
-        }
         $extras = [];
         foreach ($pluginsDir as $plugin) {
 
@@ -965,7 +953,8 @@ abstract class Plugin {
             
              
             $tmpPlugin = Adapter_ServiceLocator::get($plugin->name);
-            if (isset($pluginsInstalled[$plugin->name])) {
+            
+            if (Plugin::isInstalled($plugin->name)) {
 
                 if (method_exists($tmpPlugin, 'reset')) {
                     $plugin->has_reset = true;
@@ -976,12 +965,12 @@ abstract class Plugin {
                 $plugin->removable = $tmpPlugin->removable;
                 $plugin->configOutPlugin = $tmpPlugin->configOutPlugin;
                 $plugin->config_controller = $tmpPlugin->config_controller;
-                $plugin->id = $pluginsInstalled[$plugin->name]['id_plugin'];
+                $plugin->id = $tmpPlugin->id;
                 $plugin->installed = true;
-                $plugin->database_version = $pluginsInstalled[$plugin->name]['version'];
-                $plugin->interest = $pluginsInstalled[$plugin->name]['interest'];
-                $plugin->enable_device = $pluginsInstalled[$plugin->name]['enable_device'];
-                $plugin->active = $pluginsInstalled[$plugin->name]['active'];
+                $plugin->database_version = $tmpPlugin->version;
+                $plugin->interest = $tmpPlugin->interest;
+                $plugin->enable_device = $tmpPlugin->enable_device;
+                $plugin->active = $tmpPlugin->active;
                 $plugin->dependencies = $tmpPlugin->dependencies;
                 $plugin->image_link = "/" . $image;
                 $plugin->is_ondisk = true;
