@@ -409,6 +409,8 @@ class PhenyxTool {
             $start_page = 1;
         }
 
+
+
         for ($i = $start_page; $i <= $end_page; $i++) {
 
             if ($i == $current_page) {
@@ -3005,36 +3007,59 @@ FileETag none
     }
 
     public function cleanThemeDirectory($context = null) {
+        
+        $plugToCheck = [];
 
-       
+        
+        if (is_dir($this->context->theme->path . 'css/plugins/')) {
+            $css = glob($this->context->theme->path . 'css/plugins/' . "*", GLOB_ONLYDIR);
+
+        }
+        foreach($css as $path) {
+           $plugToCheck[] = basename($path);
+        }
+        
+        if (is_dir($this->context->theme->path . 'js/plugins/')) {
+            $js = glob($this->context->theme->path . 'js/plugins/' . "*", GLOB_ONLYDIR);
+        }
+        foreach($js as $path) {
+           $plugToCheck[] = basename($path);
+        }
+        
+        if (is_dir($this->context->theme->path . 'plugins/')) {
+            $plugs = glob($this->context->theme->path . 'plugins/' . "*", GLOB_ONLYDIR);
+        }
+        foreach($plugs as $path) {
+           $plugToCheck[] = basename($path);
+        }
+        
         $folder = [];
-        $plugintochecks = [];
         $plugins = Plugin::getPluginsOnDisk();
 
         foreach ($plugins as $plugin) {
 
             if (file_exists(_EPH_PLUGIN_DIR_ . $plugin->name . '/' . $plugin->name . '.php')) {
                 $folder[] = $plugin->name;
-                $plugintochecks[] = $plugin->name;
             }
 
         }
+        
 
-        foreach ($plugins as $plugin) {
+        foreach ($plugToCheck as $plugin) {
 
-            if (!in_array($plugin->name, $folder)) {
+            if (!in_array($plugin, $folder)) {
 
-                if (is_dir($this->context->theme->path . 'css/plugins/')) {
-                    $this->recursiveDeleteOnDisk($this->context->theme->path . 'css/plugins');
+                if (is_dir($this->context->theme->path . 'css/plugins/'. $plugin)) {
+                    $this->recursiveDeleteOnDisk($this->context->theme->path . 'css/plugins/'. $plugin);
 
                 }
 
-                if (is_dir($this->context->theme->path . 'js/plugins/')) {
-                    $this->recursiveDeleteOnDisk($this->context->theme->path . 'js/plugins');
+                if (is_dir($this->context->theme->path . 'js/plugins/'. $plugin)) {
+                    $this->recursiveDeleteOnDisk($this->context->theme->path . 'js/plugins/'. $plugin);
                 }
 
-                if (is_dir($this->context->theme->path . 'plugins/')) {
-                    $this->recursiveDeleteOnDisk($this->context->theme->path . '/plugins');
+                if (is_dir($this->context->theme->path . 'plugins/'. $plugin)) {
+                    $this->recursiveDeleteOnDisk($this->context->theme->path . '/plugins/'. $plugin);
                 }
 
             }
@@ -3066,6 +3091,7 @@ FileETag none
 
             reset($objects);
             rmdir($dir);
+           
         }
 
     }
@@ -3091,7 +3117,7 @@ FileETag none
             $path = str_replace($fileName, '', $filePath);
 
             if (is_dir($path)) {
-                $this->recursiveDeleteOnDisk($path);
+                $this->removeEmptyDirs($path);
             }
 
         }
