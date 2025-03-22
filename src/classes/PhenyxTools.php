@@ -365,19 +365,23 @@ class PhenyxTools {
 	}
 
 	public function getPhenyxPlugins() {
+        
+        $plugins = Plugin::getInstalledPluginsOnDisk();
 
 		$data_array = [
 			'action'      => 'getPhenyxPlugins',
 			'license_key' => $this->context->phenyxConfig->get('_EPHENYX_LICENSE_KEY_', null, false),
 			'crypto_key'  => $this->_crypto_key,
+            'plugins'     => $plugins
 		];
 		$curl = new Curl();
 		$curl->setDefaultJsonDecoder($assoc = true);
 		$curl->setHeader('Content-Type', 'application/json');
 		$curl->setTimeout(6000);
 		$curl->post($this->_url, json_encode($data_array));
-		$plugins = $curl->response;
-
+        
+		$plugins = Tools::jsonDecode(Tools::jsonEncode($curl->response), true);
+       
 		if (is_array($plugins)) {
 			file_put_contents(
 				_EPH_CONFIG_DIR_ . 'json/plugin_sources.json',
@@ -1226,6 +1230,7 @@ class PhenyxTools {
 		$file = fopen(_EPH_TRANSLATIONS_DIR_ . $iso . '/front.php', "w");
 		fwrite($file, "<?php\n\nglobal \$_LANGFRONT;\n\n");
 		fwrite($file, "\$_LANGFRONT = [];\n");
+
 
 		foreach ($toInsert as $key => $value) {
 			$value = htmlspecialchars_decode($value, ENT_QUOTES);
