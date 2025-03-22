@@ -3039,7 +3039,7 @@ FileETag none
         $plugins = Plugin::getPluginsOnDisk();
 
         foreach ($plugins as $plugin) {
-            $plugin = Plugin::getInstanceByName($plugin);
+            $plugin = Plugin::getInstanceByName($plugin->name);
 
             if ($plugin->id > 0) {
 
