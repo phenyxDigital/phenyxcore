@@ -22,14 +22,16 @@ class PhenyxTools {
 	public $plugins = [];
 
 	public $license;
-    
+
 	public function __construct() {
 
 		$this->context = Context::getContext();
-        if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig =  Configuration::getInstance();
-            
-        }
+
+		if (!isset($this->context->phenyxConfig)) {
+			$this->context->phenyxConfig = Configuration::getInstance();
+
+		}
+
 		$this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
 		$this->context->theme = new Theme((int) $this->context->company->id_theme);
 		$this->default_theme = $this->context->theme->directory;
@@ -145,7 +147,8 @@ class PhenyxTools {
 			unlink(_EPH_CONFIG_DIR_ . 'json/new_json.json');
 			return Tools::jsonDecode($md5List, true);
 		}
-        $excludes = [];
+
+		$excludes = [];
 
 		$directories = Theme::getInstalledThemeDirectories();
 
@@ -209,7 +212,7 @@ class PhenyxTools {
 			$excludes[] = '/' . $directory . '/js/';
 			$excludes[] = '/' . $directory . '/plugins/';
 			$excludes[] = '/' . $directory . '/pdf/';
-            $excludes[] = '/' . $directory . '/mail/';
+			$excludes[] = '/' . $directory . '/mail/';
 			$excludes[] = '/' . $directory . '/docs/';
 		}
 
@@ -308,34 +311,39 @@ class PhenyxTools {
 					json_encode($md5List, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
 				);
 				chmod(_EPH_CONFIG_DIR_ . 'json/new_json.json', 0777);
-                return true;
+				return true;
 			}
 
 		}
 
 	}
-    
-    public static function getConfiguration($tags) {
-        
-        return Context::getContext()->phenyxConfig->get($tags);
-    }
-    
-    public static function execHook($hook, $args = [], $return = false) {
-        
-        return Hook::getInstance()->exec($hook,  $args, null, $return);
-    }
-    public static function getSmartyLink($method, $args) {
-        
-        $link = new Link();
-       
-        if (method_exists($link, $method)) {
-             if(!is_array($args)) {
-                $args = [$args];
-            }
-            return $link->{method}(implode(',', $args));
-        }
-        
-    }
+
+	public static function getConfiguration($tags) {
+
+		return Context::getContext()->phenyxConfig->get($tags);
+	}
+
+	public static function execHook($hook, $args = [], $return = false) {
+
+		return Hook::getInstance()->exec($hook, $args, null, $return);
+	}
+
+	public static function getSmartyLink($method, $args) {
+
+		$link = new Link();
+
+		if (method_exists($link, $method)) {
+
+			if (!is_array($args)) {
+				$args = [$args];
+			}
+
+			return $link->{method}
+
+			(implode(',', $args));
+		}
+
+	}
 
 	public static function addJsDef($jsDef) {
 
@@ -365,23 +373,23 @@ class PhenyxTools {
 	}
 
 	public function getPhenyxPlugins() {
-        
-        $plugins = Plugin::getInstalledPluginsOnDisk();
+
+		$plugins = Plugin::getInstalledPluginsOnDisk();
 
 		$data_array = [
 			'action'      => 'getPhenyxPlugins',
 			'license_key' => $this->context->phenyxConfig->get('_EPHENYX_LICENSE_KEY_', null, false),
 			'crypto_key'  => $this->_crypto_key,
-            'plugins'     => $plugins
+			'plugins'     => $plugins,
 		];
 		$curl = new Curl();
 		$curl->setDefaultJsonDecoder($assoc = true);
 		$curl->setHeader('Content-Type', 'application/json');
 		$curl->setTimeout(6000);
 		$curl->post($this->_url, json_encode($data_array));
-        
+
 		$plugins = Tools::jsonDecode(Tools::jsonEncode($curl->response), true);
-       
+
 		if (is_array($plugins)) {
 			file_put_contents(
 				_EPH_CONFIG_DIR_ . 'json/plugin_sources.json',
@@ -761,7 +769,7 @@ class PhenyxTools {
 			}
 
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin` WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);			
+			Db::getInstance()->execute($sql);
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_access` WHERE id_plugin = ' . $plugin['id_plugin'];
 			Db::getInstance()->execute($sql);
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_carrier` WHERE id_plugin = ' . $plugin['id_plugin'];
@@ -830,7 +838,6 @@ class PhenyxTools {
 			}
 
 		}
-
 
 		$query = 'SELECT DISTINCT(id_hook)  FROM `' . _DB_PREFIX_ . 'hook_plugin`  ORDER BY id_hook ASC';
 		$hooks = Db::getInstance()->executeS($query);
@@ -1231,7 +1238,6 @@ class PhenyxTools {
 		fwrite($file, "<?php\n\nglobal \$_LANGFRONT;\n\n");
 		fwrite($file, "\$_LANGFRONT = [];\n");
 
-
 		foreach ($toInsert as $key => $value) {
 			$value = htmlspecialchars_decode($value, ENT_QUOTES);
 			fwrite($file, '$_LANGFRONT[\'' . translateSQL($key, true) . '\'] = \'' . translateSQL($value, true) . '\';' . "\n");
@@ -1294,7 +1300,7 @@ class PhenyxTools {
 			if (file_exists(_EPH_PLUGIN_DIR_ . $plugin . DIRECTORY_SEPARATOR . 'translations/' . $iso . '/pdf.php')) {
 
 				@include _EPH_PLUGIN_DIR_ . $plugin . DIRECTORY_SEPARATOR . 'translations/' . $iso . '/pdf.php';
-				
+
 				if (is_array($_LANGPDF)) {
 					$_LANGPD = array_merge(
 						$_LANGPD,
@@ -1338,9 +1344,11 @@ class PhenyxTools {
 
 				if (is_dir(_EPH_PLUGIN_DIR_ . $plugin . '/translations/' . $this->context->language->iso_code)) {
 					$plugs[] = $plugin;
-				} else if(is_dir(_EPH_SPECIFIC_PLUGIN_DIR_. $plugin . '/translations/' . $this->context->language->iso_code)) {
-                    $plugs[] = $plugin;
-                }
+				} else
+
+				if (is_dir(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . '/translations/' . $this->context->language->iso_code)) {
+					$plugs[] = $plugin;
+				}
 
 			}
 

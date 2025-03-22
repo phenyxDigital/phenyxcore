@@ -1191,9 +1191,9 @@ class PhenyxTool {
     public function replaceAccentedChars($str) {
 
         /* One source among others:
-                                                                        http://www.tachyonsoft.com/uc0000.htm
-                                                                        http://www.tachyonsoft.com/uc0001.htm
-                                                                        http://www.tachyonsoft.com/uc0004.htm
+                                                                                                http://www.tachyonsoft.com/uc0000.htm
+                                                                                                http://www.tachyonsoft.com/uc0001.htm
+                                                                                                http://www.tachyonsoft.com/uc0004.htm
         */
         $patterns = [
 
@@ -3006,130 +3006,35 @@ FileETag none
 
     public function cleanThemeDirectory($context = null) {
 
-        if (!is_null($this->context->theme->plugin)) {
-            $path = _EPH_PLUGIN_DIR_ . $this->context->theme->plugin . '/views/themes/' . $theme . '/';
-        } else {
-            $path = _EPH_THEME_DIR_;
-        }
-
+       
         $folder = [];
         $plugintochecks = [];
-
-        $iterator = new AppendIterator();
-
-        $iterator->append(new DirectoryIterator(_EPH_ROOT_DIR_ . '/includes/plugins'));
-
-        foreach ($iterator as $file) {
-
-            if (in_array($file->getFilename(), ['.', '..', '.htaccess', 'index.php'])) {
-                continue;
-            }
-
-            $filePath = $file->getPathname();
-            $plugin = str_replace(_EPH_ROOT_DIR_ . '/includes/plugins/', '', $filePath);
-
-            if (file_exists($filePath . '/' . $plugin . '.php')) {
-                $folder[] = $plugin;
-            } else {
-                $this->deleteDirectory($file->getPathname());
-            }
-
-        }
-
         $plugins = Plugin::getPluginsOnDisk();
 
         foreach ($plugins as $plugin) {
-            $plugin = Plugin::getInstanceByName($plugin->name);
 
-            if ($plugin->id > 0) {
-
-                if (in_array($plugin->name, $folder)) {
-                    $plugintochecks[] = $plugin->name;
-                } else {
-                    $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
-                        (new DbQuery())
-                            ->select('`id_hook`')
-                            ->from('hook_plugin')
-                            ->where('`id_plugin` = ' . (int) $plugin->id)
-                    );
-
-                    foreach ($result as $row) {
-                        $plugin->unregisterHook((int) $row['id_hook']);
-                        $plugin->unregisterExceptions((int) $row['id_hook']);
-                    }
-
-                    Db::getInstance()->delete('plugin_access', '`id_plugin` = ' . (int) $plugin->id);
-                    Group::truncateRestrictionsByPlugin($plugin->id);
-                    Db::getInstance()->delete('plugin', '`id_plugin` = ' . (int) $plugin->id);
-                }
-
+            if (file_exists(_EPH_PLUGIN_DIR_ . $plugin->name . '/' . $plugin->name . '.php')) {
+                $folder[] = $plugin->name;
+                $plugintochecks[] = $plugin->name;
             }
 
         }
 
-        if (is_dir($path . 'css/plugins/')) {
-            $iterator = new AppendIterator();
-            $iterator->append(new DirectoryIterator($path . 'css/plugins/'));
+        foreach ($plugins as $plugin) {
 
-            foreach ($iterator as $file) {
+            if (!in_array($plugin->name, $folder)) {
 
-                if (in_array($file->getFilename(), ['.', '..', '.htaccess', 'index.php'])) {
-                    continue;
+                if (is_dir($this->context->theme->path . 'css/plugins/')) {
+                    $this->recursiveDeleteOnDisk($this->context->theme->path . 'css/plugins');
+
                 }
 
-                $filePath = $file->getPathname();
-                $filePath = str_replace($path . 'css/plugins/', '', $filePath);
-
-                if (in_array($filePath, $plugintochecks)) {
-
-                } else {
-                    $this->deleteDirectory($file->getPathname());
+                if (is_dir($this->context->theme->path . 'js/plugins/')) {
+                    $this->recursiveDeleteOnDisk($this->context->theme->path . 'js/plugins');
                 }
 
-            }
-
-        }
-
-        if (is_dir($path . 'js/plugins/')) {
-            $iterator = new AppendIterator();
-            $iterator->append(new DirectoryIterator($path . 'js/plugins/'));
-
-            foreach ($iterator as $file) {
-
-                if (in_array($file->getFilename(), ['.', '..', '.htaccess', 'index.php'])) {
-                    continue;
-                }
-
-                $filePath = $file->getPathname();
-                $filePath = str_replace($path . 'js/plugins/', '', $filePath);
-
-                if (in_array($filePath, $plugintochecks)) {
-
-                } else {
-                    $this->deleteDirectory($file->getPathname());
-                }
-
-            }
-
-        }
-
-        if (is_dir($path . 'plugins/')) {
-            $iterator = new AppendIterator();
-            $iterator->append(new DirectoryIterator($path . 'plugins/'));
-
-            foreach ($iterator as $file) {
-
-                if (in_array($file->getFilename(), ['.', '..', '.htaccess', 'index.php'])) {
-                    continue;
-                }
-
-                $filePath = $file->getPathname();
-                $filePath = str_replace($path . 'plugins/', '', $filePath);
-
-                if (in_array($filePath, $plugintochecks)) {
-
-                } else {
-                    $this->deleteDirectory($file->getPathname());
+                if (is_dir($this->context->theme->path . 'plugins/')) {
+                    $this->recursiveDeleteOnDisk($this->context->theme->path . '/plugins');
                 }
 
             }
@@ -3137,6 +3042,31 @@ FileETag none
         }
 
         Hook::getInstance()->exec('cleanThemeDirectory', ['plugintochecks' => $plugintochecks]);
+
+    }
+
+    public function recursiveDeleteOnDisk($dir) {
+
+        if (is_dir($dir)) {
+            $objects = scandir($dir);
+
+            foreach ($objects as $object) {
+
+                if ($object != '.' && $object != '..') {
+
+                    if (filetype($dir . '/' . $object) == 'dir') {
+                        $this->recursiveDeleteOnDisk($dir . '/' . $object);
+                    } else {
+                        unlink($dir . '/' . $object);
+                    }
+
+                }
+
+            }
+
+            reset($objects);
+            rmdir($dir);
+        }
 
     }
 
@@ -3161,7 +3091,7 @@ FileETag none
             $path = str_replace($fileName, '', $filePath);
 
             if (is_dir($path)) {
-                $this->removeEmptyDirs($path);
+                $this->recursiveDeleteOnDisk($path);
             }
 
         }
