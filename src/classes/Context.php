@@ -103,6 +103,8 @@ class Context {
     public $cart_education;
     
     public $agent;
+    
+    public $tabscript = [];
 	/**
 	 * Mobile device of the customer
 	 *

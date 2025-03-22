@@ -354,16 +354,29 @@ abstract class PhenyxController {
         
         $this->ajax_layout = $this->getAjaxLayout();
         
-        $this->_defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
+        
         $this->_domAvailable = extension_loaded('dom') ? true : false;
-        $this->_compress = (bool) $this->context->phenyxConfig->get('EPH_JS_HTML_BACKOFFICE_COMPRESSION');
+        
         
         if($this->controller_type == 'front') {
+            $this->_compress = (bool) $this->context->phenyxConfig->get('EPH_JS_HTML_THEME_COMPRESSION');
+            if($this->_compress) {
+                $this->context->smarty->registerFilter('output', 'smartyPackJSinHTML');
+            }
+            $this->_defer = (bool) $this->context->phenyxConfig->get('EPH_JS_DEFER');
+            
             $this->_front_css_cache = $this->context->phenyxConfig->get('EPH_CSS_THEME_CACHE', null, false);
             $this->_front_js_cache = $this->context->phenyxConfig->get('EPH_JS_THEME_CACHE', null, false);
             
         }
         if($this->controller_type == 'admin') {
+            $this->_compress = (bool) $this->context->phenyxConfig->get('EPH_JS_HTML_BACKOFFICE_COMPRESSION');
+            if($this->_compress) {
+                $this->context->smarty->registerFilter('output', 'smartyPackJSinHTML');
+            }
+            
+            $this->_defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
+            
             $this->_back_css_cache = $this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE', null, false);
             $this->_back_js_cache = $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE', null, false);
             
