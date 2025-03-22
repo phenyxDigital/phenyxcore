@@ -3,23 +3,22 @@
 class ComposerShortcodeEditForm {
 
 	public $context;
-    public static $actions = [];
-    
+	public static $actions = [];
+
 	public function __construct() {
-        global $smarty;
-        $this->context = Context::getContext();
-    }
+		global $smarty;
+		$this->context = Context::getContext();
+	}
 
 	public function init() {
 
-       
 		Composer::$sds_action_hooks['wpb_show_edit_form'] = [ & $this, 'build'];
 
 	}
 
 	public function render() {
-       
-		$data = $this->context->smarty->createTemplate(_EPH_COMPOSER_DIR_  . 'editors/popups/panel_shortcode_edit_form.tpl');
+
+		$data = $this->context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'editors/popups/panel_shortcode_edit_form.tpl');
 		$data->assign(
 			[
 				'box'    => $this,
@@ -31,9 +30,8 @@ class ComposerShortcodeEditForm {
 	}
 
 	public function build() {
-        
-        
-        $vc_main = ephenyx_manager();
+
+		$vc_main = ephenyx_manager();
 
 		$element = Tools::getValue('element');
 
@@ -44,7 +42,7 @@ class ComposerShortcodeEditForm {
 		ephenyx_composer()->removeShortCode($element);
 		$settings = ComposerMap::getShortCode($element);
 		$WPS = new ComposerShortCodeSettings($settings);
-        $result = $WPS->contentAdmin($params);
+		$result = $WPS->contentAdmin($params);
 		echo $result;
 		die();
 	}

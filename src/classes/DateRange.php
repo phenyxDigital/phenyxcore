@@ -26,14 +26,13 @@ class DateRange extends PhenyxObjectModel {
         ],
     ];
 
-   
     public static function getCurrentRange() {
 
         $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getRow(
             (new DbQuery())
-            ->select('`id_date_range`, `time_end`')
-            ->from('date_range')
-            ->where('`time_end` = (SELECT MAX(`time_end`) FROM `' . _DB_PREFIX_ . 'date_range`)')
+                ->select('`id_date_range`, `time_end`')
+                ->from('date_range')
+                ->where('`time_end` = (SELECT MAX(`time_end`) FROM `' . _DB_PREFIX_ . 'date_range`)')
         );
 
         if (!$result['id_date_range'] || strtotime($result['time_end']) < strtotime(date('Y-m-d H:i:s'))) {
@@ -43,7 +42,6 @@ class DateRange extends PhenyxObjectModel {
             $dateRange->time_start = date('Y-m-d', time());
             $dateRange->time_end = date('Y-m-d H:i:s', time() + $rangeSize);
             $dateRange->add();
-
 
             return $dateRange->id;
         }

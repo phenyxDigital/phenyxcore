@@ -7,7 +7,7 @@ class ComposerColumnOffset extends Composer {
 
 	protected $settings = [];
 	protected $value = '';
-    protected $data;
+	protected $data;
 	protected $size_types = [
 		'lg' => 'Large',
 		'md' => 'Medium',
@@ -39,27 +39,27 @@ class ComposerColumnOffset extends Composer {
 
 	public function render() {
 
-        global $smarty;
-        $context = Context::getContext();
-        
-        $jsDef = [
-            'inherit' =>$this->l('Inherit: '),
-		    'inherit_default' =>$this->l('Inherit from default')
-        ];
-       
-		$data = $context->smarty->createTemplate(_EPH_COMPOSER_DIR_  .  'column_offset/template.tpl');
-        $data->assign(
-		  [
-			'settings' => $this->settings,
-			'value'    => $this->value,
-			'data'     => $this->valueData(),
-			'sizes'    => $this->size_types,
-			'param'    => $this,
-            'jsDef'    => Tools::jsonEncode($jsDef)
-          ]
+		global $smarty;
+		$context = Context::getContext();
+
+		$jsDef = [
+			'inherit'         => $this->l('Inherit: '),
+			'inherit_default' => $this->l('Inherit from default'),
+		];
+
+		$data = $context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'column_offset/template.tpl');
+		$data->assign(
+			[
+				'settings' => $this->settings,
+				'value'    => $this->value,
+				'data'     => $this->valueData(),
+				'sizes'    => $this->size_types,
+				'param'    => $this,
+				'jsDef'    => Tools::jsonEncode($jsDef),
+			]
 		);
-        return $data->fetch();
-		
+		return $data->fetch();
+
 	}
 
 	public function valueData() {

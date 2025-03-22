@@ -11,7 +11,7 @@ abstract class PluginGrid extends Plugin {
     protected $_employee;
     /** @var array of strings graph data */
     protected $_values = [];
-    
+
     protected $_script;
     /** @var int total number of values **/
     protected $_totalCount = 0;
@@ -27,9 +27,9 @@ abstract class PluginGrid extends Plugin {
     protected $_direction = null;
     /** @var PluginGridEngine grid engine */
     protected $_render;
-    
+
     protected $_id_lang;
-    
+
     protected $_columns;
     // @codingStandardsIgnoreEnd
 
@@ -90,20 +90,20 @@ abstract class PluginGrid extends Plugin {
         $this->_render = new $render();
         $this->_sort = $this->default_sort_column;
         $this->_direction = $this->default_sort_direction;
-        if($action == 'getStatisticFields') {
+
+        if ($action == 'getStatisticFields') {
             die(Tools::jsonEncode($this->_columns));
         }
-        if($action == 'getStatisticRequest') {
+
+        if ($action == 'getStatisticRequest') {
             $this->getData();
         }
 
-       
     }
-    
+
     public function generateParaGridScript() {
-        
-       
-        $paragrid = new ParamGrid($this->name, 'Stats'.$this->name, $this->name.'Table', 'id');
+
+        $paragrid = new ParamGrid($this->name, 'Stats' . $this->name, $this->name . 'Table', 'id');
         $paragrid->requestModel = '{
             location: "remote",
             dataType: "json",
@@ -113,29 +113,29 @@ abstract class PluginGrid extends Plugin {
             postData: function () {
                 return {
                     action: "getStatisticRequest",
-                    plugin: "'.$this->name.'",
+                    plugin: "' . $this->name . '",
                     render: "gridhtml",
-                    id_user: '.$this->context->user->id.',
-                    id_lang: '.$this->context->language->id.',
+                    id_user: ' . $this->context->user->id . ',
+                    id_lang: ' . $this->context->language->id . ',
                     ajax: 1
                 };
             },
             getData: function (dataJSON) {
-					return { data: dataJSON };
+                    return { data: dataJSON };
             }
         }';
         $paragrid->gridFunction = [
-			'get'.$this->name.'Fields()'                  => '
-        	var result ;
+            'get' . $this->name . 'Fields()'  => '
+            var result ;
             $.ajax({
                 type: \'POST\',
                 url: "/app/grider.php",
                 data: {
                     action: \'getStatisticFields\',
-                    plugin: "'.$this->name.'",
+                    plugin: "' . $this->name . '",
                     render: "gridhtml",
-                    id_user: '.$this->context->user->id.',
-                    id_lang: '.$this->context->language->id.',
+                    id_user: ' . $this->context->user->id . ',
+                    id_lang: ' . $this->context->language->id . ',
                     ajax: true
                 },
                 async: false,
@@ -145,17 +145,17 @@ abstract class PluginGrid extends Plugin {
                 }
             });
             return result;',
-			'get'.$this->name.'Request()' => '
+            'get' . $this->name . 'Request()' => '
             var result;
             $.ajax({
             type: \'POST\',
             url: "/app/grider.php",
             data: {
                 action: \'getStatisticRequest\',
-				plugin: "'.$this->name.'",
+                plugin: "' . $this->name . '",
                 render: "gridhtml",
-                id_user: '.$this->context->user->id.',
-                id_lang: '.$this->context->language->id.',
+                id_user: ' . $this->context->user->id . ',
+                id_lang: ' . $this->context->language->id . ',
                 ajax: true
             },
             async: false,
@@ -165,33 +165,29 @@ abstract class PluginGrid extends Plugin {
             }
         });
         return result;',
-		];
-        
-       
-        
+        ];
+
         $paragrid->heightModel = 700;
-        
+
         $paragrid->complete = 'function(){
             window.dispatchEvent(new Event(\'resize\'));
-        }';       
-        
+        }';
+
         $paragrid->pageModel = [
             'type'       => '\'local\'',
             'rPP'        => 40,
             'rPPOptions' => [40, 50, 100, 200, 500],
         ];
 
-        $paragrid->title  = '\'' . $this->displayName . '\'';
-        
+        $paragrid->title = '\'' . $this->displayName . '\'';
+
         $option = $paragrid->generateParaGridOption();
-		$script = $paragrid->generateParagridScript();
+        $script = $paragrid->generateParagridScript();
 
         $this->_script = '<script type="text/javascript">' . PHP_EOL . $script . PHP_EOL . '</script>';
-        
+
         return $this->_script;
     }
-    
-   
 
     /**
      * @since 1.9.1.0
@@ -224,7 +220,6 @@ abstract class PluginGrid extends Plugin {
             return Tools::displayError('Grid engine selected is unavailable.');
         }
 
-        
         $params['name'] = $this->name;
         $params['paragridScript'] = $this->generateParaGridScript();
 

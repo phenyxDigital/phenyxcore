@@ -1,22 +1,19 @@
 <?php
 
-
 class ComposerBase {
 
-	
 	protected $shortcode_edit_form = false;
-	
+
 	protected $templates_editor = false;
-	
+
 	protected $shortcodes = [];
-    
-    
+
 	public function init() {
 
 		$this->addPageCustomCss();
 
 	}
-    
+
 	public function allvcshortcodeobj() {
 
 		return $this->shortcodes;
@@ -24,62 +21,60 @@ class ComposerBase {
 
 	public function initAdmin() {
 
-        $this->setEditForm(new ComposerShortcodeEditForm());
-        $this->setTemplatesEditor(new ComposerTemplatesEditor());
+		$this->setEditForm(new ComposerShortcodeEditForm());
+		$this->setTemplatesEditor(new ComposerTemplatesEditor());
 		$this->editForm()->init();
 		$this->templatesEditor()->init();
-        $this->addPageCustomCss();
+		$this->addPageCustomCss();
 	}
 
 	public function setEditForm(ComposerShortcodeEditForm $form) {
 
 		$this->shortcode_edit_form = $form;
 	}
-    
-    public function setTemplatesEditor(ComposerTemplatesEditor $editor) {
+
+	public function setTemplatesEditor(ComposerTemplatesEditor $editor) {
 
 		$this->templates_editor = $editor;
 	}
-
 
 	public function editForm() {
 
 		return $this->shortcode_edit_form;
 	}
-    
-    public function templatesEditor() {
+
+	public function templatesEditor() {
 
 		return $this->templates_editor;
-	}	
+	}
 
 	public function jsForceSend($args) {
 
 		$args['send'] = true;
 		return $args;
 	}
-	
+
 	public function addMetaData() {
 
 		echo '<meta name="generator" content="Powered by Visual Composer - drag and drop page builder for EphenyxShop."/>' . "\n";
 	}
 
 	public function addShortCode($shortcode) {
-        
-        $this->shortcodes[$shortcode['base']] = new ComposerShortCodeFishBones($shortcode);
-        
+
+		$this->shortcodes[$shortcode['base']] = new ComposerShortCodeFishBones($shortcode);
+
 	}
 
 	public function getShortCode($tag) {
-       
+
 		return $this->shortcodes[$tag];
 	}
 
 	public function removeShortCode($tag) {
-        
-        Composer::remove_shortcode($tag);
+
+		Composer::remove_shortcode($tag);
 	}
 
-	
 	public static function galleryHTML() {
 
 		$images = Tools::getValue('content');
@@ -112,7 +107,7 @@ class ComposerBase {
 	public function buildShortcodesCustomCss($post_id) {
 
 		$post = get_post($post_id);
-        
+
 		$css = $this->parseShortcodesCustomCss($post->post_content);
 
 		if (empty($css)) {
@@ -164,30 +159,46 @@ class ComposerBase {
 			if (Tools::getValue('controller') == 'adminsuppliers') {
 				$page_type = 'sup';
 				$page_id = Tools::getValue('id_supplier') ? Tools::getValue('id_supplier') : "null";
-			} else if (Tools::getValue('controller') == 'adminmanufacturers') {
+			} else
+
+			if (Tools::getValue('controller') == 'adminmanufacturers') {
 				$page_type = 'man';
 				$page_id = Tools::getValue('id_manufacturer') ? Tools::getValue('id_manufacturer') : "null";
-			} else if (Tools::getValue('controller') == 'AdminCategories') {
+			} else
+
+			if (Tools::getValue('controller') == 'AdminCategories') {
 				$page_type = 'cat';
 				$page_id = Tools::getValue('id_category') ? Tools::getValue('id_category') : "null";
-			} else if (Tools::getValue('controller') == 'admincms') {
+			} else
+
+			if (Tools::getValue('controller') == 'admincms') {
 				$page_type = 'cms';
 				$page_id = Tools::getValue('id_cms') ? Tools::getValue('id_cms') : "null";
-			} else if (Tools::getValue('controller') == 'adminpagecms') {
+			} else
+
+			if (Tools::getValue('controller') == 'adminpagecms') {
 				$page_type = 'page_cms';
 				$page_id = Tools::getValue('id_page_cms') ? Tools::getValue('id_page_cms') : "null";
-			} else if (Tools::getValue('controller') == 'admincontentanywhere') {
+			} else
+
+			if (Tools::getValue('controller') == 'admincontentanywhere') {
 				$page_type = 'vccaw';
 				$page_id = Tools::getValue('id_contentanywhere') ? Tools::getValue('id_contentanywhere') : "null";
-			} else if (Tools::getValue('controller') == 'adminvcproducttabcreator') {
+			} else
+
+			if (Tools::getValue('controller') == 'adminvcproducttabcreator') {
 				$page_type = 'vctc';
 				$page_id = Tools::getValue('id_vcproducttabcreator') ? Tools::getValue('id_vcproducttabcreator') : "null";
-			} else if (Tools::getValue('controller') == 'VC_frontend') {
+			} else
+
+			if (Tools::getValue('controller') == 'VC_frontend') {
 
 				if (Tools::getValue('id_cms')) {
 					$page_type = 'cms';
 					$page_id = Tools::getValue('id_cms') ? Tools::getValue('id_cms') : "null";
-				} else if (Tools::getValue('id_category')) {
+				} else
+
+				if (Tools::getValue('id_category')) {
 					$page_id = Tools::getValue('id_category');
 					$page_type = 'cat';
 				}
@@ -197,20 +208,30 @@ class ComposerBase {
 				$page_id = null;
 
 				if ($page_type == 'product' && Tools::getValue('id_product')) {
-					$page_id = (int)(Tools::getValue('id_product'));
-				} else if ($page_type == 'category' && Tools::getValue('id_category')) {
-					$page_id = (int)(Tools::getValue('id_category'));
+					$page_id = (int) (Tools::getValue('id_product'));
+				} else
+
+				if ($page_type == 'category' && Tools::getValue('id_category')) {
+					$page_id = (int) (Tools::getValue('id_category'));
 					$page_type = 'cat';
-				} else if ($page_type == 'cms' && isset($context->controller->$page_type->id)) {
+				} else
+
+				if ($page_type == 'cms' && isset($context->controller->$page_type->id)) {
 					$page_id = $context->controller->$page_type->id;
-				} else if (Tools::getValue('controller') == 'details' && Tools::getValue('id_post')) {
+				} else
+
+				if (Tools::getValue('controller') == 'details' && Tools::getValue('id_post')) {
 					// smartblog
 					$page_id = Tools::getValue('id_post');
 					$page_type = 'smartblog';
-				} else if (Tools::getValue('controller') == 'supplier' && Tools::getValue('id_supplier')) {
+				} else
+
+				if (Tools::getValue('controller') == 'supplier' && Tools::getValue('id_supplier')) {
 					$page_id = Tools::getValue('id_supplier');
 					$page_type = 'sup';
-				} else if (Tools::getValue('controller') == 'manufacturer' && Tools::getValue('id_manufacturer')) {
+				} else
+
+				if (Tools::getValue('controller') == 'manufacturer' && Tools::getValue('id_manufacturer')) {
 					$page_id = Tools::getValue('id_manufacturer');
 					$page_type = 'man';
 				}
@@ -223,7 +244,7 @@ class ComposerBase {
 		}
 
 		if (!empty($page_id)) {
-            $phenyxConfig = Configuration::getInstance();
+			$phenyxConfig = Configuration::getInstance();
 			$id = $page_id;
 			$optionname = "_wpb_{$page_type}_{$id}_{$id_lang}_css";
 

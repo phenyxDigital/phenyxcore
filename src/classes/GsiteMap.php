@@ -3,10 +3,10 @@
 class GsiteMap extends PhenyxObjectModel {
 
 	protected static $instance;
-    
-    protected $rb_file = '';
-    protected $rb_data = [];
-    protected $sm_file = '';
+
+	protected $rb_file = '';
+	protected $rb_data = [];
+	protected $sm_file = '';
 
 	const HOOK_ADD_URLS = 'gSitemapAppendUrls';
 
@@ -19,8 +19,8 @@ class GsiteMap extends PhenyxObjectModel {
 	public $type_array = [];
 
 	public $smartyAssign = [];
-    
-    public $disable_link = [];
+
+	public $disable_link = [];
 
 	public static $definition = [
 		'table'   => 'gsitemap',
@@ -34,15 +34,15 @@ class GsiteMap extends PhenyxObjectModel {
 	public function __construct($id = null) {
 
 		parent::__construct($id);
-        
-        $this->disable_link = !empty($this->context->phenyxConfig->get('GSITEMAP_DISABLE_LINKS')) ? explode(', ', $this->context->phenyxConfig->get('GSITEMAP_DISABLE_LINKS')) : [];
+
+		$this->disable_link = !empty($this->context->phenyxConfig->get('GSITEMAP_DISABLE_LINKS')) ? explode(', ', $this->context->phenyxConfig->get('GSITEMAP_DISABLE_LINKS')) : [];
 
 		$this->type_array = ['home', 'meta', 'cms', 'plugin'];
 		$sitemapTypes = $this->context->_hook->exec('actionGetSiteMapType', ['type_array' => $this->type_array], null, true);
-        
-        $this->rb_file = _EPH_ROOT_DIR_ . '/robots.txt';
-        $this->rb_data = $this->getRobotsContent();
-        $this->sm_file = _EPH_ROOT_DIR_ . DIRECTORY_SEPARATOR . $this->context->language->id . '_index_sitemap.xml';
+
+		$this->rb_file = _EPH_ROOT_DIR_ . '/robots.txt';
+		$this->rb_data = $this->getRobotsContent();
+		$this->sm_file = _EPH_ROOT_DIR_ . DIRECTORY_SEPARATOR . $this->context->language->id . '_index_sitemap.xml';
 
 		if (is_array($sitemapTypes)) {
 
@@ -55,6 +55,7 @@ class GsiteMap extends PhenyxObjectModel {
 					}
 
 				} else
+
 				if (!empty($values) && is_string($values)) {
 					$this->type_array[] = $values;
 				}
@@ -64,17 +65,18 @@ class GsiteMap extends PhenyxObjectModel {
 		}
 
 		$metas = $this->getSiteMapMetas();
-		
-        foreach ($metas as $meta) {
 
-            if (in_array($meta['id_meta'], $this->disable_link)) {
+		foreach ($metas as $meta) {
 
-                if (($key = array_search($meta['page'], $this->type_array)) !== false) {
-                    unset($this->type_array[$key]);
-                }
-            }
-        }
-        
+			if (in_array($meta['id_meta'], $this->disable_link)) {
+
+				if (($key = array_search($meta['page'], $this->type_array)) !== false) {
+					unset($this->type_array[$key]);
+				}
+
+			}
+
+		}
 
 	}
 
@@ -88,16 +90,16 @@ class GsiteMap extends PhenyxObjectModel {
 	}
 
 	public function getSiteMapMetas() {
-        
-        Meta::cleanPluginMeta();
+
+		Meta::cleanPluginMeta();
 
 		return Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
 			(new DbQuery())
-			->select('*')
-			->from('meta')
-			->where('`controller` LIKE "front"')
-            ->where('`configurable` = 1')
-			->orderBy('id_meta ASC')
+				->select('*')
+				->from('meta')
+				->where('`controller` LIKE "front"')
+				->where('`configurable` = 1')
+				->orderBy('id_meta ASC')
 		);
 	}
 
@@ -141,14 +143,13 @@ class GsiteMap extends PhenyxObjectModel {
 		return true;
 	}
 
-
 	protected function _recursiveSitemapCreator($link_sitemap, $lang, &$index) {
 
 		if (!count($link_sitemap)) {
 			return false;
 		}
 
-		$sitemap_link = $lang  . '_sitemap.xml';
+		$sitemap_link = $lang . '_sitemap.xml';
 		$write_fd = fopen($this->normalizeDirectory(_EPH_ROOT_DIR_) . $sitemap_link, 'w');
 
 		fwrite($write_fd, '<?xml version="1.0" encoding="UTF-8"?>' . "\r\n" . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\r\n");
@@ -191,8 +192,6 @@ class GsiteMap extends PhenyxObjectModel {
 		return true;
 	}
 
-
-
 	public function createSitemap() {
 
 		if (@fopen($this->normalizeDirectory(_EPH_ROOT_DIR_) . '/test.txt', 'w') == false) {
@@ -215,6 +214,7 @@ class GsiteMap extends PhenyxObjectModel {
 			if ($lang_stop && $lang['iso_code'] != Tools::getValue('lang')) {
 				continue;
 			} else
+
 			if ($lang_stop && $lang['iso_code'] == Tools::getValue('lang')) {
 				$lang_stop = false;
 			}
@@ -228,6 +228,7 @@ class GsiteMap extends PhenyxObjectModel {
 					if (method_exists($this, '_get' . ucfirst($type_val) . 'Link')) {
 
 						if (!$this->{'_get' . ucfirst($type_val) . 'Link'}
+
 							($link_sitemap, $lang, $index, $i, $id_obj)) {
 							return false;
 						}
@@ -396,16 +397,15 @@ class GsiteMap extends PhenyxObjectModel {
 
 	protected function _getMetaLink(&$link_sitemap, $lang, &$index, &$i, $id_meta = 0) {
 
-        $metas = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
+		$metas = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
 			(new DbQuery())
-			->select('*')
-			->from('meta')
-			->where('`controller` LIKE "front"')
-            ->where('`configurable` > 0')
-            ->where('`id_meta` >= ' . (int) $id_meta)
-			->orderBy('id_meta ASC')
+				->select('*')
+				->from('meta')
+				->where('`controller` LIKE "front"')
+				->where('`configurable` > 0')
+				->where('`id_meta` >= ' . (int) $id_meta)
+				->orderBy('id_meta ASC')
 		);
-		
 
 		foreach ($metas as $meta) {
 			$url = '';
@@ -433,16 +433,16 @@ class GsiteMap extends PhenyxObjectModel {
 
 	protected function _getCmsLink(&$link_sitemap, $lang, &$index, &$i, $id_cms = 0) {
 
-         $cmss_id = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
-             (new DbQuery())
-             ->select('c.`id_cms`')
-			 ->from('cms', 'c')
-			 ->leftJoin('cms_lang', 'cl', 'c.`id_cms` = cl.`id_cms` AND cl.`id_lang` = ' . (int) $lang['id_lang'])
-			 ->where('c.`active` = 1 AND c.`indexation` = 1 AND c.`id_cms` >= 1')
-             ->where('c.`id_cms` >= ' . (int) $id_cms)
-             ->orderBy('c.`id_cms` ASC')
+		$cmss_id = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
+			(new DbQuery())
+				->select('c.`id_cms`')
+				->from('cms', 'c')
+				->leftJoin('cms_lang', 'cl', 'c.`id_cms` = cl.`id_cms` AND cl.`id_lang` = ' . (int) $lang['id_lang'])
+				->where('c.`active` = 1 AND c.`indexation` = 1 AND c.`id_cms` >= 1')
+				->where('c.`id_cms` >= ' . (int) $id_cms)
+				->orderBy('c.`id_cms` ASC')
 		);
-		
+
 		if (is_array($cmss_id)) {
 
 			foreach ($cmss_id as $cms_id) {
@@ -496,130 +496,129 @@ class GsiteMap extends PhenyxObjectModel {
 
 		return true;
 	}
-    
-    public function generateRobotsFile() {
 
-        if (!$writeFd = @fopen($this->rb_file, 'w')) {
-            return sprintf($this->l('Cannot write into file: %s. Please check write permissions.'), $this->rb_file);
-            $return = [
-                'success' => false,
-                'message' => sprintf($this->l('Cannot write into file: %s. Please check write permissions.'), $this->rb_file),
-            ];
-            die(Tools::jsonEncode($return));
-        } else {
+	public function generateRobotsFile() {
 
-            $this->context->_hook->exec(
-                'actionAdminMetaBeforeWriteRobotsFile',
-                [
-                    'rb_data' => &$this->rb_data,
-                ]
-            );
+		if (!$writeFd = @fopen($this->rb_file, 'w')) {
+			return sprintf($this->l('Cannot write into file: %s. Please check write permissions.'), $this->rb_file);
+			$return = [
+				'success' => false,
+				'message' => sprintf($this->l('Cannot write into file: %s. Please check write permissions.'), $this->rb_file),
+			];
+			die(Tools::jsonEncode($return));
+		} else {
 
-            // PS Comments
-            fwrite($writeFd, "# robots.txt automatically generated by ephenyx e-commerce open-source solution\n");
-            fwrite($writeFd, "# http://www.ephenyx.com - http://www.ephenyx.com/forums\n");
-            fwrite($writeFd, "# This file is to prevent the crawling and indexing of certain parts\n");
-            fwrite($writeFd, "# of your site by web crawlers and spiders run by sites like Yahoo!\n");
-            fwrite($writeFd, "# and Google. By telling these \"robots\" where not to go on your site,\n");
-            fwrite($writeFd, "# you save bandwidth and server resources.\n");
-            fwrite($writeFd, "# For more information about the robots.txt standard, see:\n");
-            fwrite($writeFd, "# http://www.robotstxt.org/robotstxt.html\n");
+			$this->context->_hook->exec(
+				'actionAdminMetaBeforeWriteRobotsFile',
+				[
+					'rb_data' => &$this->rb_data,
+				]
+			);
 
-            // User-Agent
-            fwrite($writeFd, "User-agent: *\n");
+			// PS Comments
+			fwrite($writeFd, "# robots.txt automatically generated by ephenyx e-commerce open-source solution\n");
+			fwrite($writeFd, "# http://www.ephenyx.com - http://www.ephenyx.com/forums\n");
+			fwrite($writeFd, "# This file is to prevent the crawling and indexing of certain parts\n");
+			fwrite($writeFd, "# of your site by web crawlers and spiders run by sites like Yahoo!\n");
+			fwrite($writeFd, "# and Google. By telling these \"robots\" where not to go on your site,\n");
+			fwrite($writeFd, "# you save bandwidth and server resources.\n");
+			fwrite($writeFd, "# For more information about the robots.txt standard, see:\n");
+			fwrite($writeFd, "# http://www.robotstxt.org/robotstxt.html\n");
 
-            // Allow Directives
+			// User-Agent
+			fwrite($writeFd, "User-agent: *\n");
 
-            if (count($this->rb_data['Allow'])) {
-                fwrite($writeFd, "# Allow Directives\n");
+			// Allow Directives
 
-                foreach ($this->rb_data['Allow'] as $allow) {
-                    fwrite($writeFd, 'Allow: ' . $allow . "\n");
-                }
+			if (count($this->rb_data['Allow'])) {
+				fwrite($writeFd, "# Allow Directives\n");
 
-            }
+				foreach ($this->rb_data['Allow'] as $allow) {
+					fwrite($writeFd, 'Allow: ' . $allow . "\n");
+				}
 
-            // Private pages
+			}
 
-            // Directories
+			// Private pages
 
-            if (count($this->rb_data['Directories'])) {
-                fwrite($writeFd, "# Directories\n");
+			// Directories
 
-                foreach ($this->rb_data['Directories'] as $dir) {
-                    fwrite($writeFd, 'Disallow: */' . $dir . "\n");
-                }
+			if (count($this->rb_data['Directories'])) {
+				fwrite($writeFd, "# Directories\n");
 
-            }
+				foreach ($this->rb_data['Directories'] as $dir) {
+					fwrite($writeFd, 'Disallow: */' . $dir . "\n");
+				}
 
-            // Files
+			}
 
-            if (count($this->rb_data['Files'])) {
-                $activeLanguageCount = count(Language::getIDs());
-                fwrite($writeFd, "# Files\n");
+			// Files
 
-                foreach ($this->rb_data['Files'] as $isoCode => $files) {
+			if (count($this->rb_data['Files'])) {
+				$activeLanguageCount = count(Language::getIDs());
+				fwrite($writeFd, "# Files\n");
 
-                    foreach ($files as $file) {
+				foreach ($this->rb_data['Files'] as $isoCode => $files) {
 
-                        if ($activeLanguageCount > 1) {
-                            // Friendly URLs have language ISO code when multiple languages are active
-                            fwrite($writeFd, 'Disallow: /' . $isoCode . '/' . $file . "\n");
-                        } else
+					foreach ($files as $file) {
 
-                        if ($activeLanguageCount == 1) {
-                            // Friendly URL does not have language ISO when only one language is active
-                            fwrite($writeFd, 'Disallow: /' . $file . "\n");
-                        } else {
-                            fwrite($writeFd, 'Disallow: /' . $file . "\n");
-                        }
+						if ($activeLanguageCount > 1) {
+							// Friendly URLs have language ISO code when multiple languages are active
+							fwrite($writeFd, 'Disallow: /' . $isoCode . '/' . $file . "\n");
+						} else
 
-                    }
+						if ($activeLanguageCount == 1) {
+							// Friendly URL does not have language ISO when only one language is active
+							fwrite($writeFd, 'Disallow: /' . $file . "\n");
+						} else {
+							fwrite($writeFd, 'Disallow: /' . $file . "\n");
+						}
 
-                }
+					}
 
-            }
+				}
 
-            // Sitemap
+			}
 
-            if (file_exists($this->sm_file) && filesize($this->sm_file)) {
-                fwrite($writeFd, "# Sitemap\n");
-                $sitemapFilename = basename($this->sm_file);
-                fwrite($writeFd, 'Sitemap: ' . ($this->context->phenyxConfig->get('EPH_SSL_ENABLED') ? 'https://' : 'http://') . $_SERVER['SERVER_NAME'] . __EPH_BASE_URI__ . $sitemapFilename . "\n");
-            }
+			// Sitemap
 
-            $this->context->_hook->exec(
-                'actionAdminMetaAfterWriteRobotsFile',
-                [
-                    'rb_data'  => $this->rb_data,
-                    'write_fd' => &$writeFd,
-                ]
-            );
+			if (file_exists($this->sm_file) && filesize($this->sm_file)) {
+				fwrite($writeFd, "# Sitemap\n");
+				$sitemapFilename = basename($this->sm_file);
+				fwrite($writeFd, 'Sitemap: ' . ($this->context->phenyxConfig->get('EPH_SSL_ENABLED') ? 'https://' : 'http://') . $_SERVER['SERVER_NAME'] . __EPH_BASE_URI__ . $sitemapFilename . "\n");
+			}
 
-            fclose($writeFd);
-            
-            return true;
+			$this->context->_hook->exec(
+				'actionAdminMetaAfterWriteRobotsFile',
+				[
+					'rb_data'  => $this->rb_data,
+					'write_fd' => &$writeFd,
+				]
+			);
 
-            
-        }
+			fclose($writeFd);
 
-    }
-    
-    public function getRobotsContent() {
+			return true;
 
-        $tab = [];
-        
-        // Special allow directives
-        $tab['Allow'] = ['*/plugins/*.css', '*/plugins/*.js'];
+		}
 
-        // Directories
-        $tab['Directories'] = ['includes/classes/', 'app/', 'content/download/', 'content/mails/', 'includes/plugins/', 'content/translations/'];
+	}
 
-        // Files
-        $disallowControllers = [
-            'footer', 'get-file',  'identity', 'my-account',  'password',  'statistics', 'guest-tracking'
-        ];
-        $disallows = $this->context->_hook->exec('actionDisallowControllers', [], null, true);
+	public function getRobotsContent() {
+
+		$tab = [];
+
+		// Special allow directives
+		$tab['Allow'] = ['*/plugins/*.css', '*/plugins/*.js'];
+
+		// Directories
+		$tab['Directories'] = ['includes/classes/', 'app/', 'content/download/', 'content/mails/', 'includes/plugins/', 'content/translations/'];
+
+		// Files
+		$disallowControllers = [
+			'footer', 'get-file', 'identity', 'my-account', 'password', 'statistics', 'guest-tracking',
+		];
+		$disallows = $this->context->_hook->exec('actionDisallowControllers', [], null, true);
 
 		if (is_array($disallows)) {
 
@@ -632,6 +631,7 @@ class GsiteMap extends PhenyxObjectModel {
 					}
 
 				} else
+
 				if (!empty($values) && is_string($values)) {
 					$disallowControllers[] = $values;
 				}
@@ -640,29 +640,28 @@ class GsiteMap extends PhenyxObjectModel {
 
 		}
 
-        // Rewrite files
-        $tab['Files'] = [];
+		// Rewrite files
+		$tab['Files'] = [];
 
-        if ($this->context->phenyxConfig->get('EPH_REWRITING_SETTINGS')) {
-            $sql = new DbQuery();
-            $sql->select('ml.url_rewrite, l.iso_code');
-            $sql->from('meta', 'm');
-            $sql->innerJoin('meta_lang', 'ml', 'ml.id_meta = m.id_meta');
-            $sql->innerJoin('lang', 'l', 'l.id_lang = ml.id_lang');
-            $sql->where('l.active = 1 AND m.controller = "front" AND m.page IN (\'' . implode('\', \'', $disallowControllers) . '\')');
-            
-            if ($results = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS($sql)) {
+		if ($this->context->phenyxConfig->get('EPH_REWRITING_SETTINGS')) {
+			$sql = new DbQuery();
+			$sql->select('ml.url_rewrite, l.iso_code');
+			$sql->from('meta', 'm');
+			$sql->innerJoin('meta_lang', 'ml', 'ml.id_meta = m.id_meta');
+			$sql->innerJoin('lang', 'l', 'l.id_lang = ml.id_lang');
+			$sql->where('l.active = 1 AND m.controller = "front" AND m.page IN (\'' . implode('\', \'', $disallowControllers) . '\')');
 
-                foreach ($results as $row) {
-                    $tab['Files'][$row['iso_code']][] = $row['url_rewrite'];
-                }
+			if ($results = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS($sql)) {
 
-            }
+				foreach ($results as $row) {
+					$tab['Files'][$row['iso_code']][] = $row['url_rewrite'];
+				}
 
-        }
+			}
 
-        return $tab;
-    }
+		}
 
+		return $tab;
+	}
 
 }

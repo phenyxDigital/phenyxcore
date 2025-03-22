@@ -1,36 +1,35 @@
 <?php
 
 class PhenyxServiceContainer {
-    
+
     private static $instance = null;
 
     private $app = null;
-    
+
     private $services = [];
-    
+
     private $constructors = [];
 
     // Constructor
 
     private function __construct() {
-        
+
         self::$instance = $this;
     }
-    
+
     public static function getInstance() {
 
-		if (!isset(static::$instance)) {
-			static::$instance = new PhenyxServiceContainer();
-		}
+        if (!isset(static::$instance)) {
+            static::$instance = new PhenyxServiceContainer();
+        }
 
-		return static::$instance;
-	}
-
+        return static::$instance;
+    }
 
     // Methods
 
     public function setApp($app) {
-        
+
         $this->app = $app;
     }
 

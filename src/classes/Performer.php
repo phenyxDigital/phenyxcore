@@ -109,24 +109,23 @@ class Performer {
     protected $front_controller = self::FC_FRONT;
 
     protected function __construct() {
-        
+
         if (!defined('TIME_START')) {
-	       define('TIME_START', microtime(true));
+            define('TIME_START', microtime(true));
         }
-        
+
         $this->context = Context::getContext();
 
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
         }
-        
+
         if (!isset($this->context->_tools)) {
             $this->context->_tools = PhenyxTool::getInstance();
         }
 
-
         if (!isset($this->context->language)) {
-            
+
             $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
 
@@ -141,7 +140,7 @@ class Performer {
         }
 
         $this->plugins = $this->getListPlugins();
-        
+
         if (is_array($this->plugins)) {
 
             foreach ($this->plugins as $plugin) {
@@ -178,14 +177,14 @@ class Performer {
             $this->front_controller = static::FC_FRONT;
             $this->controller_not_found = 'pagenotfound';
         }
-        
+
         $this->loadExtraRoutes();
         $this->loadRoutes();
         $this->setRequestUri();
+
         if (Language::isMultiLanguageActivated()) {
             $this->multilang_activated = true;
         }
-        
 
     }
 
@@ -356,9 +355,9 @@ class Performer {
 
         return $pluginsControllers;
     }
-    
+
     public function getPluginsControllers($type = 'all', $plugin = null) {
-        
+
         $pluginsControllers = [];
 
         if (is_null($plugin)) {
@@ -378,44 +377,68 @@ class Performer {
         }
 
         foreach ($plugins as $mod) {
+
             if ($type == 'front') {
+
                 if (is_dir(_EPH_PLUGIN_DIR_ . $mod->name . '/')) {
                     $controllers = Performer::getControllers(_EPH_PLUGIN_DIR_ . $mod->name . '/controllers/front/');
-                    if(is_array($controllers)&& count($controllers)) {
-                        foreach($controllers as $key => $frontController) {
+
+                    if (is_array($controllers) && count($controllers)) {
+
+                        foreach ($controllers as $key => $frontController) {
                             $pluginsControllers[$mod->name][] = [$key => $frontController];
-                        }                   
+                        }
+
                     }
-                } else  if (is_dir(_EPH_SPECIFIC_PLUGIN_DIR_ . $mod->name . '/')) {
+
+                } else
+
+                if (is_dir(_EPH_SPECIFIC_PLUGIN_DIR_ . $mod->name . '/')) {
                     $controllers = Performer::getControllers(_EPH_SPECIFIC_PLUGIN_DIR_ . $mod->name . '/controllers/front/');
-                    if(is_array($controllers)&& count($controllers)) {
-                        foreach($controllers as $key => $frontController) {
+
+                    if (is_array($controllers) && count($controllers)) {
+
+                        foreach ($controllers as $key => $frontController) {
                             $pluginsControllers[$mod->name][] = [$key => $frontController];
-                        }                   
+                        }
+
                     }
+
                 }
+
             }
+
             if ($type == 'admin') {
+
                 if (is_dir(_EPH_PLUGIN_DIR_ . $mod->name . '/')) {
                     $controllers = Performer::getControllers(_EPH_PLUGIN_DIR_ . $mod->name . '/controllers/admin/');
-                    if(is_array($controllers)&& count($controllers)) {
-                        foreach($controllers as $key =>  $backController) {
+
+                    if (is_array($controllers) && count($controllers)) {
+
+                        foreach ($controllers as $key => $backController) {
                             $pluginsControllers[$mod->name][] = [$key => $backController];
-                        }                   
+                        }
+
                     }
-                    
-                } else  if (is_dir(_EPH_SPECIFIC_PLUGIN_DIR_ . $mod->name . '/')) {
+
+                } else
+
+                if (is_dir(_EPH_SPECIFIC_PLUGIN_DIR_ . $mod->name . '/')) {
                     $controllers = Performer::getControllers(_EPH_SPECIFIC_PLUGIN_DIR_ . $mod->name . '/controllers/admin/');
-                    if(is_array($controllers)&& count($controllers)) {
-                        foreach($controllers as $key =>  $backController) {
+
+                    if (is_array($controllers) && count($controllers)) {
+
+                        foreach ($controllers as $key => $backController) {
                             $pluginsControllers[$mod->name][] = [$key => $backController];
-                        }                   
+                        }
+
                     }
+
                 }
-                
+
             }
+
         }
-        
 
         return $pluginsControllers;
     }
@@ -692,7 +715,7 @@ class Performer {
     }
 
     public function dispatch() {
-        
+
         $controllerClass = '';
 
         if (!$this->controller) {
@@ -792,7 +815,7 @@ class Performer {
             break;
 
         case static::FC_ADMIN:
-                
+
             $tab = BackTab::getInstanceFromClassName($this->controller, Context::getContext()->language->id);
 
             if ($tab->plugin) {
@@ -858,10 +881,10 @@ class Performer {
         $_GET['controller'] = $controllerClass;
         // Instantiate controller
         try {
-            
+
             // Loading controller
             $controller = PhenyxController::getController($controllerClass);
-            
+
             // Running controller
             $controller->run();
         } catch (PhenyxException $e) {

@@ -8,7 +8,7 @@ define('SHORTCODE_CUSTOM_CSS_FILTER_TAG', 'vc_shortcodes_css_class');
 abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 	public $context;
-    protected $shortcode;
+	protected $shortcode;
 	protected $html_template;
 	protected $atts, $settings;
 	protected static $enqueue_index = 0;
@@ -16,10 +16,9 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 	protected static $css_scripts = [];
 	protected $shortcode_string = '';
 	protected $controls_template_file = 'editors/partials/backend_controls.tpl';
-	
-    public function __construct($settings, $renderFront = false) {
 
-        
+	public function __construct($settings, $renderFront = false) {
+
 		$this->settings = $settings;
 		$this->shortcode = $this->settings('base');
 
@@ -34,8 +33,8 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 		return ($this->isInline() || $this->isEditor() && $this->settings('is_container') === true ? '<span class="vc_container-anchor"></span>' : '') . $content;
 	}
-    
-    public function addShortCode($tag, $func) {
+
+	public function addShortCode($tag, $func) {
 
 		Composer::add_shortcode($tag, $func); //change this like wp shortcodes..
 	}
@@ -50,8 +49,6 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 		Composer::remove_shortcode($tag);
 	}
 
-	
-
 	protected function registerJs($param) {
 
 		Composer::$registeredJS[] = $param;
@@ -63,7 +60,6 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 		Composer::$registeredCSS[] = $param; // to load css in prestashop displayBackOfficeHeader hook
 
 	}
-
 
 	public function shortcode($shortcode) {}
 
@@ -83,7 +79,6 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 	protected function getFileName() {
 
-        
 		return $this->shortcode;
 	}
 
@@ -91,31 +86,32 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 	 * Find html template for shortcode output.
 	 */
 	protected function findShortcodeTemplate() {
-		
-       
-        if ( ! empty( $this->settings['html_template'] ) && is_file( $this->settings( 'html_template' ) ) ) {
-            
-		  return $this->setTemplate( $this->settings['html_template'] );
+
+		if (!empty($this->settings['html_template']) && is_file($this->settings('html_template'))) {
+
+			return $this->setTemplate($this->settings['html_template']);
 		}
-        $file_name = $this->getFilename().'.php';
+
+		$file_name = $this->getFilename() . '.php';
 		// Check template in theme directory
-		$user_template = DIGITAL_CORE_DIR. '/src/classes/shortcodes/'.$file_name;
-       
+		$user_template = DIGITAL_CORE_DIR . '/src/classes/shortcodes/' . $file_name;
+
 		if (is_file($user_template)) {
-              
-            $result = $this->setTemplate($user_template);
-           
+
+			$result = $this->setTemplate($user_template);
+
 			return $this->html_template;
 		} else {
-            $override_template = $this->context->_hook->exec('actionOverrideComposerTemplate', ['file_name' => $file_name]);
-            if(is_file($override_template)) {
-                
-                $result = $this->setTemplate($override_template);           
-                return $this->html_template;
-            }
-            
-            $this->html_template = false;
-        }
+			$override_template = $this->context->_hook->exec('actionOverrideComposerTemplate', ['file_name' => $file_name]);
+
+			if (is_file($override_template)) {
+
+				$result = $this->setTemplate($override_template);
+				return $this->html_template;
+			}
+
+			$this->html_template = false;
+		}
 
 	}
 
@@ -124,36 +120,35 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 		return $this->loadTemplate($atts, $content);
 	}
 
-	protected function loadTemplate($atts, $content = null) {       
-           
-       
+	protected function loadTemplate($atts, $content = null) {
+
 		$output = '';
 		$html_template = $this->findShortcodeTemplate();
-       
+
 		if (is_file($html_template)) {
-             
+
 			ob_start();
-             include ($html_template) ;			
+			include $html_template;
 			$output = ob_get_contents();
 			ob_end_clean();
 		} else {
-            
-            throw new PhenyxException('Template file is missing for `' . $this->shortcode . '` shortcode. Make sure you have `' . $this->html_template . '` file in your theme folder.');
+
+			throw new PhenyxException('Template file is missing for `' . $this->shortcode . '` shortcode. Make sure you have `' . $this->html_template . '` file in your theme folder.');
 		}
-        
+
 		return $output;
 	}
 
 	public function contentAdmin($atts, $content = null) {
-        
+
 		$element = $this->shortcode;
-        
+
 		$output = $custom_markup = $width = $el_position = '';
 
 		if ($content != NULL) {
 			$content = ephenyx_manager()->wpautop(stripslashes($content));
 		}
-        
+
 		if (isset($this->settings['params'])) {
 			$shortcode_attributes = ['width' => '1/1'];
 
@@ -168,6 +163,7 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 					}
 
 				} else
+
 				if ($param['param_name'] == 'content' && $content == NULL) {
 					$content = isset($param['value']) ? $param['value'] : '';
 				}
@@ -177,7 +173,7 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 			extract(Composer::shortcode_atts(
 				$shortcode_attributes
 				, $atts));
-             
+
 			$elem = $this->getElementHolder($width);
 
 			if (isset($atts['el_position'])) {
@@ -214,6 +210,7 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 				if ($content != '') {
 					$custom_markup = str_ireplace("%content%", $content, $this->settings["custom_markup"]);
 				} else
+
 				if ($content == '' && isset($this->settings["default_content_in_template"]) && $this->settings["default_content_in_template"] != '') {
 					$custom_markup = str_ireplace("%content%", $this->settings["default_content_in_template"], $this->settings["custom_markup"]);
 				}
@@ -230,10 +227,10 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 	}
 
 	public function isAdmin() {
-        
-        if(isset($this->context->user->id)) {
-            return false;
-        }
+
+		if (isset($this->context->user->id)) {
+			return false;
+		}
 
 		$return = isset($this->context->employee->id);
 		return $return;
@@ -250,22 +247,24 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 	}
 
 	public function output($atts, $content = null, $base = '') {
-       
+
 		$this->atts = $this->prepareAtts($atts);
 		$output = '';
 		$content = empty($content) && !empty($atts['content']) ? $atts['content'] : $content;
 
 		if (($this->isInline() || is_page_editable()) && method_exists($this, 'contentInline')) {
-           
+
 			$output .= $this->contentInline($this->atts, $content);
-		} else if ($this->isAdmin()) {
-            
+		} else
+
+		if ($this->isAdmin()) {
+
 			$output .= $this->contentAdmin($this->atts, $content);
 
 		}
 
 		if (empty($output)) {
-           
+
 			$custom_output = SHORTCODE_CUSTOMIZE_PREFIX . $this->shortcode;
 			$custom_output_before = SHORTCODE_BEFORE_CUSTOMIZE_PREFIX . $this->shortcode; // before shortcode function hook
 			$custom_output_after = SHORTCODE_AFTER_CUSTOMIZE_PREFIX . $this->shortcode; // after shortcode function hook
@@ -338,8 +337,8 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 		$output = '';
 
 		if (!is_array($css_animation) && $css_animation != '' && !Context::getContext()->isMobileDevice()) {
-			
-			$output = ' wpb_animate_when_almost_visible wpb_' . $css_animation.' '. $css_animation;
+
+			$output = ' wpb_animate_when_almost_visible wpb_' . $css_animation . ' ' . $css_animation;
 		}
 
 		return $output;
@@ -394,12 +393,12 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 	}
 
 	public function getElementHolder($width) {
-               
+
 		$output = '';
 		$column_controls = $this->getColumnControlsModular();
 		$css_class = 'wpb_' . $this->settings["base"] . ' wpb_content_element wpb_sortable' . (!empty($this->settings["class"]) ? ' ' . $this->settings["class"] : '');
 		$output .= '<div data-element_type="' . $this->settings["base"] . '" class="' . $css_class . '">';
-        //$output .= $column_controls;
+		//$output .= $column_controls;
 		$output .= str_replace("%column_size%", translateColumnWidthToFractional($width), $column_controls);
 		$output .= $this->getCallbacks($this->shortcode);
 		$output .= '<div class="wpb_element_wrapper ' . $this->settings("wrapper_class") . '">';
@@ -428,15 +427,19 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 		if ($controls == 'popup_delete') {
 			return $column_controls_popup_delete;
 		} else
+
 		if ($controls == 'edit_popup_delete') {
 			return $column_controls_edit_popup_delete;
 		} else
+
 		if ($controls == 'size_delete') {
 			return $column_controls_size_delete;
 		} else
+
 		if ($controls == 'popup_delete') {
 			return $column_controls_popup_delete;
 		} else
+
 		if ($controls == 'add') {
 			return $controls_start . $controls_add . $controls_end;
 		} else {
@@ -445,23 +448,22 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 	}
 
-	
 	public function getColumnControlsModular($extended_css = '') {
 
-        global $smarty;
-        $context = Context::getContext();
-        //ob_start();
-       
-		$data = $context->smarty->createTemplate(_EPH_COMPOSER_DIR_  .  $this->controls_template_file);
-        $data->assign(
-		  [
-			'position'     => $this->controls_css_settings,
-			'extended_css' => $extended_css,
-			'name'         => $this->settings('name'),
-			'controls'     => $this->controls_list,
-          ]
+		global $smarty;
+		$context = Context::getContext();
+		//ob_start();
+
+		$data = $context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . $this->controls_template_file);
+		$data->assign(
+			[
+				'position'     => $this->controls_css_settings,
+				'extended_css' => $extended_css,
+				'name'         => $this->settings('name'),
+				'controls'     => $this->controls_list,
+			]
 		);
-        return $data->fetch();
+		return $data->fetch();
 		//ob_get_clean();
 	}
 
@@ -489,7 +491,7 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 		$old_names = ['yellow_message', 'blue_message', 'green_message', 'button_green', 'button_grey', 'button_yellow', 'button_blue', 'button_red', 'button_orange'];
 		$new_names = ['alert-block', 'alert-info', 'alert-success', 'btn-success', 'btn', 'btn-info', 'btn-primary', 'btn-danger', 'btn-warning'];
 		$value = str_ireplace($old_names, $new_names, $value);
-		
+
 		$param_name = isset($param['param_name']) ? $param['param_name'] : '';
 		$type = isset($param['type']) ? $param['type'] : '';
 		$class = isset($param['class']) ? $param['class'] : '';
@@ -498,9 +500,13 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 			if ($param['holder'] !== 'hidden') {
 				$output .= '<' . $param['holder'] . ' class="wpb_vc_param_value ' . $param_name . ' ' . $type . ' ' . $class . '" name="' . $param_name . '">' . $value . '</' . $param['holder'] . '>';
-			} else if ($param['holder'] == 'input') {
+			} else
+
+			if ($param['holder'] == 'input') {
 				$output .= '<' . $param['holder'] . ' readonly="true" class="wpb_vc_param_value ' . $param_name . ' ' . $type . ' ' . $class . '" name="' . $param_name . '" value="' . $value . '">';
-			} else if (in_array($param['holder'], ['img', 'iframe'])) {
+			} else
+
+			if (in_array($param['holder'], ['img', 'iframe'])) {
 				$output .= '<' . $param['holder'] . ' class="wpb_vc_param_value ' . $param_name . ' ' . $type . ' ' . $class . '" name="' . $param_name . '" src="' . $value . '">';
 			}
 

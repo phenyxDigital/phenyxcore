@@ -17,13 +17,13 @@ abstract class ComposerShortCodeAbstract {
 
 		self::$config = (array) $settings;
 	}
-    
-    public function l($string, $idLang = null, $context = null) {
 
-        $class = 'ComposerShortCodeAbstract';
+	public function l($string, $idLang = null, $context = null) {
 
-        return Context::getContext()->translations->getClassTranslation($string, $class);
-    }
+		$class = 'ComposerShortCodeAbstract';
+
+		return Context::getContext()->translations->getClassTranslation($string, $class);
+	}
 
 	public function addAction($action, $method, $priority = 10) {
 
@@ -33,7 +33,7 @@ abstract class ComposerShortCodeAbstract {
 				Composer::$VCBackofficeShortcodesAction[$action] = [];
 			}
 
-			Composer::$VCBackofficeShortcodesAction[$action][] = [&$this, $method];
+			Composer::$VCBackofficeShortcodesAction[$action][] = [ & $this, $method];
 		}
 
 	}
@@ -43,20 +43,19 @@ abstract class ComposerShortCodeAbstract {
 		return true;
 	}
 
-    public function addShortCode( $tag, $func ) {                        
-			Composer::add_shortcode( $tag, $func );//change this like wp shortcodes..
+	public function addShortCode($tag, $func) {
+		Composer::add_shortcode($tag, $func); //change this like wp shortcodes..
 	}
 
-	public function doShortCode( $content ) {
-		Composer::do_shortcode( $content );
+	public function doShortCode($content) {
+		Composer::do_shortcode($content);
 	}
 
-	public function removeShortCode( $tag ) {
-		Composer::remove_shortcode( $tag );
+	public function removeShortCode($tag) {
+		Composer::remove_shortcode($tag);
 	}
 
 	/* Shortcode methods */
-	
 
 	public function post($param) {
 
@@ -68,7 +67,6 @@ abstract class ComposerShortCodeAbstract {
 		return isset($_GET[$param]) ? $_GET[$param] : null;
 	}
 
-	
 	public function assetPath($asset) {
 
 		return self::$config['APP_ROOT'] . self::$config['ASSETS_DIR'] . $asset;

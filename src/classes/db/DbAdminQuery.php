@@ -6,49 +6,50 @@
  * @since 1.9.1.0
  */
 class DbAdminQuery {
-    
+
     public $context;
-    
+
     public $_hook;
-    
+
     public $controller_name = null;
-    
+
     public $extraSelects = [];
-    
+
     public $extraJoins = [];
-    
+
     public $extraWheres = [];
-    
+
     public function __construct() {
         $this->_hook = Hook::getInstance();
-		$this->context = Context::getContext();
+        $this->context = Context::getContext();
+
         if (isset($this->context->controller) && isset($this->context->controller->controller_name)) {
             $this->controller_name = $this->context->controller->controller_name;
             $this->context->_hook->exec('action' . $this->controller_name . 'GetExtraSelect', ['query' => $this]);
             $this->context->_hook->exec('action' . $this->controller_name . 'GetExtraJoin', ['query' => $this]);
             $this->context->_hook->exec('action' . $this->controller_name . 'GetExtraWhere', ['query' => $this]);
-            
+
         }
 
-	}
+    }
 
     protected $query = [
-        'type'   => 'SELECT',
-        'select' => [],
+        'type'        => 'SELECT',
+        'select'      => [],
         'extraSelect' => [],
-        'delete' => [],
-        'set'    => [],
-        'fields' => [],
-        'values' => [],
-        'from'   => [],
-        'join'   => [],
+        'delete'      => [],
+        'set'         => [],
+        'fields'      => [],
+        'values'      => [],
+        'from'        => [],
+        'join'        => [],
         'extraJoin'   => [],
-        'where'  => [],
-        'group'  => [],
-        'having' => [],
-        'order'  => [],
-        'limit'  => ['offset' => 0, 'limit' => 0],
-        'args'   => [],
+        'where'       => [],
+        'group'       => [],
+        'having'      => [],
+        'order'       => [],
+        'limit'       => ['offset' => 0, 'limit' => 0],
+        'args'        => [],
     ];
 
     public function type($type) {
@@ -62,17 +63,17 @@ class DbAdminQuery {
         return $this;
     }
 
-    public function select($fields) {       
-        
+    public function select($fields) {
+
         if (!empty($fields)) {
             $this->query['select'][] = $fields;
         }
 
         return $this;
     }
-    
-    public function extraSelect($fields) {       
-        
+
+    public function extraSelect($fields) {
+
         if (!empty($fields)) {
             $this->query['extraSelect'][] = $fields;
         }
@@ -169,7 +170,7 @@ class DbAdminQuery {
 
         return $this;
     }
-    
+
     public function extraJoin($join) {
 
         if (!empty($join)) {
@@ -180,17 +181,16 @@ class DbAdminQuery {
     }
 
     public function leftJoin($table, $alias = null, $on = null) {
-        
-        
+
         if (strncmp(_DB_PREFIX_, $table, strlen(_DB_PREFIX_)) !== 0) {
             $table = _DB_PREFIX_ . $table;
         }
 
         return $this->join('LEFT JOIN `' . bqSQL($table) . '`' . ($alias ? ' `' . pSQL($alias) . '`' : '') . ($on ? ' ON ' . $on : ''));
     }
-    
+
     public function extraLeftJoin($table, $alias = null, $on = null) {
-                
+
         if (strncmp(_DB_PREFIX_, $table, strlen(_DB_PREFIX_)) !== 0) {
             $table = _DB_PREFIX_ . $table;
         }
@@ -307,11 +307,13 @@ class DbAdminQuery {
     public function build() {
 
         if ($this->query['type'] == 'SELECT') {
-            $sql = 'SELECT ' . ((($this->query['select'])) ? implode(",\n", $this->query['select']) : '*'). ((($this->query['extraSelect'])) ? ', '.implode(",\n", $this->query['extraSelect']) : '') . "\n";
+            $sql = 'SELECT ' . ((($this->query['select'])) ? implode(",\n", $this->query['select']) : '*') . ((($this->query['extraSelect'])) ? ', ' . implode(",\n", $this->query['extraSelect']) : '') . "\n";
         } else
+
         if ($this->query['type'] == 'DELETE') {
             $sql = 'DELETE ' . (($this->query['delete']) ? implode(",\n", $this->query['delete']) : '') . "\n";
         } else
+
         if ($this->query['type'] == 'INSERT') {
             $sql = 'INSERT ' . (isset($this->query['insert']) ? implode(",\n", $this->query['insert']) : '') . "\n";
         } else {
@@ -325,6 +327,7 @@ class DbAdminQuery {
         if ($this->query['type'] == 'UPDATE') {
             $sql .= implode(', ', $this->query['from']) . ' SET ' . implode(', ', $this->query['set']) . "\n";
         } else
+
         if ($this->query['type'] == 'INSERT') {
             $sql .= 'INTO ' . implode(', ', $this->query['from']) . ' (' . implode(', ', $this->query['fields']) . ') VALUES (' . implode(', ', $this->query['values']) . ') ' . "\n";
         } else {
@@ -334,6 +337,7 @@ class DbAdminQuery {
         if ($this->query['join']) {
             $sql .= implode("\n", $this->query['join']) . "\n";
         }
+
         if ($this->query['extraJoin']) {
             $sql .= implode("\n", $this->query['extraJoin']) . "\n";
         }

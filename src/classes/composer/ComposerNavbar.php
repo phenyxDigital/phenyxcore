@@ -14,13 +14,13 @@ class ComposerNavbar {
 	protected $css_class = 'vc_navbar';
 	protected $controls_filter_name = 'vc_nav_controls';
 	protected $post = false;
-    public $context;
+	public $context;
 
 	public function __construct($post = '') {
 
 		$this->post = $post;
-        global $smarty;
-        $this->context = Context::getContext();
+		global $smarty;
+		$this->context = Context::getContext();
 	}
 
 	/**
@@ -32,7 +32,6 @@ class ComposerNavbar {
 
 		$list = [];
 		$composer = Composer::getInstance();
-
 
 		foreach ($this->controls as $control) {
 			$method = $composer->vc_camel_case('get_control_' . $control);
@@ -65,24 +64,23 @@ class ComposerNavbar {
 	 * Render template.
 	 */
 	public function render() {
-        
-        $data = $this->context->smarty->createTemplate(_EPH_COMPOSER_DIR_ .  'editors/navbar/navbar.tpl');
-        $data->assign(
-				[
-					'css_class' => $this->css_class,
-			        'controls'  => $this->getControls(),
-			        'nav_bar'   => $this,
-			         'post'      => '',
-				]
-			);
-        
-        return $data->fetch();
 
-		
+		$data = $this->context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'editors/navbar/navbar.tpl');
+		$data->assign(
+			[
+				'css_class' => $this->css_class,
+				'controls'  => $this->getControls(),
+				'nav_bar'   => $this,
+				'post'      => '',
+			]
+		);
+
+		return $data->fetch();
+
 	}
 
 	public function getLogo() {
-        $composer = Composer::getInstance();
+		$composer = Composer::getInstance();
 		$output = '<a id="vc_logo" class="vc_navbar-brand" title="' . $composer->esc_attr('Visual Composer')
 		. '" href="' . $composer->esc_attr($this->brand_url) . '" target="_blank">'
 		. $composer->l('Visual Composer') . '</a>';
@@ -90,7 +88,7 @@ class ComposerNavbar {
 	}
 
 	public function getControlCustomCss() {
-        $composer = Composer::getInstance();
+		$composer = Composer::getInstance();
 		return '<li class="vc_pull-right"><a id="vc_post-settings-button" class="vc_icon-btn vc_post-settings" title="'
 		. $composer->esc_attr('Page settings') . '">'
 		. '<span id="vc_post-css-badge" class="vc_badge vc_badge-custom-css" style="display: none;">' . $composer->l('CSS') . '</span></a>'
@@ -98,7 +96,7 @@ class ComposerNavbar {
 	}
 
 	public function getControlAddElement() {
-        $composer = Composer::getInstance();
+		$composer = Composer::getInstance();
 		return '<li class="vc_show-mobile">'
 		. '	<a href="javascript:;" class="vc_icon-btn vc_element-button" data-model-id="vc_element" id="vc_add-new-element" title="'
 		. '' . $composer->l('Add new element') . '">'
@@ -107,11 +105,9 @@ class ComposerNavbar {
 	}
 
 	public function getControlTemplates() {
-        $composer = Composer::getInstance();
+		$composer = Composer::getInstance();
 		return '<li><a href="javascript:;" class="vc_icon-btn vc_templates-button vc_navbar-border-right"  id="vc_templates-editor-button" title="'
 		. $composer->l('Templates') . '"></a></li>';
 	}
-
-	
 
 }

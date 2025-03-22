@@ -133,14 +133,13 @@ class DbPDO extends Db {
      */
     protected function _query($sql) {
 
-        
-        
-         try {
+        try {
             return isset($this->link) ? $this->link->query($sql) : null;
         } catch (PhenyxException $e) {
-             PhenyxLogger::addLog($e->displayMessage().' for query : <br>'.$sql, 4);
+            PhenyxLogger::addLog($e->displayMessage() . ' for query : <br>' . $sql, 4);
             return false;
         }
+
         //return isset($this->link) ? $this->link->query($sql) : null;
 
     }

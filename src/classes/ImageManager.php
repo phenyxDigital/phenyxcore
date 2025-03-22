@@ -8,7 +8,7 @@ use WebPConvert\WebPConvert;
  * @since 1.9.1.0
  */
 class ImageManager {
-    
+
     public static $instance;
 
     public $context;
@@ -16,18 +16,19 @@ class ImageManager {
     const ERROR_FILE_NOT_EXIST = 1;
     const ERROR_FILE_WIDTH = 2;
     const ERROR_MEMORY_LIMIT = 3;
-    
+
     public function __construct() {
-        
+
         $this->context = Context::getContext();
-        
-           
+
         if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = Configuration::getInstance();            
-        }      
+            $this->context->phenyxConfig = Configuration::getInstance();
+        }
+
         if (!isset($this->context->company)) {
             $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
         }
+
         if (!isset($this->context->_tools)) {
             $this->context->_tools = PhenyxTool::getInstance();
         }
@@ -36,16 +37,15 @@ class ImageManager {
             $defaul_theme = Theme::buildObject($this->context->company->id_theme);
             $this->context->theme = $defaul_theme;
         }
+
         if (!isset($this->context->_hook)) {
             $this->context->_hook = Hook::getInstance();
         }
-                
+
         $this->context->img_manager = $this;
-        
-        
 
     }
-    
+
     public static function getInstance() {
 
         if (!static::$instance) {
@@ -55,9 +55,6 @@ class ImageManager {
         return static::$instance;
     }
 
-
-    
-    
     public function thumbnail($image, $cacheImage, $size, $imageType = 'jpg', $disableCache = true, $regenerate = false) {
 
         if (!file_exists($image)) {
@@ -110,7 +107,7 @@ class ImageManager {
         }
 
     }
-    
+
     public function checkImageMemoryLimit($image) {
 
         $infos = @getimagesize($image);
@@ -138,7 +135,7 @@ class ImageManager {
 
         return true;
     }
-    
+
     public function resize(
         $srcFile,
         $dstFile,
@@ -278,7 +275,7 @@ class ImageManager {
         } else {
             $this->imagecopyresampled($destImage, $srcImage, (int) (($dstWidth - $nextWidth) / 2), (int) (($dstHeight - $nextHeight) / 2), 0, 0, $nextWidth, $nextHeight, $srcWidth, $srcHeight, $quality);
         }
-        
+
         $writeFile = $this->write($fileType, $destImage, $dstFile);
         Tool::resizeImg($dstFile);
         //$this->context->_hook->exec('actionOnImageResizeAfter', array('dst_file' => $dstFile, 'file_type' => $fileType));
@@ -290,9 +287,8 @@ class ImageManager {
     public function actionOnImageResizeAfter($dstFile, $newFile) {
 
         $webp = WebPGeneratorConfig::getInstance();
-		$config = $webp->getConverterSettings();
-		
-		
+        $config = $webp->getConverterSettings();
+
         try {
 
             return WebPConvert::convert(
@@ -301,23 +297,22 @@ class ImageManager {
                 $config
             );
         } catch (Exception $exception) {
-			
-            $file = fopen("testImageUploadAfter.txt","w");
-			fwrite($file,$exception->getMessage());
-			$return =  [
-            	'success'       => false,
-            	'error' =>  empty($exception->getMessage()) ? 'Unknown error' : $exception->getMessage(),
-        	];
-			die($this->context->_tools->jsonEncode($return));
+
+            $file = fopen("testImageUploadAfter.txt", "w");
+            fwrite($file, $exception->getMessage());
+            $return = [
+                'success' => false,
+                'error'   => empty($exception->getMessage()) ? 'Unknown error' : $exception->getMessage(),
+            ];
+            die($this->context->_tools->jsonEncode($return));
         }
 
     }
 
     public function actionOnImageUploadAfter($dstFile, $newFile) {
 
-        
-		$webp = new WebPGeneratorConfig();
-		$config = $webp->getConverterSettings();
+        $webp = new WebPGeneratorConfig();
+        $config = $webp->getConverterSettings();
         try {
 
             return WebPConvert::convert(
@@ -327,13 +322,11 @@ class ImageManager {
             );
         } catch (Exception $exception) {
 
-			
-			fwrite($file,$exception->getMessage());
-			return  [
-            	'success'       => false,
-            	'error' =>  empty($exception->getMessage()) ? 'Unknown error' : $exception->getMessage(),
-        	];
-			
+            fwrite($file, $exception->getMessage());
+            return [
+                'success' => false,
+                'error'   => empty($exception->getMessage()) ? 'Unknown error' : $exception->getMessage(),
+            ];
 
         }
 
@@ -353,7 +346,7 @@ class ImageManager {
         self::actionOnImageResizeAfter($dstFile);
 
         return true;
-    }   
+    }
 
     public function create($type, $filename) {
 
@@ -374,7 +367,7 @@ class ImageManager {
         }
 
     }
-    
+
     public function imagecopyresampled(&$dstImage, $srcImage, $dstX, $dstY, $srcX, $srcY, $dstW, $dstH, $srcW, $srcH, $quality = 3) {
 
         if (empty($srcImage) || empty($dstImage) || $quality <= 0) {
@@ -392,7 +385,7 @@ class ImageManager {
 
         return true;
     }
-   
+
     public function write($type, $resource, $filename) {
 
         static $psPngQuality = null;
@@ -440,7 +433,7 @@ class ImageManager {
 
         return $success;
     }
-    
+
     public function validateUpload($file, $maxFileSize = 0, $types = null) {
 
         if ((int) $maxFileSize > 0 && $file['size'] > (int) $maxFileSize) {
@@ -457,60 +450,74 @@ class ImageManager {
 
         return false;
     }
-	
-	public function cleanProductFolder() {
-		
-		$productTypes = ImageType::getImagesTypes('products');
-		$names = [];
-		foreach($productTypes as $type) {
-	
-			$names[] = $type['name'];
-		}
-   
-		$images =0;
-		$fileToCheck = [];
-		$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(_EPH_PROD_IMG_DIR_));
-		foreach ($iterator as $filename) {
-				
-			if (preg_match('/\.(jpg|png|jpeg|webp)$/', $filename->getBasename())) {
-		
-				$file = $filename->getPathname();
-				$path_parts = pathinfo($file);
-				$file = explode('-',$path_parts['filename'])[1];
-				if(empty($file)) {
-					$fileToCheck[] = $filename->getPathname();
-					continue;
-				} else if(!in_array($file, $names)) {
-					unlink($filename->getPathname());
-					$images++;
-				}
-			}
-		} 
-		foreach($fileToCheck as $image) {
-			$path_parts = pathinfo($image);
-			$file = $path_parts['filename'];
-			$exist = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getRow('SELECT id_image, id_product FROM `' . _DB_PREFIX_ . 'image` WHERE id_image = '.(int)$file);
-			if(empty($exist)) {
-				unlink($path_parts['dirname'].DIRECTORY_SEPARATOR.$file.'.jpg');
-				$images++;
-				foreach($names as $name) {
-					if(file_exists($path_parts['dirname'].DIRECTORY_SEPARATOR.$file.'-'.$name.'.jpg')) {
-						unlink($path_parts['dirname'].DIRECTORY_SEPARATOR.$file.'-'.$name.'.jpg');
-						$images++;
-					}
-				}
-			}
-		}
 
-		
-		return $images;
-      
-	}
-    
+    public function cleanProductFolder() {
+
+        $productTypes = ImageType::getImagesTypes('products');
+        $names = [];
+
+        foreach ($productTypes as $type) {
+
+            $names[] = $type['name'];
+        }
+
+        $images = 0;
+        $fileToCheck = [];
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(_EPH_PROD_IMG_DIR_));
+
+        foreach ($iterator as $filename) {
+
+            if (preg_match('/\.(jpg|png|jpeg|webp)$/', $filename->getBasename())) {
+
+                $file = $filename->getPathname();
+                $path_parts = pathinfo($file);
+                $file = explode('-', $path_parts['filename'])[1];
+
+                if (empty($file)) {
+                    $fileToCheck[] = $filename->getPathname();
+                    continue;
+                } else
+
+                if (!in_array($file, $names)) {
+                    unlink($filename->getPathname());
+                    $images++;
+                }
+
+            }
+
+        }
+
+        foreach ($fileToCheck as $image) {
+            $path_parts = pathinfo($image);
+            $file = $path_parts['filename'];
+            $exist = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getRow('SELECT id_image, id_product FROM `' . _DB_PREFIX_ . 'image` WHERE id_image = ' . (int) $file);
+
+            if (empty($exist)) {
+                unlink($path_parts['dirname'] . DIRECTORY_SEPARATOR . $file . '.jpg');
+                $images++;
+
+                foreach ($names as $name) {
+
+                    if (file_exists($path_parts['dirname'] . DIRECTORY_SEPARATOR . $file . '-' . $name . '.jpg')) {
+                        unlink($path_parts['dirname'] . DIRECTORY_SEPARATOR . $file . '-' . $name . '.jpg');
+                        $images++;
+                    }
+
+                }
+
+            }
+
+        }
+
+        return $images;
+
+    }
+
     public function isRealImage($filename, $fileMimeType = null, $mimeTypeList = null) {
 
         // Detect mime content type
         $mimeType = false;
+
         if (!$mimeTypeList) {
             $mimeTypeList = ['image/gif', 'image/jpg', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/x-png'];
         }
@@ -568,7 +575,7 @@ class ImageManager {
 
         return false;
     }
-    
+
     public function isCorrectImageFileExt($filename, $authorizedExtensions = null) {
 
         // Filter on file extension
@@ -592,7 +599,7 @@ class ImageManager {
 
         return true;
     }
-    
+
     public function validateIconUpload($file, $maxFileSize = 0) {
 
         if ((int) $maxFileSize > 0 && $file['size'] > $maxFileSize) {
@@ -613,7 +620,7 @@ class ImageManager {
 
         return false;
     }
-    
+
     public function cut($srcFile, $dstFile, $dstWidth = null, $dstHeight = null, $fileType = 'jpg', $dstX = 0, $dstY = 0) {
 
         if (!file_exists($srcFile)) {
@@ -644,7 +651,7 @@ class ImageManager {
 
         return $return;
     }
-    
+
     public function createWhiteImage($width, $height) {
 
         $image = imagecreatetruecolor($width, $height);
@@ -653,7 +660,7 @@ class ImageManager {
 
         return $image;
     }
-   
+
     public function getMimeTypeByExtension($fileName) {
 
         $types = [
@@ -680,7 +687,7 @@ class ImageManager {
 
         return $mimeType;
     }
-    
+
     public function generateFavicon($source, $sizes = [['16', '16'], ['24', '24'], ['32', '32'], ['48', '48'], ['64', '64']]) {
 
         $images = [];
@@ -747,7 +754,7 @@ class ImageManager {
         unset($pixel_data);
         return $data;
     }
-    
+
     protected function addFaviconImageData($im, &$images) {
 
         $width = imagesx($im);
@@ -810,7 +817,7 @@ class ImageManager {
         ];
         $images[] = $image;
     }
-  
+
     public function webpSupport($checkAccept = false) {
 
         static $supported = null;
@@ -834,7 +841,7 @@ class ImageManager {
 
         return $supported;
     }
-   
+
     public function retinaSupport() {
 
         static $supported = null;
@@ -890,35 +897,39 @@ class ImageManager {
     public function getImages() {
 
         $list = [];
-		$singularTypes = [
-        	'img'          => ['dir' => _EPH_IMG_DIR_, 'iterate' => false],
-            'theme_img'    => ['dir' => _EPH_ROOT_DIR_.$this->context->theme->img_theme, 'iterate' => false],
-            'cms'          => ['dir' => _EPH_IMG_DIR_.'cms/', 'iterate' => false],
-        	'plugin'       => ['dir' => _EPH_PLUGIN_DIR_, 'iterate' => true],
-        	'store'        => ['dir' => _EPH_STORE_IMG_DIR_, 'iterate' => false],
+        $singularTypes = [
+            'img'       => ['dir' => _EPH_IMG_DIR_, 'iterate' => false],
+            'theme_img' => ['dir' => _EPH_ROOT_DIR_ . $this->context->theme->img_theme, 'iterate' => false],
+            'cms'       => ['dir' => _EPH_IMG_DIR_ . 'cms/', 'iterate' => false],
+            'plugin'    => ['dir' => _EPH_PLUGIN_DIR_, 'iterate' => true],
+            'store'     => ['dir' => _EPH_STORE_IMG_DIR_, 'iterate' => false],
         ];
         $extraTypes = $this->context->_hook->exec('actionImageManagerGetImages', [], null, true);
+
         if (is_array($extraTypes)) {
+
             foreach ($extraTypes as $plugin => $defs) {
+
                 if (is_array($defs)) {
+
                     foreach ($defs as $key => $value) {
                         $singularTypes[$key] = $value;
                     }
+
                 }
+
             }
+
         }
 
-        
-		
         foreach ($singularTypes as $key => $singularType) {
             $result = $this->getFolderImg($singularType['dir'], $singularType['iterate']);
-			
+
             $list[$key]['todo'] = $result['todo'];
             $list[$key]['done'] = $result['done'];
             $list[$key]['total'] = count($result['done']) + count($result['todo']);
         }
 
-		
         return $this->context->_tools->jsonEncode($list);
 
     }
@@ -950,6 +961,7 @@ class ImageManager {
         } else {
             $iterator = new AppendIterator();
             $iterator->append(new DirectoryIterator($folder));
+
             foreach ($iterator as $filename) {
 
                 if (preg_match('/\.(jpg|png|jpeg)$/', $filename->getBasename())) {

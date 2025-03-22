@@ -34,38 +34,39 @@ class Hook extends PhenyxObjectModel {
     public $title;
 
     public $description;
-    
+
     public static $counter = 1;
-    
+
     public static $total_time = 0;
-    
+
     public $memoryStart;
     /**
      * @see PhenyxObjectModel::$definition
      */
     public static $definition = [
-        'table'     => 'hook',
-        'primary'   => 'id_hook',
-        'fields'    => [
-            'name'              => ['type' => self::TYPE_STRING, 'validate' => 'isHookName', 'required' => true, 'size' => 64],
-            'title'             => ['type' => self::TYPE_STRING,  'validate' => 'isGenericName'],
-            'description'       => ['type' => self::TYPE_HTML,  'validate' => 'isCleanHtml'],
-            'static'         => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-            
+        'table'   => 'hook',
+        'primary' => 'id_hook',
+        'fields'  => [
+            'name'        => ['type' => self::TYPE_STRING, 'validate' => 'isHookName', 'required' => true, 'size' => 64],
+            'title'       => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName'],
+            'description' => ['type' => self::TYPE_HTML, 'validate' => 'isCleanHtml'],
+            'static'      => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+
         ],
     ];
 
     public function __construct($id = null, $idLang = null) {
-        
+
         $this->className = get_class($this);
         $this->context = Context::getContext();
+
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
-            
+
         }
-        
+
         if (!isset(PhenyxObjectModel::$loaded_classes[$this->className])) {
-            $this->def = PhenyxObjectModel::getDefinition($this->className);            
+            $this->def = PhenyxObjectModel::getDefinition($this->className);
 
             if (!Validate::isTableOrIdentifier('id_hook') || !Validate::isTableOrIdentifier('hook')) {
                 throw new PhenyxException('Identifier or table format not valid for class ' . $this->className);
@@ -85,20 +86,18 @@ class Hook extends PhenyxObjectModel {
 
         $this->id_lang = (Language::getLanguage($idLang) !== false) ? $idLang : $this->context->phenyxConfig->get('EPH_LANG_DEFAULT');
         $this->context->_hook = $this;
-        
+
         if ($id) {
             $this->id = $id;
             $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
             $entityMapper->load($this->id, $idLang, $this, $this->def, false);
         }
-        
+
         $this->_session = PhenyxSession::getInstance();
-        
+
         if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
             $this->memoryStart = memory_get_usage(true);
         }
-        
-        
 
     }
 
@@ -113,27 +112,24 @@ class Hook extends PhenyxObjectModel {
 
     public function add($autoDate = true, $nullValues = false) {
 
-       
-
         return parent::add($autoDate, $nullValues);
     }
 
     public function update($nullValues = false) {
 
-       
         $return = parent::update($nullValues);
 
         return $return;
     }
-    
+
     public function getHookArgs() {
 
-        $args = ['cookie'=> 'construct cookie'];
+        $args = ['cookie' => 'construct cookie'];
 
         $args_conf_id = $this->getIdByName('actionHookExtraArgs');
 
         if ($args_conf_id > 0) {
-            
+
             $plugins = $this->getPluginsFromHook($args_conf_id, null);
 
             foreach ($plugins as $plugin) {
@@ -153,13 +149,11 @@ class Hook extends PhenyxObjectModel {
 
             }
 
-            
         }
 
         return $args;
     }
-    
-    
+
     public function getHooksCollection($idLang = null) {
 
         $collection = [];
@@ -237,9 +231,10 @@ class Hook extends PhenyxObjectModel {
     }
 
     public function getHookPluginList($use_cache = true) {
-        
+
         $list = $this->_session->get('hook_plugin_list');
-        if(!empty($list) && is_array($list)) {
+
+        if (!empty($list) && is_array($list)) {
             return $list;
         }
 
@@ -270,6 +265,7 @@ class Hook extends PhenyxObjectModel {
                 'active'      => $result['active'],
             ];
         }
+
         $this->_session->set('hook_plugin_list', $list);
 
         return $list;
@@ -284,7 +280,7 @@ class Hook extends PhenyxObjectModel {
         $usePush = false,
         $objectReturn = false
     ) {
-        
+
         if (!isset($hookArgs['cookie']) || !$hookArgs['cookie']) {
             $hookArgs['cookie'] = $this->context->cookie;
         }
@@ -339,6 +335,7 @@ class Hook extends PhenyxObjectModel {
                     if ($arrayReturn) {
                         $return[$m['plugin']] = $dataWrapped;
                     } else
+
                     if ($objectReturn) {
                         $return = $dataWrapped;
                     } else {
@@ -352,7 +349,7 @@ class Hook extends PhenyxObjectModel {
         } else {
             $return = static::execWithoutCache($hookName, $hookArgs, $idPlugin, $arrayReturn, $checkExceptions, $usePush, $objectReturn);
         }
-        
+
         return $return;
     }
 
@@ -365,19 +362,20 @@ class Hook extends PhenyxObjectModel {
         $usePush = false,
         $objectReturn = false
     ) {
-        
+
         if (defined('EPH_INSTALLATION_IN_PROGRESS')) {
 
             return;
         }
+
         if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
-            
-                    $perfs = $this->_session->get('HookPerformance');
-                    $plugperfs = $this->_session->get('pluginPerformance');
-                    $time_start = microtime(true);
-                    $memoryStart = memory_get_usage(true);
-            
-                }
+
+            $perfs = $this->_session->get('HookPerformance');
+            $plugperfs = $this->_session->get('pluginPerformance');
+            $time_start = microtime(true);
+            $memoryStart = memory_get_usage(true);
+
+        }
 
         static $disableNonNativePlugins = null;
 
@@ -428,19 +426,18 @@ class Hook extends PhenyxObjectModel {
             }
 
             if ($checkExceptions) {
-                
+
                 $exceptions = Plugin::getExceptionsStatic($array['id_plugin'], $array['id_hook']);
-                
+
                 $controller = Performer::getInstance()->getController();
                 $controllerObj = $this->context->controller;
 
-
                 if (is_array($exceptions) && in_array($controller, $exceptions)) {
-                    $file = fopen("testcheckExceptions.txt","w");
-                    fwrite($file,$controller.PHP_EOL);
-                    fwrite($file,print_r($exceptions, true).PHP_EOL);
-                    fwrite($file,$array['id_plugin'].PHP_EOL);
-                    fwrite($file,$array['id_hook'].PHP_EOL);
+                    $file = fopen("testcheckExceptions.txt", "w");
+                    fwrite($file, $controller . PHP_EOL);
+                    fwrite($file, print_r($exceptions, true) . PHP_EOL);
+                    fwrite($file, $array['id_plugin'] . PHP_EOL);
+                    fwrite($file, $array['id_hook'] . PHP_EOL);
 
                     continue;
                 }
@@ -471,14 +468,12 @@ class Hook extends PhenyxObjectModel {
 
                 continue;
             }
-            
+
             $hookCallable = is_callable([$pluginInstance, 'hook' . $hookName]);
             $hookRetroCallable = is_callable([$pluginInstance, 'hook' . $retroHookName]);
 
             if (($hookCallable || $hookRetroCallable) && Plugin::preCall($pluginInstance->name)) {
-                
-       
-               
+
                 $hookArgs['altern'] = ++$altern;
 
                 if ($usePush && isset($pluginInstance->push_filename) && file_exists($pluginInstance->push_filename)) {
@@ -490,66 +485,69 @@ class Hook extends PhenyxObjectModel {
 
                     $display = $this->coreCallHook($pluginInstance, 'hook' . $hookName, $hookArgs);
                 } else
+
                 if ($hookRetroCallable) {
 
                     $display = $this->coreCallHook($pluginInstance, 'hook' . $retroHookName, $hookArgs);
                 }
-                
+
                 if ($arrayReturn) {
                     $output[$pluginInstance->name] = $display;
                 } else
+
                 if ($objectReturn) {
                     $return = $display;
                 } else {
                     $output = $display;
                 }
-                
+
                 if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
-                    
-                    if(!empty($perfs) && is_array($perfs)) {
+
+                    if (!empty($perfs) && is_array($perfs)) {
                         $perfs[$hookName] = [
-                            'time' => round(microtime(true) - $time_start, 3),
-                            'memory' => $this->memoryStart - memory_get_usage(true)
+                            'time'   => round(microtime(true) - $time_start, 3),
+                            'memory' => $this->memoryStart - memory_get_usage(true),
                         ];
-                        
+
                     } else {
-                        if(!is_array($perfs)) {
+
+                        if (!is_array($perfs)) {
                             $perfs = [];
                         }
+
                         $perfs[$hookName] = [
-                            'time' => round(microtime(true) - $time_start, 3),
-                            'memory' => $this->memoryStart - memory_get_usage(true)
+                            'time'   => round(microtime(true) - $time_start, 3),
+                            'memory' => $this->memoryStart - memory_get_usage(true),
                         ];
                     }
-                    
-                    
-                    if(!empty($plugperfs) && is_array($plugperfs)) {
+
+                    if (!empty($plugperfs) && is_array($plugperfs)) {
                         $plugperfs[$pluginInstance->name] = [
-                            'time' => round(microtime(true) - $time_start, 3),
-                            'memory' => $this->memoryStart - memory_get_usage(true)
+                            'time'   => round(microtime(true) - $time_start, 3),
+                            'memory' => $this->memoryStart - memory_get_usage(true),
                         ];
-                        
+
                     } else {
-                        if(!is_array($perfs)) {
+
+                        if (!is_array($perfs)) {
                             $plugperfs = [];
                         }
+
                         $plugperfs[$pluginInstance->name] = [
-                            'time' => round(microtime(true) - $time_start, 3),
-                            'memory' => $this->memoryStart - memory_get_usage(true)
+                            'time'   => round(microtime(true) - $time_start, 3),
+                            'memory' => $this->memoryStart - memory_get_usage(true),
                         ];
                     }
+
                     $this->_session->set('HookPerformance', $perfs);
                     $this->_session->set('pluginPerformance', $plugperfs);
-                    
-                    
+
                 }
-                
-               
 
             }
 
         }
-        
+
         return $output;
     }
 
@@ -584,6 +582,7 @@ class Hook extends PhenyxObjectModel {
                     if (isset($this->context->user) && $this->context->user->isLogged()) {
                         $groups = $context->user->getGroups();
                     } else
+
                     if (isset($this->context->user) && $this->context->user->isLogged(true)) {
                         $groups = [(int) $this->context->phenyxConfig->get('EPH_GUEST_GROUP')];
                     } else {
@@ -609,6 +608,7 @@ class Hook extends PhenyxObjectModel {
 
             // For payment plugins, we check that they are available in the contextual country
             else
+
             if ($frontend) {
 
                 if (Validate::isLoadedObject($this->context->country)) {
@@ -660,16 +660,14 @@ class Hook extends PhenyxObjectModel {
                         'plugin'    => $row['plugin'],
                         'id_plugin' => $row['id_plugin'],
                         'position'  => $row['position'],
-                        'static' => $row['static'],
+                        'static'    => $row['static'],
                     ];
                 }
 
             }
 
-           
-
         }
-        
+
         if ($this->context->cache_enable && is_object($this->context->cache_api)) {
             $temp = $list === null ? null : Tools::jsonEncode($list);
             $this->context->cache_api->putData($cacheId, $temp);
@@ -706,7 +704,7 @@ class Hook extends PhenyxObjectModel {
 
             return (count($return) > 0 ? $return : false);
         } else {
-             
+
             return $list;
         }
 

@@ -10,11 +10,11 @@ class PhenyxResponse {
     // Constructor
 
     public function __construct($content, $headers = null, $code = null) {
-        
+
         $this->content = $content;
-        
+
         $this->headers = $headers;
-        
+
         $this->code = $code;
     }
 
@@ -51,17 +51,17 @@ class PhenyxResponse {
     }
 
     public function getContent() {
-        
+
         return $this->content;
     }
 
     public function getHeaders() {
-        
+
         return $this->headers;
     }
 
     public function getCode() {
-        
+
         return $this->code;
     }
 

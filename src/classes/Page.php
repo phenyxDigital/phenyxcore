@@ -40,17 +40,24 @@ class Page extends PhenyxObjectModel {
 
         // Some pages must be distinguished in order to record exactly what is being seen
         $specialArray = [
-            'pfg'      => 'id_pfg',
+            'pfg' => 'id_pfg',
         ];
         $extraSpecialArrays = Context::getContext()->_hook->exec('actionGetSpecialArrays', [], null, true);
+
         if (is_array($extraSpecialArrays) && count($extraSpecialArrays)) {
+
             foreach ($extraSpecialArrays as $plugin => $pages) {
+
                 if (is_array($pages) && count($pages)) {
+
                     foreach ($pages as $key => $value) {
                         $specialArray[] = $value;
                     }
+
                 }
+
             }
+
         }
 
         $where = '';

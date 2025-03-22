@@ -8,7 +8,7 @@
 class Connection extends PhenyxObjectModel {
 
     protected static $instance;
-    
+
     public $require_context = false;
     // @codingStandardsIgnoreStart
     /** @var int */
@@ -21,7 +21,7 @@ class Connection extends PhenyxObjectModel {
     public $http_referer;
     /** @var string */
     public $date_add;
-    
+
     public $context;
     // @codingStandardsIgnoreEnd
 
@@ -39,14 +39,12 @@ class Connection extends PhenyxObjectModel {
             'date_add'     => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
         ],
     ];
-    
+
     public function __construct($id = null, $id_lang = null) {
 
         parent::__construct($id, $id_lang);
         $this->context->cookie = Context::getContext()->cookie;
         $this->context->phenyxConfig = Configuration::getInstance();
-
-       
 
     }
 

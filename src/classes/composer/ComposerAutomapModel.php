@@ -71,7 +71,9 @@ class ComposerAutomapModel {
 				$this->set($key, $value);
 			}
 
-		} else if (!is_null($value)) {
+		} else
+
+		if (!is_null($value)) {
 			$this->$attr = $value;
 		}
 

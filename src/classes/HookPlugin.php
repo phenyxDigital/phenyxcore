@@ -8,14 +8,13 @@
 class HookPlugin extends PhenyxObjectModel {
 
     public $require_context = false;
-   
+
     public $id_plugin;
-    
+
     public $id_hook;
-    
+
     public $position;
-    
-    
+
     /**
      * @see PhenyxObjectModel::$definition
      */
@@ -23,77 +22,76 @@ class HookPlugin extends PhenyxObjectModel {
         'table'   => 'hook_plugin',
         'primary' => 'id_hook_plugin',
         'fields'  => [
-            'id_plugin'              => ['type' => self::TYPE_STRING, 'validate' => 'isHookName', 'required' => true, 'size' => 64],
-            'id_hook'            => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true],
-            'position'          => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
+            'id_plugin' => ['type' => self::TYPE_STRING, 'validate' => 'isHookName', 'required' => true, 'size' => 64],
+            'id_hook'   => ['type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true],
+            'position'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt'],
         ],
     ];
-    
+
     public function __construct($id = null, $idLang = null) {
 
         parent::__construct($id, $idLang);
-       
-        
+
     }
-    
+
     public function add($autoDate = true, $nullValues = false, $position = null) {
 
-        if(is_null($position)) {
+        if (is_null($position)) {
             $this->position = $this->getNewLastPosition();
         } else {
             $this->adjustPosition($position);
-            $this->position = $position;            
+            $this->position = $position;
         }
-        
 
         return parent::add($autoDate, $nullValues);
     }
-    
+
     public function update($nullValues = true, $init = true) {
 
         $oldMenu = new HookPlugin($this->id);
-        if($this->position != $oldMenu->position) {
+
+        if ($this->position != $oldMenu->position) {
             $this->adjustPosition($this->position);
         }
 
-
         if (parent::update($nullValues)) {
-			return true;
-            
+            return true;
+
         }
 
     }
-    
+
     public function adjustPosition($position) {
-        
+
         $menus = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
             (new DbQuery())
-            ->select('t.`id_hook_plugin`, t.`position`, t.`id_plugin`')
-            ->from('hook_plugin', 't')
-            ->where('t.`id_plugin` = ' . (int) $this->id_plugin)
-             ->where('t.`position` >= ' . (int) $position)
-            ->orderBy('t.`position` ASC')
+                ->select('t.`id_hook_plugin`, t.`position`, t.`id_plugin`')
+                ->from('hook_plugin', 't')
+                ->where('t.`id_plugin` = ' . (int) $this->id_plugin)
+                ->where('t.`position` >= ' . (int) $position)
+                ->orderBy('t.`position` ASC')
         );
-        $i = $position +1;
-        foreach($menus as $menu) {
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET `position` = '.(int)$i.' WHERE `id_hook_plugin` = '.(int)$menu['id_hook_plugin'];
+        $i = $position + 1;
+
+        foreach ($menus as $menu) {
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET `position` = ' . (int) $i . ' WHERE `id_hook_plugin` = ' . (int) $menu['id_hook_plugin'];
             $result = Db::getInstance()->execute($sql);
             $i++;
-            
-        }
-    }
-    
-     public function delete() {
 
-        
+        }
+
+    }
+
+    public function delete() {
+
         if (parent::delete()) {
-                    
+
             return $this->cleanPositions();
         }
 
         return false;
     }
-    
+
     public function getNewLastPosition() {
 
         return (Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
@@ -103,7 +101,7 @@ class HookPlugin extends PhenyxObjectModel {
                 ->where('`id_hook` = ' . (int) $this->id_hook)
         ));
     }
-    
+
     public function cleanPositions() {
 
         $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
@@ -126,7 +124,5 @@ class HookPlugin extends PhenyxObjectModel {
 
         return true;
     }
-    
-   
 
 }

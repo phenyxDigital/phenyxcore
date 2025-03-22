@@ -37,7 +37,9 @@ class ComposerLoopSettings extends Composer {
 				&& ($locked === true || strlen((string) $value) == 0)
 			) {
 				$value = $this->settings[$part]['value'];
-			} else if (!is_null($this->getSettings($part, 'value')) && !$this->replaceLockedValue($part)
+			} else
+
+			if (!is_null($this->getSettings($part, 'value')) && !$this->replaceLockedValue($part)
 				&& ($locked === true || strlen((string) $value) == 0)
 			) {
 				$value = implode(',', array_unique(explode(',', $value . ',' . $this->settings[$part]['value'])));

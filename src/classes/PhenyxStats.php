@@ -5,58 +5,58 @@
  *
  * @since 1.9.1.0
  */
-class PhenyxStats  {
+class PhenyxStats {
 
     protected static $instance;
-    
+
     public $context;
-    
+
     public $_session;
-    
+
     public function __construct($id = null, $idLang = null) {
-        
+
         $this->context = Context::getContext();
         $this->_session = PhenyxSession::getInstance();
-       
-        
+
     }
-    
-    
+
     public static function getInstance() {
-       
-		if (!isset(static::$instance)) {
-			static::$instance = new PhenyxStats();
-		}
-        
-		return static::$instance;
-	}
-   
+
+        if (!isset(static::$instance)) {
+            static::$instance = new PhenyxStats();
+        }
+
+        return static::$instance;
+    }
+
     public function getVisits($dateFrom, $dateTo, $granularity = false, $unique = false) {
 
-        $visits = ($granularity == false) ? 0 : [];        
+        $visits = ($granularity == false) ? 0 : [];
 
         if ($granularity == 'day') {
             $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
                 (new DbQuery())
-                ->select('LEFT(`date_add`, 10) as date, COUNT(' . ($unique ? 'DISTINCT id_guest' : '*') . ') as visits')
-                ->from('connections')
-                ->where('`date_add` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59"')
-                ->groupBy('LEFT(`date_add`, 10)')
+                    ->select('LEFT(`date_add`, 10) as date, COUNT(' . ($unique ? 'DISTINCT id_guest' : '*') . ') as visits')
+                    ->from('connections')
+                    ->where('`date_add` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59"')
+                    ->groupBy('LEFT(`date_add`, 10)')
             );
-            
+
             foreach ($result as $row) {
                 $visits[$row['date']] = $row['visits'];
             }
 
-        } else if ($granularity == 'month') {
+        } else
+
+        if ($granularity == 'month') {
             $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
                 (new DbQuery())
-                ->select('LEFT(`date_add`, 7) as date, COUNT(' . ($unique ? 'DISTINCT id_guest' : '*') . ') as visits')
-                ->from('connections')
-                ->where('`date_add` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59"')
-                ->groupBy('LEFT(`date_add`, 7)')
+                    ->select('LEFT(`date_add`, 7) as date, COUNT(' . ($unique ? 'DISTINCT id_guest' : '*') . ') as visits')
+                    ->from('connections')
+                    ->where('`date_add` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59"')
+                    ->groupBy('LEFT(`date_add`, 7)')
             );
-                
+
             foreach ($result as $row) {
                 $visits[$row['date']] = $row['visits'];
             }
@@ -64,12 +64,13 @@ class PhenyxStats  {
         } else {
             $visits = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
                 (new DbQuery())
-                ->select('COUNT(' . ($unique ? 'DISTINCT id_guest' : '*') . ') as visits')
-                ->from('connections')
-                ->where('`date_add` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59"')
+                    ->select('COUNT(' . ($unique ? 'DISTINCT id_guest' : '*') . ') as visits')
+                    ->from('connections')
+                    ->where('`date_add` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59"')
             );
-                
+
         }
+
         return $visits;
     }
 
@@ -136,7 +137,7 @@ class PhenyxStats  {
         );
 
     }
-    
+
     public function getTotalSales($dateFrom, $dateTo, $granularity = false) {
 
         if ($granularity == 'day') {
@@ -294,11 +295,11 @@ class PhenyxStats  {
             LEFT JOIN `' . _DB_PREFIX_ . 'customer_piece_state` os ON o.current_state = os.id_customer_piece_state
             WHERE `date_add` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59" AND os.logable = 1'
             );
-            
+
         }
 
     }
-    
+
     public function getPercentProductStock() {
 
         $row = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getRow(
@@ -375,7 +376,7 @@ class PhenyxStats  {
             '
         SELECT COUNT(DISTINCT m.`id_plugin`)
         FROM `' . _DB_PREFIX_ . 'plugin` m
-        ' 
+        '
         );
     }
 
@@ -388,7 +389,7 @@ class PhenyxStats  {
         WHERE m.active = 0'
         );
     }
-   
+
     public function getCustomerMainGender() {
 
         $row = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getRow(
@@ -396,14 +397,18 @@ class PhenyxStats  {
         SELECT SUM(IF(g.id_gender IS NOT NULL, 1, 0)) as total, SUM(IF(type = 0, 1, 0)) as male, SUM(IF(type = 1, 1, 0)) as female, SUM(IF(type = 2, 1, 0)) as neutral
         FROM `' . _DB_PREFIX_ . 'user` c
         LEFT JOIN `' . _DB_PREFIX_ . 'gender` g ON c.id_gender = g.id_gender
-        WHERE c.active = 1 ' 
+        WHERE c.active = 1 '
         );
 
         if (!$row['total']) {
             return false;
-        } else if ($row['male'] > $row['female'] && $row['male'] >= $row['neutral']) {
+        } else
+
+        if ($row['male'] > $row['female'] && $row['male'] >= $row['neutral']) {
             return ['type' => 'male', 'value' => round(100 * $row['male'] / $row['total'])];
-        } else if ($row['female'] >= $row['male'] && $row['female'] >= $row['neutral']) {
+        } else
+
+        if ($row['female'] >= $row['male'] && $row['female'] >= $row['neutral']) {
             return ['type' => 'female', 'value' => round(100 * $row['female'] / $row['total'])];
         }
 
@@ -425,7 +430,7 @@ class PhenyxStats  {
 
     public function getPendingMessages() {
 
-        return CustomerThread::getTotalCustomerThreads('status LIKE "%pending%" OR status = "open"' );
+        return CustomerThread::getTotalCustomerThreads('status LIKE "%pending%" OR status = "open"');
     }
 
     public function getAverageMessageResponseTime($dateFrom, $dateTo) {
@@ -479,65 +484,61 @@ class PhenyxStats  {
 
         return round($messages / $threads, 1);
     }
-    
+
     public function getEducationPurchases($dateFrom, $dateTo, $granularity = false) {
-       	
-		if ($granularity == 'day') {
-			
+
+        if ($granularity == 'day') {
+
             $purchases = [];
-			$result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
+            $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
                 (new DbQuery())
-                ->select('LEFT(se.`date_add`, 10) as date, COUNT(id_student_education)*f.price  as cost')
-                ->from('student_education', 'se')
-                ->leftJoin('formatpack', 'f', 'f.id_formatpack = se.id_formatpack')
-                ->where('`id_student_education_state` = 9 AND se.`date_add` BETWEEN "'.pSQL($dateFrom).' 00:00:00" AND "'. pSQL($dateTo).' 23:59:59"')
-                ->groupBy('LEFT(se.`date_add`, 10)')
+                    ->select('LEFT(se.`date_add`, 10) as date, COUNT(id_student_education)*f.price  as cost')
+                    ->from('student_education', 'se')
+                    ->leftJoin('formatpack', 'f', 'f.id_formatpack = se.id_formatpack')
+                    ->where('`id_student_education_state` = 9 AND se.`date_add` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59"')
+                    ->groupBy('LEFT(se.`date_add`, 10)')
             );
-		
-			
-			
 
             foreach ($result as $row) {
                 $purchases[strtotime($row['date'])] = $row['cost'];
-            }          
+            }
 
             return $purchases;
-            
+
         } else {
             $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
                 (new DbQuery())
-                ->select('SUM(total_tax_incl) as sales, SUM(piece_margin) as margin')
-                ->from('customer_pieces')
-                ->where('`date_add` BETWEEN "'.pSQL($dateFrom).' 00:00:00" AND "'. pSQL($dateTo).' 23:59:59"')
+                    ->select('SUM(total_tax_incl) as sales, SUM(piece_margin) as margin')
+                    ->from('customer_pieces')
+                    ->where('`date_add` BETWEEN "' . pSQL($dateFrom) . ' 00:00:00" AND "' . pSQL($dateTo) . ' 23:59:59"')
             );
-            			
-			foreach ($result as $row) {
-				$purchases[strtotime($row['date'])] = $row['sales'] - $row['margin'];
+
+            foreach ($result as $row) {
+                $purchases[strtotime($row['date'])] = $row['sales'] - $row['margin'];
             }
-			return $purchases;
+
+            return $purchases;
         }
 
     }
-    
+
     public function getPrevisionnel($dateFrom, $dateTo, $granularity = false) {
-       
+
         $previsionnel = [];
         $result = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
             (new DbQuery())
-            ->select('LEFT(`date_add`, 10) as date, SUM(price) as amount')
-            ->from('student_education')
-            ->where('`id_student_education_state` > 3 AND `id_student_education_state` < 8 AND `date_add` BETWEEN "'.pSQL($This->context->company->accounting_period_start).' 00:00:00" AND "'. pSQL($this->context->company->accounting_period_end).' 23:59:59"')
-            ->groupBy('LEFT(`date_add`, 10)')
+                ->select('LEFT(`date_add`, 10) as date, SUM(price) as amount')
+                ->from('student_education')
+                ->where('`id_student_education_state` > 3 AND `id_student_education_state` < 8 AND `date_add` BETWEEN "' . pSQL($This->context->company->accounting_period_start) . ' 00:00:00" AND "' . pSQL($this->context->company->accounting_period_end) . ' 23:59:59"')
+                ->groupBy('LEFT(`date_add`, 10)')
         );
-		foreach ($result as $row) {			
+
+        foreach ($result as $row) {
             $previsionnel[strtotime($row['date'])] = $row['amount'];
-        }			
+        }
 
-        return $previsionnel;					
-			
-	}
+        return $previsionnel;
 
-
-
+    }
 
 }

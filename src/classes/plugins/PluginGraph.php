@@ -18,7 +18,7 @@ abstract class PluginGraph extends Plugin {
     protected $_titles = ['main' => null, 'x' => null, 'y' => null];
     /** @var PluginGraphEngine graph engine */
     protected $_render;
-    
+
     public $_id_lang;
     // @codingStandardsIgnoreEnd
 
@@ -84,7 +84,9 @@ abstract class PluginGraph extends Plugin {
                 $this->setDayValues($layers);
             }
 
-        } else if (strtotime($this->_employee->stats_date_to) - strtotime($this->_employee->stats_date_from) <= 2678400) {
+        } else
+
+        if (strtotime($this->_employee->stats_date_to) - strtotime($this->_employee->stats_date_from) <= 2678400) {
             // If the granularity is inferior to 1 month
             // @TODO : change to manage 28 to 31 days
 
@@ -131,7 +133,9 @@ abstract class PluginGraph extends Plugin {
                 $this->setMonthValues($layers);
             }
 
-        } else if (strtotime('-1 year', strtotime($this->_employee->stats_date_to)) < strtotime($this->_employee->stats_date_from)) {
+        } else
+
+        if (strtotime('-1 year', strtotime($this->_employee->stats_date_to)) < strtotime($this->_employee->stats_date_from)) {
             // If the granularity is less than 1 year
 
             if ($legend) {
@@ -386,7 +390,7 @@ abstract class PluginGraph extends Plugin {
      * @version 1.8.1.0 Initial version
      */
     public function engine($params) {
-        
+
         $render = $this->context->phenyxConfig->get('EPH_STATS_RENDER');
         $idEmployee = (int) $context->employee->id;
         $idLang = (int) $context->language->id;

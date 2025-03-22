@@ -92,7 +92,6 @@ class TopMenu extends PhenyxObjectModel {
             'custom_class'                          => ['type' => self::TYPE_STRING, 'required' => false, 'size' => 255],
             'jquery_link'                           => ['type' => self::TYPE_STRING, 'required' => false, 'size' => 128],
 
-            
             'generated'                             => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'lang' => true],
             'name'                                  => ['type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isCatalogName', 'required' => false, 'size' => 255],
             'link'                                  => ['type' => self::TYPE_HTML, 'lang' => true, 'required' => false, 'size' => 255],
@@ -114,8 +113,9 @@ class TopMenu extends PhenyxObjectModel {
         if ($this->id) {
             $this->chosen_groups = Tools::jsonDecode($this->chosen_groups);
         }
+
         if ($this->id && $full) {
-            
+
             $this->backName = $this->getBackOutputNameValue();
             $this->link_output_value = $this->getFrontOutputValue();
             $this->columnsWrap = $this->getColumnsWrap();
@@ -123,37 +123,44 @@ class TopMenu extends PhenyxObjectModel {
         }
 
     }
-    
+
     public static function buildObject($id, $id_lang = null, $className = null, $full = true) {
-                
+
         $objectData = parent::buildObject($id, $id_lang, $className);
         $objectData['chosen_groups'] = Tools::jsonDecode($objectData['chosen_groups']);
+
         if ($full) {
-            
+
             $objectData['backName'] = self::getStaticBackOutputNameValue($objectData);
             $objectData['link_output_value'] = self::getStaticFrontOutputValue($objectData);
             $objectData['columnsWrap'] = self::getStaticColumnsWrap($objectData);
             $objectData['outPutName'] = self::getStaticOutpuName($objectData);
         }
-        
-       
+
         return Tools::jsonDecode(Tools::jsonEncode($objectData));
-    }    
-    
+    }
+
     public function getOutpuName() {
-    
+
         $classVars = get_class_vars(get_class($this));
         $fields = $classVars['definition']['fields'];
-        
+
         $name = '';
-        
+
         foreach ($fields as $field => $params) {
 
             if (array_key_exists('lang', $params) && $params['lang']) {
-                if(isset($this->{$field}) && is_array($this->{$field}) && count($this->{$field})) {
-                    $this->{$field} = $this->{$field}[$this->context->language->id];
+
+                if (isset($this->{$field}) && is_array($this->{$field}) && count($this->{$field})) {
+                    $this->{$field}
+
+                    = $this->{$field}
+
+                    [$this->context->language->id];
                 }
+
             }
+
         }
 
         switch ($this->type) {
@@ -222,16 +229,20 @@ class TopMenu extends PhenyxObjectModel {
             break;
 
         }
-        
+
         $hookname = $this->context->_hook->exec('displayTopMenuOutPutName', ['type' => $this->type, 'menu' => $this], null, true);
+
         if (is_array($hookname) && count($hookname)) {
+
             foreach ($hookname as $plugin => $vars) {
-                if(!empty($vars)) {
-                    $name = $vars;    
+
+                if (!empty($vars)) {
+                    $name = $vars;
                 }
+
             }
+
         }
-        
 
         return $name;
     }
@@ -239,19 +250,26 @@ class TopMenu extends PhenyxObjectModel {
     public function getBackOutputNameValue() {
 
         $return = '';
-       
+
         $_iso_lang = Language::getIsoById($this->context->cookie->id_lang);
-        
+
         $classVars = get_class_vars(get_class($this));
         $fields = $classVars['definition']['fields'];
-        
+
         foreach ($fields as $field => $params) {
 
             if (array_key_exists('lang', $params) && $params['lang']) {
-                if(isset($this->{$field}) && is_array($this->{$field}) && count($this->{$field})) {
-                    $this->{$field} = $this->{$field}[$this->context->language->id];
+
+                if (isset($this->{$field}) && is_array($this->{$field}) && count($this->{$field})) {
+                    $this->{$field}
+
+                    = $this->{$field}
+
+                    [$this->context->language->id];
                 }
+
             }
+
         }
 
         switch ($this->type) {
@@ -391,22 +409,26 @@ class TopMenu extends PhenyxObjectModel {
 
             break;
         }
-        
+
         $hookname = $this->context->_hook->exec('displayTopMenuBackOutputNameValue', ['type' => $this->type, 'menu' => $this], null, true);
+
         if (is_array($hookname) && count($hookname)) {
+
             foreach ($hookname as $plugin => $vars) {
-                if(!empty($vars)) {
-                    $return = $vars;    
+
+                if (!empty($vars)) {
+                    $return = $vars;
                 }
+
             }
+
         }
 
         return $return;
     }
 
     public function getFrontOutputValue() {
-       
-        
+
         $is_ajax = $this->context->phenyxConfig->get('EPH_FRONT_AJAX') ? 1 : 0;
 
         $link = $this->context->link;
@@ -418,17 +440,24 @@ class TopMenu extends PhenyxObjectModel {
         $icone_overlay = false;
         $url = false;
         $linkNotClickable = false;
-        
+
         $classVars = get_class_vars(get_class($this));
         $fields = $classVars['definition']['fields'];
-        
+
         foreach ($fields as $field => $params) {
 
             if (array_key_exists('lang', $params) && $params['lang']) {
-                if(isset($this->{$field}) && is_array($this->{$field}) && count($this->{$field})) {
-                    $this->{$field} = $this->{$field}[$this->context->language->id];
+
+                if (isset($this->{$field}) && is_array($this->{$field}) && count($this->{$field})) {
+                    $this->{$field}
+
+                    = $this->{$field}
+
+                    [$this->context->language->id];
                 }
+
             }
+
         }
 
         switch ($this->type) {
@@ -447,15 +476,13 @@ class TopMenu extends PhenyxObjectModel {
 
             } else {
 
-
-
                 $name .= $cms->meta_title;
             }
 
             if ($use_ajax) {
-                $return .= '<a href="javascript:void()" rel="nofollow"  onClick="openAjaxCms(' . (int) $cms->id . ')" title="' . $name . '"  class="a-niveau1 '.$this->custom_class.'" data-type="cms" data-id="' . (int) $cms->id . '">';
+                $return .= '<a href="javascript:void()" rel="nofollow"  onClick="openAjaxCms(' . (int) $cms->id . ')" title="' . $name . '"  class="a-niveau1 ' . $this->custom_class . '" data-type="cms" data-id="' . (int) $cms->id . '">';
             } else {
-                $return .= '<a href="' . $this->context->link->getCMSLink($cms) . '" title="' . $name . '"  class="a-niveau1 '.$this->custom_class.'" data-type="cms" data-id="' . (int) $cms->id . '">';
+                $return .= '<a href="' . $this->context->link->getCMSLink($cms) . '" title="' . $name . '"  class="a-niveau1 ' . $this->custom_class . '" data-type="cms" data-id="' . (int) $cms->id . '">';
             }
 
             $return .= '<span class="phtm_menu_span phtm_menu_span_' . (int) $this->id . ' ">';
@@ -651,7 +678,7 @@ class TopMenu extends PhenyxObjectModel {
 
             break;
         case 11:
-            
+
             return ['tpl' => './ephtopmenu_custom_hook.tpl'];
             break;
 
@@ -742,28 +769,34 @@ class TopMenu extends PhenyxObjectModel {
         if (!empty($this->custom_class) && !empty($this->img_value_over)) {
             $return .= '</div>';
         }
-        
+
         $hookname = $this->context->_hook->exec('displayTopMenuFrontOutputValue', ['type' => $this->type, 'menu' => $this], null, true);
-       
+
         if (is_array($hookname) && count($hookname)) {
+
             foreach ($hookname as $plugin => $vars) {
-                if(!empty($vars)) {
-                    $return = $vars;    
+
+                if (!empty($vars)) {
+                    $return = $vars;
                 }
+
             }
+
         }
 
         return $return;
     }
 
     public function getColumnsWrap() {
-        
-        if($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $value = $this->context->cache_api->getData('getColumnsWrap_'.$this->id, 864000);
+
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {
+            $value = $this->context->cache_api->getData('getColumnsWrap_' . $this->id, 864000);
             $temp = empty($value) ? null : Tools::jsonDecode($value);
-            if(!empty($temp)) {
+
+            if (!empty($temp)) {
                 return $temp;
             }
+
         }
 
         $columnWrap = [];
@@ -780,18 +813,20 @@ class TopMenu extends PhenyxObjectModel {
         foreach ($columnWraps as $wrap) {
             $columnWrap[] = new TopMenuColumnWrap($wrap->id);
         }
-        if($this->context->cache_enable && is_object($this->context->cache_api)) {
+
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {
             $temp = $columnWrap === null ? null : Tools::jsonEncode($columnWrap);
-            $this->context->cache_api->putData('getColumnsWrap_'.$this->id, $temp);
-        }	
+            $this->context->cache_api->putData('getColumnsWrap_' . $this->id, $temp);
+        }
 
         return $columnWrap;
     }
-    
+
     public static function getStaticOutpuName($objectData) {
-    
+
         $context = Context::getContext();
         $name = '';
+
         switch ($objectData['type']) {
 
         case 1:
@@ -858,27 +893,30 @@ class TopMenu extends PhenyxObjectModel {
             break;
 
         }
-        
+
         $hookname = $context->_hook->exec('displayTopMenuOutPutName', ['type' => $objectData['type'], 'menu' => Tools::jsonDecode(Tools::jsonEncode($objectData))], null, true);
+
         if (is_array($hookname) && count($hookname)) {
+
             foreach ($hookname as $plugin => $vars) {
-                if(!empty($vars)) {
-                    $name = $vars;    
+
+                if (!empty($vars)) {
+                    $name = $vars;
                 }
+
             }
+
         }
-        
 
         return $name;
     }
-    
+
     public static function getStaticBackOutputNameValue($objectData) {
 
         $context = Context::getContext();
         $return = '';
-       
+
         $_iso_lang = Language::getIsoById($context->cookie->id_lang);
-        
 
         switch ($objectData['type']) {
 
@@ -923,7 +961,7 @@ class TopMenu extends PhenyxObjectModel {
                     $name = $objectData['image_legend'];
                 }
 
-                $return .= '<span><img src="' . $objectData['image_hash']. '" style="margin:0 10px;height:50px;" alt="' . $name . '" title="' . $name . '" /></span>';
+                $return .= '<span><img src="' . $objectData['image_hash'] . '" style="margin:0 10px;height:50px;" alt="' . $name . '" title="' . $name . '" /></span>';
             }
 
             break;
@@ -1017,21 +1055,26 @@ class TopMenu extends PhenyxObjectModel {
 
             break;
         }
-        
+
         $hookname = $context->_hook->exec('displayTopMenuBackOutputNameValue', ['type' => $objectData['type'], 'menu' => Tools::jsonDecode(Tools::jsonEncode($objectData))], null, true);
+
         if (is_array($hookname) && count($hookname)) {
+
             foreach ($hookname as $plugin => $vars) {
-                if(!empty($vars)) {
-                    $return = $vars;    
+
+                if (!empty($vars)) {
+                    $return = $vars;
                 }
+
             }
+
         }
 
         return $return;
     }
-    
+
     public static function getStaticFrontOutputValue($objectData) {
-       
+
         $context = Context::getContext();
         $is_ajax = $context->phenyxConfig->get('EPH_FRONT_AJAX') ? 1 : 0;
 
@@ -1044,8 +1087,6 @@ class TopMenu extends PhenyxObjectModel {
         $icone_overlay = false;
         $url = false;
         $linkNotClickable = false;
-        
-        
 
         switch ($objectData['type']) {
 
@@ -1067,9 +1108,9 @@ class TopMenu extends PhenyxObjectModel {
             }
 
             if ($use_ajax) {
-                $return .= '<a href="javascript:void()" rel="nofollow"  onClick="openAjaxCms(' . (int) $cms->id . ')" title="' . $name . '"  class="a-niveau1 '.$objectData['custom_class'].'" data-type="cms" data-id="' . (int) $cms->id . '">';
+                $return .= '<a href="javascript:void()" rel="nofollow"  onClick="openAjaxCms(' . (int) $cms->id . ')" title="' . $name . '"  class="a-niveau1 ' . $objectData['custom_class'] . '" data-type="cms" data-id="' . (int) $cms->id . '">';
             } else {
-                $return .= '<a href="' . $context->link->getCMSLink($cms) . '" title="' . $name . '"  class="a-niveau1 '.$objectData['custom_class'].'" data-type="cms" data-id="' . (int) $cms->id . '">';
+                $return .= '<a href="' . $context->link->getCMSLink($cms) . '" title="' . $name . '"  class="a-niveau1 ' . $objectData['custom_class'] . '" data-type="cms" data-id="' . (int) $cms->id . '">';
             }
 
             $return .= '<span class="phtm_menu_span phtm_menu_span_' . (int) $objectData['id'] . ' ">';
@@ -1131,7 +1172,7 @@ class TopMenu extends PhenyxObjectModel {
                 $return .= '<a href="' . $context->link->getPFGLink($pfg) . '" title="' . $name . '"  class="a-niveau1" data-type="pfg" data-id="' . (int) $pfg->id . '">';
             }
 
-            $return .= '<span class="phtm_menu_span phtm_menu_span_' . (int) $objectData['id']  . '">';
+            $return .= '<span class="phtm_menu_span phtm_menu_span_' . (int) $objectData['id'] . '">';
 
             if ($objectData['have_image']) {
                 $legend = $name;
@@ -1142,8 +1183,8 @@ class TopMenu extends PhenyxObjectModel {
 
                 if (!empty($objectData['image_hover'])) {
                     $icone_overlay = 'data-overlay="' . $objectData['image_hover'] . '"';
-                    $return .= '<img src="' . $objectData['image_hash'] . '" ' . $icone_overlay . ' id="icone_' . (int) $objectData['id']  . '" style="max-width:200px;" class="' . $$objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
-                    $return .= '<img id="image_over_' . (int) $objectData['id']  . '"/>';
+                    $return .= '<img src="' . $objectData['image_hash'] . '" ' . $icone_overlay . ' id="icone_' . (int) $objectData['id'] . '" style="max-width:200px;" class="' . $$objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
+                    $return .= '<img id="image_over_' . (int) $objectData['id'] . '"/>';
                 } else {
                     $return .= '<img src="' . $objectData['image_hash'] . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
                 }
@@ -1154,7 +1195,7 @@ class TopMenu extends PhenyxObjectModel {
             $return .= '</span>';
 
             if (!empty($objectData['custom_class']) && !empty($objectData['img_value_over'])) {
-                $return .= '<div class="' . $objectData['custom_class'] . '">' .$objectData['img_value_over'] . '</div>';
+                $return .= '<div class="' . $objectData['custom_class'] . '">' . $objectData['img_value_over'] . '</div>';
             }
 
             $return .= '</a>';
@@ -1187,7 +1228,7 @@ class TopMenu extends PhenyxObjectModel {
 
                 if (!empty($objectData['image_hover'])) {
                     $icone_overlay = 'data-overlay="' . $objectData['image_hover'] . '"';
-                    $icone .= '<img src="' . $objectData['image_hash'] . '" ' . $icone_overlay . ' id="icone_' . (int) $objectData['id']  . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
+                    $icone .= '<img src="' . $objectData['image_hash'] . '" ' . $icone_overlay . ' id="icone_' . (int) $objectData['id'] . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
                     $icone .= '<img id="image_over_' . (int) $objectData['id'] . '"/>';
                 } else {
                     $icone .= '<img src="' . $objectData['image_hash'] . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
@@ -1216,8 +1257,8 @@ class TopMenu extends PhenyxObjectModel {
 
                 if (!empty($objectData['image_hover'])) {
                     $icone_overlay = 'data-overlay="' . $objectData['image_hover'] . '"';
-                    $icone .= '<img src="' . $objectData['image_hash'] . '" ' . $icone_overlay . ' id="icone_' . (int) $objectData['id']  . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
-                    $icone .= '<img id="image_over_' . (int) $objectData['id']  . '"/>';
+                    $icone .= '<img src="' . $objectData['image_hash'] . '" ' . $icone_overlay . ' id="icone_' . (int) $objectData['id'] . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
+                    $icone .= '<img id="image_over_' . (int) $objectData['id'] . '"/>';
                 } else {
                     $icone .= '<img src="' . $objectData['image_hash'] . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
                 }
@@ -1252,7 +1293,7 @@ class TopMenu extends PhenyxObjectModel {
                 if (!empty($objectData['image_hover'])) {
                     $icone_overlay = 'data-overlay="' . $objectData['image_hover'] . '"';
                     $icone .= '<img src="' . $objectData['image_hash'] . '" ' . $icone_overlay . ' id="icone_' . (int) $objectData['id'] . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
-                    $icone .= '<img id="image_over_' . (int) $objectData['id']  . '"/>';
+                    $icone .= '<img id="image_over_' . (int) $objectData['id'] . '"/>';
                 } else {
                     $icone .= '<img src="' . $objectData['image_hash'] . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
                 }
@@ -1265,7 +1306,7 @@ class TopMenu extends PhenyxObjectModel {
 
             break;
         case 11:
-            
+
             return ['tpl' => './ephtopmenu_custom_hook.tpl'];
             break;
 
@@ -1288,8 +1329,8 @@ class TopMenu extends PhenyxObjectModel {
 
                 if (!empty($objectData['image_hover'])) {
                     $icone_overlay = 'data-overlay="' . $objectData['image_hover'] . '"';
-                    $icone .= '<img src="' . $objectData['image_hash'] . '" ' . $icone_overlay . ' id="icone_' . (int) $objectData['id']  . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
-                    $icone .= '<img id="image_over_' . (int) $objectData['id']  . '"/>';
+                    $icone .= '<img src="' . $objectData['image_hash'] . '" ' . $icone_overlay . ' id="icone_' . (int) $objectData['id'] . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
+                    $icone .= '<img id="image_over_' . (int) $objectData['id'] . '"/>';
                 } else {
                     $icone .= '<img src="' . $objectData['image_hash'] . '" style="max-width:200px;" class="' . $objectData['image_class'] . ' img-fluid"  alt="' . $legend . '" title="' . $legend . '" />';
                 }
@@ -1299,7 +1340,7 @@ class TopMenu extends PhenyxObjectModel {
             if (!empty($objectData['jquery_link'])) {
                 $url = htmlentities($objectData['jquery_link'], ENT_COMPAT, 'UTF-8');
                 $return = '<a href="javascript:void(0)" onClick="' . $url . '"' . (!empty($name) ? ' title="' . $name . '"' : '') . ' class="a-niveau1 ' . (!empty($objectData['custom_class']) ? $objectData['custom_class'] : '') . '">';
-                $return .= '<span class="phtm_menu_span phtm_menu_span_' . (int) $objectData['id']  . '">';
+                $return .= '<span class="phtm_menu_span phtm_menu_span_' . (int) $objectData['id'] . '">';
 
                 if ($icone) {
                     $return .= $icone;
@@ -1326,7 +1367,6 @@ class TopMenu extends PhenyxObjectModel {
             }
 
             break;
-        
 
         }
 
@@ -1357,52 +1397,61 @@ class TopMenu extends PhenyxObjectModel {
         if (!empty($objectData['custom_class']) && !empty($objectData['img_value_over'])) {
             $return .= '</div>';
         }
-        
+
         $hookname = $context->_hook->exec('displayTopMenuFrontOutputValue', ['type' => $objectData['type'], 'menu' => Tools::jsonDecode(Tools::jsonEncode($objectData))], null, true);
-       
+
         if (is_array($hookname) && count($hookname)) {
+
             foreach ($hookname as $plugin => $vars) {
-                if(!empty($vars)) {
-                    $return = $vars;    
+
+                if (!empty($vars)) {
+                    $return = $vars;
                 }
+
             }
+
         }
 
         return $return;
     }
 
     public static function getStaticColumnsWrap($objectData) {
-        
+
         $context = Context::getContext();
-        if($context->cache_enable && is_object($context->cache_api)) {
-            $value = $context->cache_api->getData('getColumnsWrap_'.$objectData['id'], 864000);
+
+        if ($context->cache_enable && is_object($context->cache_api)) {
+            $value = $context->cache_api->getData('getColumnsWrap_' . $objectData['id'], 864000);
             $temp = empty($value) ? null : Tools::jsonDecode($value);
-            if(!empty($temp)) {
+
+            if (!empty($temp)) {
                 return $temp;
             }
+
         }
 
         $columnWrap = [];
 
         $columnWraps = new PhenyxCollection('TopMenuColumnWrap', $context->language->id);
         $columnWraps->where('id_topmenu', '=', $objectData['id']);
-        if(!PhenyxObjectModel::$admin_request) {
+
+        if (!PhenyxObjectModel::$admin_request) {
             $columnWraps->where('active', '=', 1);
         }
-        
+
         $columnWraps->orderBy('position');
 
         foreach ($columnWraps as $wrap) {
             $columnWrap[] = new TopMenuColumnWrap($wrap->id);
         }
-        if($context->cache_enable && is_object($context->cache_api)) {
+
+        if ($context->cache_enable && is_object($context->cache_api)) {
             $temp = $columnWrap === null ? null : Tools::jsonEncode($columnWrap);
-            $context->cache_api->putData('getColumnsWrap_'.$objectData['id'], $temp);
-        }	
+            $context->cache_api->putData('getColumnsWrap_' . $objectData['id'], $temp);
+        }
 
         return $columnWrap;
     }
-    
+
     public static function getInstance($id = null, $idLang = null) {
 
         if (!static::$instance) {
@@ -1411,17 +1460,17 @@ class TopMenu extends PhenyxObjectModel {
 
         return static::$instance;
     }
-    
-
 
     public function add($autodate = true, $nullValues = false) {
 
         $this->position = Topmenu::getHigherPosition() + 1;
-        $result =  parent::add($autodate, $nullValues);
-        if($result) {
+        $result = parent::add($autodate, $nullValues);
+
+        if ($result) {
             $this->_session->remove('getAdminMenus');
             $this->_session->remove('getFrontMenus');
         }
+
         return $result;
     }
 
@@ -1439,8 +1488,8 @@ class TopMenu extends PhenyxObjectModel {
     public function update($nullValues = false) {
 
         $result = parent::update($nullValues);
-        
-        if($result) {            
+
+        if ($result) {
             $this->_session->remove('getAdminMenus');
             $this->_session->remove('getFrontMenus');
             $this->backName = $this->getBackOutputNameValue();
@@ -1448,7 +1497,7 @@ class TopMenu extends PhenyxObjectModel {
             $this->columnsWrap = $this->getColumnsWrap();
             $this->outPutName = $this->getOutpuName();
         }
-        
+
         return $result;
     }
 
@@ -1460,6 +1509,7 @@ class TopMenu extends PhenyxObjectModel {
         foreach ($wraps as $wrap) {
             $wrap->delete();
         }
+
         $this->_session->remove('getAdminMenus');
         $this->_session->remove('getFrontMenus');
         return parent::delete();
@@ -1507,21 +1557,24 @@ class TopMenu extends PhenyxObjectModel {
     public function getMenus($id_lang, $active = true, $groupRestrict = false) {
 
         $topMenus = $this->_session->get('getFrontMenus');
-        if(empty($topMenus)) {
+
+        if (empty($topMenus)) {
             $topMenus = [];
             $query = new DbQuery();
             $query->select('id_topmenu');
             $query->from('topmenu');
-            if($active) {
+
+            if ($active) {
                 $query->where('active = 1');
             }
+
             $query->orderBy('position');
             $menus = Db::getInstance()->executeS($query);
 
             foreach ($menus as $menu) {
                 $topMenus[] = TopMenu::buildObject($menu['id_topmenu'], $id_lang);
             }
-            
+
             $this->_session->set('getFrontMenus', $topMenus);
         }
 
@@ -1532,15 +1585,16 @@ class TopMenu extends PhenyxObjectModel {
     public function getAdminMenus() {
 
         $topMenus = $this->_session->get('getAdminMenus');
-        if(empty($topMenus)) {
+
+        if (empty($topMenus)) {
             $this->request_admin = true;
             PhenyxObjectModel::$admin_request = true;
             $topMenus = [];
             $menus = Db::getInstance()->executeS(
                 (new DbQuery())
-                ->select('`id_topmenu`')
-                ->from('topmenu')
-                ->orderBy('position')
+                    ->select('`id_topmenu`')
+                    ->from('topmenu')
+                    ->orderBy('position')
             );
 
             foreach ($menus as $menu) {
@@ -1548,11 +1602,11 @@ class TopMenu extends PhenyxObjectModel {
             }
 
             $this->request_admin = false;
-             PhenyxObjectModel::$admin_request = false;
-            
+            PhenyxObjectModel::$admin_request = false;
+
             $this->_session->set('getAdminMenus', $topMenus);
         }
-       
+
         return $topMenus;
 
     }
@@ -1713,7 +1767,6 @@ class TopMenu extends PhenyxObjectModel {
 
         if (!Tools::getValue('editMenu') && !Tools::getValue('editColumnWrap') && !Tools::getValue('editColumn')) {
 
-
             if (Tools::getValue('editElement') && Tools::getValue('id_topmenu_element')) {
                 $ObjEphenyxTopMenuElementsClass = new TopMenuElements(Tools::getValue('id_topmenu_element'));
             }
@@ -1824,6 +1877,4 @@ class TopMenu extends PhenyxObjectModel {
 
     }
 
-
 }
-

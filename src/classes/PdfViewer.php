@@ -6,7 +6,7 @@
  * @since 2.1.0.0
  */
 class PdfViewer {
-    
+
     public $context;
 
     public $name;
@@ -509,7 +509,7 @@ class PdfViewer {
     public $doubleClickZoomDisabled = "false";
     public $pageDragDisabled = "false";
     public $pageClickAreaWdith = '\'10%\''; // width of the page that behaves like next / previous page button
-    
+
     public $BtnPrintCourse = "false";
 
     public $strings = [];
@@ -531,21 +531,23 @@ class PdfViewer {
     public $builder = [];
 
     public function __construct($target, $extraVars = []) {
-        
+
         $this->context = Context::getContext();
+
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
-            
+
         }
+
         if (!isset($this->context->company)) {
             $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
-            
+
         }
+
         if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
-           
-        
+
         if (!isset($this->context->translations)) {
 
             $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
@@ -554,72 +556,73 @@ class PdfViewer {
         $this->target = $target;
         $this->extraVars = $extraVars;
         $this->strings = [
-            'print'                => '\''.$this->l('Print').'\'',
-            'printLeftPage'        => '\''.$this->l('Print left page').'\'',
-            'printRightPage'       => '\''.$this->l('Print right page').'\'',
-            'printCurrentPage'     => '\''.$this->l('Print current page').'\'',
-            'printAllPages'        => '\''.$this->l('Print all pages').'\'',
+            'print'                => '\'' . $this->l('Print') . '\'',
+            'printLeftPage'        => '\'' . $this->l('Print left page') . '\'',
+            'printRightPage'       => '\'' . $this->l('Print right page') . '\'',
+            'printCurrentPage'     => '\'' . $this->l('Print current page') . '\'',
+            'printAllPages'        => '\'' . $this->l('Print all pages') . '\'',
 
-            'download'             => '\''.$this->l('Download').'\'',
-            'downloadLeftPage'     => '\''.$this->l('Download left page').'\'',
-            'downloadRightPage'    => '\''.$this->l('Download right page').'\'',
-            'downloadCurrentPage'  => '\''.$this->l('Download current page').'\'',
-            'downloadAllPages'     => '\''.$this->l('Download all pages').'\'',
+            'download'             => '\'' . $this->l('Download') . '\'',
+            'downloadLeftPage'     => '\'' . $this->l('Download left page') . '\'',
+            'downloadRightPage'    => '\'' . $this->l('Download right page') . '\'',
+            'downloadCurrentPage'  => '\'' . $this->l('Download current page') . '\'',
+            'downloadAllPages'     => '\'' . $this->l('Download all pages') . '\'',
 
-            'bookmarks'            => '\''.$this->l('Bookmarks').'\'',
-            'bookmarkLeftPage'     => '\''.$this->l('Bookmark left page').'\'',
-            'bookmarkRightPage'    => '\''.$this->l('Bookmark right page').'\'',
-            'bookmarkCurrentPage'  => '\''.$this->l('Bookmark current page').'\'',
+            'bookmarks'            => '\'' . $this->l('Bookmarks') . '\'',
+            'bookmarkLeftPage'     => '\'' . $this->l('Bookmark left page') . '\'',
+            'bookmarkRightPage'    => '\'' . $this->l('Bookmark right page') . '\'',
+            'bookmarkCurrentPage'  => '\'' . $this->l('Bookmark current page') . '\'',
 
-            'search'               => '\''.$this->l('Search').'\'',
-            'findInDocument'       => '\''.$this->l('Find in document').'\'',
-            'pagesFoundContaining' => '\''.$this->l('pages found containing').'\'',
-            'noMatches'            => '\''.$this->l('No matches').'\'',
-            'matchesFound'         => '\''.$this->l('matches found').'\'',
-            'page'                 => '\''.$this->l('Page').'\'',
-            'matches'              => '\''.$this->l('matches').'\'',
+            'search'               => '\'' . $this->l('Search') . '\'',
+            'findInDocument'       => '\'' . $this->l('Find in document') . '\'',
+            'pagesFoundContaining' => '\'' . $this->l('pages found containing') . '\'',
+            'noMatches'            => '\'' . $this->l('No matches') . '\'',
+            'matchesFound'         => '\'' . $this->l('matches found') . '\'',
+            'page'                 => '\'' . $this->l('Page') . '\'',
+            'matches'              => '\'' . $this->l('matches') . '\'',
 
-            'thumbnails'           => '\''.$this->l('Thumbnails').'\'',
-            'tableOfContent'       => '\''.$this->l('Table of Contents').'\'',
-            'share'                => '\''.$this->l('Share').'\'',
-            'notes'                => '\''.$this->l('Notes').'\'',
+            'thumbnails'           => '\'' . $this->l('Thumbnails') . '\'',
+            'tableOfContent'       => '\'' . $this->l('Table of Contents') . '\'',
+            'share'                => '\'' . $this->l('Share') . '\'',
+            'notes'                => '\'' . $this->l('Notes') . '\'',
 
-            'pressEscToClose'      => '\''.$this->l('Press ESC to close').'\'',
+            'pressEscToClose'      => '\'' . $this->l('Press ESC to close') . '\'',
 
-            'password'             => '\''.$this->l('Password').'\'',
-            'addNote'              => '\''.$this->l('Add note').'\'',
-            'typeInYourNote'       => '\''.$this->l('Type in your note...').'\'',
+            'password'             => '\'' . $this->l('Password') . '\'',
+            'addNote'              => '\'' . $this->l('Add note') . '\'',
+            'typeInYourNote'       => '\'' . $this->l('Type in your note...') . '\'',
 
         ];
-        $this->currentPage['title'] = '\''.$this->l('Current page').'\'';
-        $this->btnFirst['title'] = '\''.$this->l('First page').'\'';
-        $this->btnPrev['title'] = '\''.$this->l('Previous page').'\'';
-        $this->btnNext['title'] = '\''.$this->l('Next page').'\'';
-        $this->btnLast['title'] = '\''.$this->l('Last page').'\'';
-        $this->btnZoomIn['title'] = '\''.$this->l('Zoom in').'\'';
-        $this->btnZoomOut['title'] = '\''.$this->l('Zoom out').'\'';
-        $this->btnRotateLeft['title'] = '\''.$this->l('Rotate left').'\'';
-        $this->btnRotateRight['title'] = '\''.$this->l('Rotate right').'\'';
-        $this->btnAutoplay['title'] = '\''.$this->l('Autoplay').'\'';
-        $this->btnSearch['title'] = '\''.$this->l('Search').'\'';
-        $this->btnSelect['title'] = '\''.$this->l('Select tool').'\'';
-        $this->btnBookmark['title'] = '\''.$this->l('Bookmark').'\'';
-        $this->btnToc['title'] = '\''.$this->l('Table of Contents').'\'';
-        $this->btnThumbs['title'] = '\''.$this->l('Pages').'\'';
-        $this->btnShare['title'] = '\''.$this->l('Share').'\'';
-        $this->btnPrint['title'] = '\''.$this->l('Print').'\'';
-        $this->btnDownloadPages['title'] = '\''.$this->l('Download pages').'\'';
-        $this->btnDownloadPdf['title'] = '\''.$this->l('Download PDF').'\'';
-        $this->btnSound['title'] = '\''.$this->l('Volume').'\'';
-        $this->btnExpand['title'] = '\''.$this->l('Toggle fullscreen').'\'';
-        $this->btnClose['title'] = '\''.$this->l('Close').'\'';
+        $this->currentPage['title'] = '\'' . $this->l('Current page') . '\'';
+        $this->btnFirst['title'] = '\'' . $this->l('First page') . '\'';
+        $this->btnPrev['title'] = '\'' . $this->l('Previous page') . '\'';
+        $this->btnNext['title'] = '\'' . $this->l('Next page') . '\'';
+        $this->btnLast['title'] = '\'' . $this->l('Last page') . '\'';
+        $this->btnZoomIn['title'] = '\'' . $this->l('Zoom in') . '\'';
+        $this->btnZoomOut['title'] = '\'' . $this->l('Zoom out') . '\'';
+        $this->btnRotateLeft['title'] = '\'' . $this->l('Rotate left') . '\'';
+        $this->btnRotateRight['title'] = '\'' . $this->l('Rotate right') . '\'';
+        $this->btnAutoplay['title'] = '\'' . $this->l('Autoplay') . '\'';
+        $this->btnSearch['title'] = '\'' . $this->l('Search') . '\'';
+        $this->btnSelect['title'] = '\'' . $this->l('Select tool') . '\'';
+        $this->btnBookmark['title'] = '\'' . $this->l('Bookmark') . '\'';
+        $this->btnToc['title'] = '\'' . $this->l('Table of Contents') . '\'';
+        $this->btnThumbs['title'] = '\'' . $this->l('Pages') . '\'';
+        $this->btnShare['title'] = '\'' . $this->l('Share') . '\'';
+        $this->btnPrint['title'] = '\'' . $this->l('Print') . '\'';
+        $this->btnDownloadPages['title'] = '\'' . $this->l('Download pages') . '\'';
+        $this->btnDownloadPdf['title'] = '\'' . $this->l('Download PDF') . '\'';
+        $this->btnSound['title'] = '\'' . $this->l('Volume') . '\'';
+        $this->btnExpand['title'] = '\'' . $this->l('Toggle fullscreen') . '\'';
+        $this->btnClose['title'] = '\'' . $this->l('Close') . '\'';
 
     }
 
     public function generatePdfViewerOption() {
 
         foreach ($this as $key => $value) {
-            if($key == 'context' || $key == 'target' || $key == 'builder') {
+
+            if ($key == 'context' || $key == 'target' || $key == 'builder') {
                 continue;
             }
 
@@ -738,12 +741,12 @@ class PdfViewer {
 
         $class = 'PdfViewer';
 
-        if(isset($this->context->translations)) {
+        if (isset($this->context->translations)) {
             return $this->context->translations->getClassTranslation($string, $class);
         }
+
         return $string;
 
-        
     }
 
 }

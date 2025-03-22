@@ -9,12 +9,13 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 
 	public function contentAdmin($atts, $content = null) {
 
-        $file = fopen("testDhortCodeSeetingContentAdmin.txt","w");
+		$file = fopen("testDhortCodeSeetingContentAdmin.txt", "w");
 		$this->loadDefaultParams();
 		$output = $el_position = '';
 		$groups_content = [];
 		$vc_manager = Composer::getInstance();
-        fwrite($file,print_r($this->settings, true));
+		fwrite($file, print_r($this->settings, true));
+
 		if (isset($this->settings['params'])) {
 			$shortcode_attributes = [];
 
@@ -29,6 +30,7 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 					}
 
 				} else
+
 				if ($param['param_name'] == 'content' && $content === null) {
 					$content = isset($param['value']) ? $param['value'] : '';
 				}
@@ -49,12 +51,16 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 
 				if (is_array($param_value) && !empty($param_value) && isset($param['std'])) {
 					$param_value = $param['std'];
-				} else if (is_array($param_value) && !empty($param_value) && !empty($param['type']) && $param['type'] != 'checkbox') {
+				} else
+
+				if (is_array($param_value) && !empty($param_value) && !empty($param['type']) && $param['type'] != 'checkbox') {
 
 					reset($param_value);
 					$first_key = key($param_value);
 					$param_value = $param_value[$first_key];
-				} else if (is_array($param_value)) {
+				} else
+
+				if (is_array($param_value)) {
 					$param_value = '';
 				}
 
@@ -86,7 +92,9 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 				}
 
 				$output .= '</div>';
-			} else if (!empty($groups_content['_general'])) {
+			} else
+
+			if (!empty($groups_content['_general'])) {
 				$output .= $groups_content['_general'];
 			}
 
@@ -108,7 +116,7 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 	public function loadDefaultParams() {
 
 		global $vc_params_list;
-        $vc_params_list = ['textarea_html', 'colorpicker', 'loop', 'vc_link', 'options', 'sorted_list', 'css_editor', 'font_container', 'google_fonts', 'autocomplete', 'tab_id', 'href', 'el_id'];
+		$vc_params_list = ['textarea_html', 'colorpicker', 'loop', 'vc_link', 'options', 'sorted_list', 'css_editor', 'font_container', 'google_fonts', 'autocomplete', 'tab_id', 'href', 'el_id'];
 
 		if (empty($vc_params_list)) {
 			return false;

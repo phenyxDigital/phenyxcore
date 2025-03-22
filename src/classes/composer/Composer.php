@@ -66,6 +66,7 @@ class Composer {
         global $smarty;
         global $globalShortcodeHandler;
         $this->context = Context::getContext();
+
         if (!isset($this->context->media)) {
             $this->context->media = Media::getInstance();
         }
@@ -82,7 +83,7 @@ class Composer {
         $this->front_js[] = _EPH_JS_DIR_ . 'composer/composer_front.js';
 
     }
-    
+
     public static function getInstance() {
 
         if (!Composer::$instance) {
@@ -155,7 +156,7 @@ class Composer {
                 $css_animation = $s->getParameter('css_animation');
 
                 if (!empty($css_animation)) {
-                    $css_animation = 'wpb_animate_when_almost_visible wpb_' . $css_animation.' '. $css_animation;
+                    $css_animation = 'wpb_animate_when_almost_visible wpb_' . $css_animation . ' ' . $css_animation;
                     $class .= ' ' . $css_animation;
                 }
 
@@ -273,7 +274,7 @@ class Composer {
             $css_animation = $s->getParameter('css_animation');
 
             if (!empty($css_animation)) {
-                $css_animation = 'wpb_animate_when_almost_visible wpb_' . $css_animation.' '. $css_animation;
+                $css_animation = 'wpb_animate_when_almost_visible wpb_' . $css_animation . ' ' . $css_animation;
                 $class .= ' ' . $css_animation;
             }
 
@@ -595,6 +596,7 @@ class Composer {
                 $links[$th_id] = $result['base_64'];
 
             } else
+
             if (isset($result['file_name']) && !empty($result['file_name'])) {
                 $thumb_src = __EPH_BASE_URI__ . 'content/img/composer/';
 
@@ -733,6 +735,7 @@ class Composer {
         if (static::$initialized) {
             return;
         }
+
         $this->vcallmod();
         $this->add_custom_param_code();
         $this->setMode();
@@ -831,7 +834,7 @@ class Composer {
     }
 
     public function vcallmod() {
-       
+
         if (!is_object($this->cawobj)) {
             $this->cawobj = new ContentAnyWhere();
         }
@@ -857,25 +860,24 @@ class Composer {
         }
 
         if (!empty($GetAllplugins_list)) {
-            
+
             foreach ($GetAllplugins_list as &$value) {
-                
 
                 if (!isset($value['id']) || !isset($value['name'])) {
                     $value = ['id' => $value, 'name' => $value];
                 }
 
-                if(is_string($value['id'])) {
+                if (is_string($value['id'])) {
                     Composer::add_shortcode('vc_' . $value['id'], [$this, 'vcallmodcode']);
                     $this->vcmaps_init('vc_' . $value['id'], $value['name'], $vccaw);
                 }
 
             }
 
-        }      
+        }
 
     }
-  
+
     public function vcmaps_init($base = '', $plugin_name = null, $vccaw = null) {
 
         $hooks = [];
@@ -959,7 +961,6 @@ class Composer {
 
     public function vc_hidden_fields_func($settings, $value) {
 
-        
         $outputcontent = '<input type="hidden" name="' . $settings['param_name'] . '" value="' . $settings['def_value'] . '" class="wpb_vc_param_value wpb-textinput ' . $settings['param_name'] . ' ' . $settings['type'] . '_field">';
         return $outputcontent;
     }
@@ -1005,9 +1006,9 @@ class Composer {
         return $processor->process($content);
 
     }
-    
+
     public static function removeShortCode($string) {
-        
+
         return preg_replace("/\[(\/*)?vc_(.*?)\]/", "", $string);
     }
 
@@ -1310,7 +1311,6 @@ class Composer {
         $target = $params['target'];
         $autolaunch = $params['autolaunch'];
         $language = $params['language'];
-      
 
         switch ($controller) {
         case 'adminsuppliers':
@@ -1417,15 +1417,18 @@ class Composer {
     }
 
     public static function getPhenyxImgSizesOption() {
-        
+
         $context = Context::getContext();
         $cache = $context->cache_api;
-        if($context->cache_enable && is_object($context->cache_api)) {
+
+        if ($context->cache_enable && is_object($context->cache_api)) {
             $value = $cache->getData('getPhenyxImgSizesOption');
             $temp = empty($value) ? null : $value;
-            if(!empty($temp)) {
+
+            if (!empty($temp)) {
                 return $temp;
-            }            
+            }
+
         }
 
         $db = Db::getInstance();
@@ -1440,7 +1443,8 @@ class Composer {
             }
 
         }
-        if($context->cache_enable && is_object($context->cache_api)) {
+
+        if ($context->cache_enable && is_object($context->cache_api)) {
             $temp = $options === null ? null : Tools::jsonEncode($options);
             $cache->putData('getPhenyxImgSizesOption', $temp);
         }
@@ -1645,11 +1649,17 @@ class Composer {
 
         if (Tools::file_exists_cache(_EPH_THEME_DIR_ . 'plugins/' . $plugin_name . '/' . $template)) {
             return _EPH_THEME_DIR_ . 'plugins/' . $plugin_name . '/' . $template;
-        } else if (Tools::file_exists_cache(_EPH_THEME_DIR_ . 'plugins/' . $plugin_name . '/views/templates/front/' . $template)) {
+        } else
+
+        if (Tools::file_exists_cache(_EPH_THEME_DIR_ . 'plugins/' . $plugin_name . '/views/templates/front/' . $template)) {
             return _EPH_THEME_DIR_ . 'plugins/' . $plugin_name . '/views/templates/front/' . $template;
-        } else if (Tools::file_exists_cache(_EPH_PLUGIN_DIR_ . $plugin_name . '/views/templates/front/' . $template)) {
+        } else
+
+        if (Tools::file_exists_cache(_EPH_PLUGIN_DIR_ . $plugin_name . '/views/templates/front/' . $template)) {
             return _EPH_PLUGIN_DIR_ . $plugin_name . '/views/templates/front/' . $template;
-        } else if (Tools::file_exists_cache(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin_name . '/views/templates/front/' . $template)) {
+        } else
+
+        if (Tools::file_exists_cache(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin_name . '/views/templates/front/' . $template)) {
             return _EPH_SPECIFIC_PLUGIN_DIR_ . $plugin_name . '/views/templates/front/' . $template;
         }
 
@@ -1657,12 +1667,13 @@ class Composer {
     }
 
     public function wpb_single_image_src() {
-        $file = fopen("testwpb_single_image_src.txt","a");
-        fwrite($file,Tools::getValue('content').PHP_EOL);
+        $file = fopen("testwpb_single_image_src.txt", "a");
+        fwrite($file, Tools::getValue('content') . PHP_EOL);
+
         if (Tools::getValue('content') && is_numeric(Tools::getValue('content'))) {
-            fwrite($file,"Go cow".PHP_EOL);
+            fwrite($file, "Go cow" . PHP_EOL);
             $image_src = '/content/img/composer/' . Tools::get_media_thumbnail_url(Tools::getValue('content'));
-            fwrite($file,$image_src.PHP_EOL);
+            fwrite($file, $image_src . PHP_EOL);
             echo Tools::ModifyImageUrl($image_src);
             die();
         }

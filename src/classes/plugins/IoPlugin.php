@@ -8,7 +8,7 @@
  * @property $confirmUninstall
  */
 class IoPlugin extends Plugin {
-    
+
     public $warn;
 
     protected function getCacheId($name = null) {
@@ -40,45 +40,44 @@ class IoPlugin extends Plugin {
 
     public static function getPhenyxPluginsOnDisk($id_licence, $customer_plugins) {
         $customer_plugins = Tools::jsonDecode(Tools::jsonEncode($customer_plugins), true);
-       
+
         $license = new License($id_licence);
         $context = Context::getContext();
         $link = new Link();
         $phenyxPlugins = [];
         $phenyxDepends = [];
         $pluginList = [];
-        
-        if(is_array($customer_plugins) && count($customer_plugins)) {
-            foreach($customer_plugins as $plugin => $value) {
-                $phenyxPlugins[$plugin] = $value; 
+
+        if (is_array($customer_plugins) && count($customer_plugins)) {
+
+            foreach ($customer_plugins as $plugin => $value) {
+                $phenyxPlugins[$plugin] = $value;
                 $pluginList[] = $phenyxPlugins[$plugin];
                 $phenyxDepends[$plugin] = $value['dependencies'];
-                
-            }
-        }
-        
 
-        
+            }
+
+        }
+
         $pluginNameList = [];
         $pluginsNameToCursor = [];
         $errors = [];
-         
 
         $pluginsDir = Plugin::getPluginsDirOnDisk();
-       
-        
+
         foreach ($pluginsDir as $plugin) {
-            
-            if(array_key_exists($plugin, $phenyxPlugins)) {        
+
+            if (array_key_exists($plugin, $phenyxPlugins)) {
                 continue;
             }
-                        
+
             if (!class_exists($plugin, false)) {
 
                 if (file_exists(_EPH_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php')) {
                     $filePath = _EPH_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php';
                     $file = trim(file_get_contents(_EPH_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php'));
                 } else
+
                 if (file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php')) {
                     $filePath = _EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php';
                     $file = trim(file_get_contents(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php'));
@@ -100,6 +99,7 @@ class IoPlugin extends Plugin {
                         require_once _EPH_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php';
                         $image = 'includes/plugins/' . $plugin . '/logo.png';
                     } else
+
                     if (file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php')) {
                         require_once _EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . '/' . $plugin . '.php';
                         $image = 'includes/specific_plugins/' . $plugin . '/logo.png';
@@ -110,13 +110,9 @@ class IoPlugin extends Plugin {
                 }
 
             }
+
             $item = [];
             $tmpPlugin = Adapter_ServiceLocator::get($plugin);
-            if (method_exists($tmpPlugin, 'reset')) {
-                $item['has_reset'] = true;
-            } else {
-                $item['has_reset'] = false;
-            }
 
             $item = [
                 'id'                     => is_null($tmpPlugin->id) ? 0 : $tmpPlugin->id,
@@ -125,7 +121,7 @@ class IoPlugin extends Plugin {
                 'version'                => $tmpPlugin->version,
                 'tab'                    => $tmpPlugin->tab,
                 'displayName'            => $tmpPlugin->displayName,
-                'dependencies'            => $tmpPlugin->dependencies,
+                'dependencies'           => $tmpPlugin->dependencies,
                 'description'            => !is_null($tmpPlugin->description) ? stripslashes($tmpPlugin->description) : '',
                 'author'                 => $tmpPlugin->author,
                 'author_uri'             => (isset($tmpPlugin->author_uri) && $tmpPlugin->author_uri) ? $tmpPlugin->author_uri : false,
@@ -146,50 +142,52 @@ class IoPlugin extends Plugin {
                 'badges'                 => isset($tmpPlugin->badges) ? (array) $tmpPlugin->badges : null,
                 'url'                    => isset($tmpPlugin->url) ? $tmpPlugin->url : null,
                 'removable'              => $tmpPlugin->removable,
-                'dependencies'              => $tmpPlugin->dependencies,
-                'image_link'              => $link->getBaseFrontLink() . $image,
+                'dependencies'           => $tmpPlugin->dependencies,
+                'image_link'             => $link->getBaseFrontLink() . $image,
                 'is_ondisk'              => false,
+                'has_reset'              => method_exists($tmpPlugin, 'reset') ? true : false,
             ];
 
-                
             $pluginList[] = $item;
 
             unset($tmpPlugin);
 
         }
-                
+
         return $pluginList;
     }
-    
+
     public static function generatePluginZip($plugin) {
-        
-        $file = fopen("testgeneratePluginZip.txt","w");
-        fwrite($file,$plugin.PHP_EOL);
-        if(file_exists(_EPH_ROOT_DIR_.'/plugins/'.$plugin.'.zip')) {
-            unlink(_EPH_ROOT_DIR_.'/plugins/'.$plugin.'.zip');
+
+        $file = fopen("testgeneratePluginZip.txt", "w");
+        fwrite($file, $plugin . PHP_EOL);
+
+        if (file_exists(_EPH_ROOT_DIR_ . '/plugins/' . $plugin . '.zip')) {
+            unlink(_EPH_ROOT_DIR_ . '/plugins/' . $plugin . '.zip');
         }
-        
+
         $rootPath = _EPH_PLUGIN_DIR_ . $plugin;
         $zip = new ZipArchive();
-        $zip->open(_EPH_ROOT_DIR_.'/plugins/'.$plugin.'.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        $zip->open(_EPH_ROOT_DIR_ . '/plugins/' . $plugin . '.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
         $files = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($rootPath),
             RecursiveIteratorIterator::LEAVES_ONLY
         );
 
-        foreach ($files as $name => $file) {    
-            if (!$file->isDir())  {        
+        foreach ($files as $name => $file) {
+
+            if (!$file->isDir()) {
                 $filePath = $file->getRealPath();
-                $relativePath = substr($filePath, strlen($rootPath) + 1);        
+                $relativePath = substr($filePath, strlen($rootPath) + 1);
                 $zip->addFile($filePath, $relativePath);
             }
+
         }
 
         $zip->close();
-        
-        return '/plugins/'.$plugin.'.zip';
+
+        return '/plugins/' . $plugin . '.zip';
     }
-    
 
 }

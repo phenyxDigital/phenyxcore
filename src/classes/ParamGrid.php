@@ -56,11 +56,10 @@ class ParamGrid {
 	public $numberCell = [];
 
 	public $pageModel = [
-        'type'       => '\'local\'',
-        'rPP'        => 100,
-        'rPPOptions' => [10, 20, 40, 50, 100, 200, 500],
-    ];
-
+		'type'       => '\'local\'',
+		'rPP'        => 100,
+		'rPPOptions' => [10, 20, 40, 50, 100, 200, 500],
+	];
 
 	public $create;
 
@@ -81,8 +80,8 @@ class ParamGrid {
 	public $showTop = 1;
 
 	public $showHeader = 1;
-    
-    public $showToolbar = 1;
+
+	public $showToolbar = 1;
 
 	public $title = '\'\'';
 
@@ -103,8 +102,8 @@ class ParamGrid {
 	public $paragridScript;
 
 	public $contextMenuoption;
-    
-    public $functionContextMenu = false;
+
+	public $functionContextMenu = false;
 
 	public $dragOn = 0;
 
@@ -125,22 +124,21 @@ class ParamGrid {
 	public $groupModel;
 
 	public $filterModel = [
-        'on'          => true,
-        'mode'        => '\'AND\'',
-        'header'      => true,
-        'type'        => '\'local\'',
-        'menuIcon'    => 0,
-        'gridOptions' => [
-            'numberCell' => [
-                'show' => 0,
-            ],
-            'width'      => '\'flex\'',
-            'flex'       => [
-                'one' => true,
-            ],
-        ],
-    ];
-
+		'on'          => true,
+		'mode'        => '\'AND\'',
+		'header'      => true,
+		'type'        => '\'local\'',
+		'menuIcon'    => 0,
+		'gridOptions' => [
+			'numberCell' => [
+				'show' => 0,
+			],
+			'width'      => '\'flex\'',
+			'flex'       => [
+				'one' => true,
+			],
+		],
+	];
 
 	public $fillHandle = '\'all\'';
 
@@ -153,8 +151,8 @@ class ParamGrid {
 	public $gridExtraFunction;
 
 	public $gridAfterLoadFunction;
-    
-    public $load;
+
+	public $load;
 
 	public $summaryData;
 
@@ -185,24 +183,24 @@ class ParamGrid {
 	public $ajaxUrl;
 
 	public $rowSelect;
-    
-    public $selectEnd;
-    
-    public $rowClick;
+
+	public $selectEnd;
+
+	public $rowClick;
 
 	public $rowDblClick;
 
 	public $summaryTitle;
 
 	public $autoRowHead = true;
-    
-    public $autoRow = true;
+
+	public $autoRow = true;
 
 	public $refresh;
-    
-    public $editor;
-    
-    public $history;
+
+	public $editor;
+
+	public $history;
 
 	public $editorBlur;
 
@@ -225,8 +223,8 @@ class ParamGrid {
 	public $postRenderInterval;
 
 	public $needRequestModel = true;
-    
-    public $needColModel = true;
+
+	public $needColModel = true;
 
 	public $check;
 
@@ -237,26 +235,26 @@ class ParamGrid {
 	public $formulas = false;
 
 	public $is_subModel = false;
-    
-    public $maxHeight;
-    
-    public $editorKeyUp;
-    
-    public $minWidth;
-    
-    public $autoAddRow = 0;
-    
-    public $autoAddCol = 0;
-    
-    public $columnTemplate;
-    
-    public $beforeCellClick;
-    
-    public $tabModel;
-    
-    public $sort;
-    
-    public $showBottom = true;
+
+	public $maxHeight;
+
+	public $editorKeyUp;
+
+	public $minWidth;
+
+	public $autoAddRow = 0;
+
+	public $autoAddCol = 0;
+
+	public $columnTemplate;
+
+	public $beforeCellClick;
+
+	public $tabModel;
+
+	public $sort;
+
+	public $showBottom = true;
 
 	public function __construct($class = null, $controller = null, $table = null, $identifier = null) {
 
@@ -294,18 +292,16 @@ class ParamGrid {
 					return { data: dataJSON };
             	}
         	}';
-            
 
 		}
-        
-        $this->dataModel = (is_array($this->dataModel) && count($this->dataModel)) ? $this->dataModel : $this->paramController . 'Model';
+
+		$this->dataModel = (is_array($this->dataModel) && count($this->dataModel)) ? $this->dataModel : $this->paramController . 'Model';
 
 		$this->heightModel = (!empty($this->heightModel)) ? $this->heightModel : '';
 
-		
-        if ($this->needColModel) {
-		  $this->colModel = (!empty($this->colModel)) ? $this->colModel : 'get' . $this->paramClass . 'Fields()';
-        }
+		if ($this->needColModel) {
+			$this->colModel = (!empty($this->colModel)) ? $this->colModel : 'get' . $this->paramClass . 'Fields()';
+		}
 
 		$this->scrollModel = [
 			'autoFit' => $this->autoFit,
@@ -328,23 +324,23 @@ class ParamGrid {
 
 			'builder'                   => [
 				'height'         => (!empty($this->heightModel)) ? $this->heightModel : '\'flex\'',
-                'width'          => '\'' . $this->width . '\'',
+				'width'          => '\'' . $this->width . '\'',
 				'scrollModel'    => $this->scrollModel,
 				'animModel'      => $this->animModel,
 				'wrap'           => $this->wrap,
 				'autofill'       => $this->autofill,
 				'numberCell'     => $this->numberCell,
 				'showHeader'     => $this->showHeader,
-                'showToolbar'    => $this->showToolbar,
+				'showToolbar'    => $this->showToolbar,
 				'showTop'        => $this->showTop,
-                'showTop'        => $this->showTop,
-                'showBottom'     => $this->showBottom,
+				'showTop'        => $this->showTop,
+				'showBottom'     => $this->showBottom,
 				'resizable'      => $this->resizable,
 				'columnBorders'  => $this->columnBorders,
 				'collapsible'    => $this->collapsible,
 				'freezeCols'     => $this->freezeCols,
-                'autoAddRow'     => $this->autoAddRow,
-                'autoAddCol'     => $this->autoAddCol,
+				'autoAddRow'     => $this->autoAddRow,
+				'autoAddCol'     => $this->autoAddCol,
 				'rowBorders'     => $this->rowBorders,
 				'stripeRows'     => $this->stripeRows,
 				'selectionModel' => $this->selectionModel,
@@ -355,31 +351,37 @@ class ParamGrid {
 		];
 
 		foreach ($this->paragrid_option['paragrids'] as &$values) {
-            
-            if ($this->needColModel) {
-                $values['builder']['colModel'] = $this->colModel;
-            }
-            if (!empty($this->dataModel)) {
-                $values['builder']['dataModel'] = $this->dataModel;
-            }
-            if (!empty($this->editor)) {
+
+			if ($this->needColModel) {
+				$values['builder']['colModel'] = $this->colModel;
+			}
+
+			if (!empty($this->dataModel)) {
+				$values['builder']['dataModel'] = $this->dataModel;
+			}
+
+			if (!empty($this->editor)) {
 				$values['builder']['editor'] = $this->editor;
 			}
-             if (!empty($this->sort)) {
+
+			if (!empty($this->sort)) {
 				$values['builder']['sort'] = $this->sort;
 			}
 
 			if (!empty($this->maxHeight)) {
 				$values['builder']['maxHeight'] = $this->maxHeight;
 			}
-            if (!empty($this->minWidth)) {
+
+			if (!empty($this->minWidth)) {
 				$values['builder']['minWidth'] = $this->minWidth;
 			}
-            if (!empty($this->title) && $this->showTitle) {
+
+			if (!empty($this->title) && $this->showTitle) {
 				$values['builder']['title'] = $this->title;
 			}
-            
-            $values['builder']['showTitle'] = $this->showTitle;
+
+			$values['builder']['showTitle'] = $this->showTitle;
+
 			if (!empty($this->pageModel)) {
 				$values['builder']['pageModel'] = $this->pageModel;
 			}
@@ -391,15 +393,16 @@ class ParamGrid {
 			if (!empty($this->rowSelect)) {
 				$values['builder']['rowSelect'] = $this->rowSelect;
 			}
-            if (!empty($this->selectEnd)) {
+
+			if (!empty($this->selectEnd)) {
 				$values['builder']['selectEnd'] = $this->selectEnd;
 			}
 
 			if (!empty($this->rowClick)) {
 				$values['builder']['rowClick'] = $this->rowClick;
 			}
-            
-            if (!empty($this->rowDblClick)) {
+
+			if (!empty($this->rowDblClick)) {
 				$values['builder']['rowDblClick'] = $this->rowDblClick;
 			}
 
@@ -422,8 +425,8 @@ class ParamGrid {
 				$values['builder']['beforeFilter'] = $this->beforeFilter;
 
 			}
-            
-            if (!empty($this->beforeCellClick)) {
+
+			if (!empty($this->beforeCellClick)) {
 				$values['builder']['beforeCellClick'] = $this->beforeCellClick;
 
 			}
@@ -456,10 +459,12 @@ class ParamGrid {
 			if (!empty($this->autoRowHead)) {
 				$values['builder']['autoRowHead'] = $this->autoRowHead;
 			}
-            if (!empty($this->history)) {
+
+			if (!empty($this->history)) {
 				$values['builder']['history'] = $this->history;
 			}
-            if (!empty($this->autoRow)) {
+
+			if (!empty($this->autoRow)) {
 				$values['builder']['autoRow'] = $this->autoRow;
 			}
 
@@ -498,11 +503,10 @@ class ParamGrid {
 			if (!empty($this->cellClick)) {
 				$values['builder']['cellClick'] = $this->cellClick;
 			}
-            
-            if (!empty($this->load)) {
+
+			if (!empty($this->load)) {
 				$values['builder']['load'] = $this->load;
 			}
-
 
 			if (!empty($this->cellDblClick)) {
 				$values['builder']['cellDblClick'] = $this->cellDblClick;
@@ -523,13 +527,14 @@ class ParamGrid {
 			if (!empty($this->formulas)) {
 				$values['builder']['formulas'] = $this->formulas;
 			}
-            if (!empty($this->columnTemplate)) {
+
+			if (!empty($this->columnTemplate)) {
 				$values['builder']['columnTemplate'] = $this->columnTemplate;
 			}
-            if (!empty($this->tabModel)) {
+
+			if (!empty($this->tabModel)) {
 				$values['builder']['tabModel'] = $this->tabModel;
 			}
-           
 
 			if ($this->dragOn == 1) {
 				$this->dragModel = [
@@ -566,7 +571,6 @@ class ParamGrid {
 			if (!empty($this->contextMenu)) {
 				$values['contextMenu'] = $this->contextMenu;
 			}
-            
 
 			if (!empty($this->detailModel)) {
 				$values['builder']['detailModel'] = $this->detailModel;
@@ -583,8 +587,8 @@ class ParamGrid {
 			if (!empty($this->subDetailModel)) {
 				$values['subDetailModel'] = $this->subDetailModel;
 			}
-            
-            if (!empty($this->detailContextMenu)) {
+
+			if (!empty($this->detailContextMenu)) {
 				$values['detailContextMenu'] = $this->detailContextMenu;
 			}
 
@@ -595,8 +599,8 @@ class ParamGrid {
 			if (!empty($this->postRenderInterval)) {
 				$values['builder']['postRenderInterval'] = $this->postRenderInterval;
 			}
-            
-            if (!empty($this->editorKeyUp)) {
+
+			if (!empty($this->editorKeyUp)) {
 				$values['builder']['editorKeyUp'] = $this->editorKeyUp;
 			}
 
@@ -605,10 +609,6 @@ class ParamGrid {
 		if (!empty($this->gridFunction)) {
 			$this->paragrid_option['gridFunction'] = $this->gridFunction;
 		}
-
-		
-
-		
 
 		if (!empty($this->gridExtraFunction)) {
 
@@ -624,7 +624,6 @@ class ParamGrid {
 
 	}
 
-	
 	public function generateParagridScript() {
 
 		$is_function = false;
@@ -641,7 +640,7 @@ class ParamGrid {
 					$paramGridVar = $value['paramGridVar'];
 					$jsScript .= 'var ' . $value['paramGridVar'] . ';' . PHP_EOL;
 					$jsScript .= 'var ' . $this->paramGridObj . ';' . PHP_EOL;
-                    $jsScript .= 'var sel' . $this->paramGridVar . '' . PHP_EOL;
+					$jsScript .= 'var sel' . $this->paramGridVar . '' . PHP_EOL;
 				}
 
 			}
@@ -663,8 +662,6 @@ class ParamGrid {
 					if (!empty($this->requestComplementaryModel)) {
 						$jsScript .= 'var ' . $this->paramController . 'ComplementaryModel = ' . $this->requestComplementaryModel . ' ;' . PHP_EOL;
 					}
-
-				
 
 					if ($this->needRequestModel) {
 						$jsScript .= 'var ' . $this->paramController . 'Model = ' . $this->requestModel . ';' . PHP_EOL;
@@ -717,7 +714,7 @@ class ParamGrid {
 							}
 
 							if (isset($values['contextMenu']) && !$this->functionContextMenu) {
-                                
+
 								foreach ($values['contextMenu'] as $contextMenu => $value) {
 									$jsScript .= '  $("' . $contextMenu . '").contextMenu({' . PHP_EOL;
 
@@ -733,7 +730,6 @@ class ParamGrid {
 
 									$jsScript .= '  });' . PHP_EOL;
 								}
-                               
 
 							}
 
@@ -753,8 +749,8 @@ class ParamGrid {
 								}
 
 							}
-                            
-                            if (isset($values['detailContextMenu'])) {
+
+							if (isset($values['detailContextMenu'])) {
 
 								foreach ($values['detailContextMenu'] as $contextMenu => $value) {
 									$jsScript .= '  $("' . $contextMenu . '").contextMenu({' . PHP_EOL;
@@ -773,10 +769,7 @@ class ParamGrid {
 								}
 
 							}
-                            
-                           
 
-							
 						}
 
 					}
@@ -786,14 +779,12 @@ class ParamGrid {
 			}
 
 			$jsScript .= '});' . PHP_EOL . PHP_EOL;
-            
-            
 
 		} else {
 			$is_function = true;
 
 			foreach ($this->paragrid_option as $key => $value) {
-               
+
 				if ($key == 'paragrids') {
 
 					foreach ($this->paragrid_option[$key] as $element => $values) {
@@ -815,30 +806,33 @@ class ParamGrid {
 					}
 
 				}
-                
-               
+
 			}
 
 		}
-        
-        if (isset($values['contextMenu']) && $this->functionContextMenu) {
-            $jsScript .= 'function launch'.$this->paramClass.'ContextMenu() {' . PHP_EOL;
-            foreach ($values['contextMenu'] as $contextMenu => $value) {
-				$jsScript .= '  $("' . $contextMenu . '").contextMenu({' . PHP_EOL;
-                foreach ($value as $option => $value) {
-                    if (is_array($value)) {
-					   $jsScript .= '      ' . $this->deployArrayScript($option, $value) . PHP_EOL;
-				    } else {
-					   $jsScript .= '      ' . $option . ': ' . $value . ',' . PHP_EOL;
-				    }
-                }
-                $jsScript .= '  });' . PHP_EOL;
-            }
-            $jsScript .= '}' . PHP_EOL;
 
-        }
-        
-        
+		if (isset($values['contextMenu']) && $this->functionContextMenu) {
+			$jsScript .= 'function launch' . $this->paramClass . 'ContextMenu() {' . PHP_EOL;
+
+			foreach ($values['contextMenu'] as $contextMenu => $value) {
+				$jsScript .= '  $("' . $contextMenu . '").contextMenu({' . PHP_EOL;
+
+				foreach ($value as $option => $value) {
+
+					if (is_array($value)) {
+						$jsScript .= '      ' . $this->deployArrayScript($option, $value) . PHP_EOL;
+					} else {
+						$jsScript .= '      ' . $option . ': ' . $value . ',' . PHP_EOL;
+					}
+
+				}
+
+				$jsScript .= '  });' . PHP_EOL;
+			}
+
+			$jsScript .= '}' . PHP_EOL;
+
+		}
 
 		if ($key == 'extraFunction') {
 
@@ -919,7 +913,6 @@ class ParamGrid {
 			} else {
 				$jsScript .= $this->requestCustomModel;
 			}
-
 
 		}
 

@@ -4,16 +4,20 @@ class ComposerAddElementBox {
 
 	protected function getIcon($params) {
 
-        $icone = '';
-        $background = '';
-        if(!empty($params['icon'])) {
-            if(str_contains($params['icon'], 'icon')) {
-                $icone = $params['icon'];
-            } else {
-                $background = $params['icon'];
-            }      
-        } 
-		return '<i class="vc_element' . (!empty($icone) ? '-icon ' . Tools::safeOutput($icone)  : '-icon') . '" ' . (!empty($background) ? ' style="background-image: url(' . Tools::safeOutput($background).');"' : '').'></i> ';
+		$icone = '';
+		$background = '';
+
+		if (!empty($params['icon'])) {
+
+			if (str_contains($params['icon'], 'icon')) {
+				$icone = $params['icon'];
+			} else {
+				$background = $params['icon'];
+			}
+
+		}
+
+		return '<i class="vc_element' . (!empty($icone) ? '-icon ' . Tools::safeOutput($icone) : '-icon') . '" ' . (!empty($background) ? ' style="background-image: url(' . Tools::safeOutput($background) . ');"' : '') . '></i> ';
 	}
 
 	public function renderButton($params) {
@@ -45,11 +49,13 @@ class ComposerAddElementBox {
 		}
 
 		$description = !empty($params['description']) ? '<i class="vc_element-description">' . htmlspecialchars($params['description']) . '</i>' : '';
-		$output .= '<li data-element="' . $params['base'] . '" class="wpb-layout-element-button' . $category_css_classes . $class_out . '"' . $data . '><div class="vc_el-container"><a id="' . $params['base'] . '" data-tag="' . $params['base'] . '" class="dropable_el vc_shortcode-link clickable_action' . $class . '" href="#">' . $this->getIcon($params) ;
-        if(is_string($params["name"])) {
-            $output .= htmlspecialchars(stripslashes($params["name"]));
-        }
-        $output .= $description . '</a></div></li>';
+		$output .= '<li data-element="' . $params['base'] . '" class="wpb-layout-element-button' . $category_css_classes . $class_out . '"' . $data . '><div class="vc_el-container"><a id="' . $params['base'] . '" data-tag="' . $params['base'] . '" class="dropable_el vc_shortcode-link clickable_action' . $class . '" href="#">' . $this->getIcon($params);
+
+		if (is_string($params["name"])) {
+			$output .= htmlspecialchars(stripslashes($params["name"]));
+		}
+
+		$output .= $description . '</a></div></li>';
 		return $output;
 	}
 
@@ -102,8 +108,8 @@ class ComposerAddElementBox {
 	public function render($editor) {
 
 		global $smarty;
-        $context = Context::getContext();
-		$data = $context->smarty->createTemplate(_EPH_COMPOSER_DIR_  . 'editors/popups/modal_add_element.tpl');
+		$context = Context::getContext();
+		$data = $context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'editors/popups/modal_add_element.tpl');
 		$data->assign(
 			[
 				'box'    => $this,

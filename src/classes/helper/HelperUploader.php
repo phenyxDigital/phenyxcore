@@ -154,7 +154,7 @@ class HelperUploader extends PhenyxUploader {
      */
     public function setMaxFiles($value) {
 
-        $this->_max_files = isset($value) ? (int)($value) : $value;
+        $this->_max_files = isset($value) ? (int) ($value) : $value;
 
         return $this;
     }
@@ -312,24 +312,27 @@ class HelperUploader extends PhenyxUploader {
      */
     public function getTemplateFile($template) {
 
-        
         if (preg_match_all('/((?:^|[A-Z])[a-z]+)/', get_class($this->getContext()->controller), $matches) !== false) {
             $controllerName = strtolower($matches[0][1]);
         }
 
         if ($this->getContext()->controller instanceof PluginAdminController) {
-           
-            if(file_exists($this->_normalizeDirectory($this->getContext()->controller->getTemplatePath($template)) . $this->getTemplateDirectory() . $template)) {
-            return $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath($template)) . $this->getTemplateDirectory() . $template;
+
+            if (file_exists($this->_normalizeDirectory($this->getContext()->controller->getTemplatePath($template)) . $this->getTemplateDirectory() . $template)) {
+                return $this->_normalizeDirectory($this->getContext()->controller->getTemplatePath($template)) . $this->getTemplateDirectory() . $template;
             }
+
         } else
+
         if ($this->getContext()->controller instanceof AdminController && isset($controllerName)
             && file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)) . 'controllers' . DIRECTORY_SEPARATOR . $controllerName . DIRECTORY_SEPARATOR . $this->getTemplateDirectory() . $template)) {
             return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)) . 'controllers' . DIRECTORY_SEPARATOR . $controllerName . DIRECTORY_SEPARATOR . $this->getTemplateDirectory() . $template;
         } else
+
         if (file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1)) . $this->getTemplateDirectory() . $template)) {
             return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(1)) . $this->getTemplateDirectory() . $template;
         } else
+
         if (file_exists($this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)) . $this->getTemplateDirectory() . $template)) {
             return $this->_normalizeDirectory($this->getContext()->smarty->getTemplateDir(0)) . $this->getTemplateDirectory() . $template;
         } else {
@@ -433,10 +436,10 @@ class HelperUploader extends PhenyxUploader {
             $boTheme = 'default';
         }
 
-        $this->getContext()->controller->addJs(_EPH_JS_DIR_. 'jquery.iframe-transport.js');
-        $this->getContext()->controller->addJs(_EPH_JS_DIR_.'jquery.fileupload.js');
-        $this->getContext()->controller->addJs(_EPH_JS_DIR_.'jquery.fileupload-process.js');
-        $this->getContext()->controller->addJs(_EPH_JS_DIR_. 'jquery.fileupload-validate.js');
+        $this->getContext()->controller->addJs(_EPH_JS_DIR_ . 'jquery.iframe-transport.js');
+        $this->getContext()->controller->addJs(_EPH_JS_DIR_ . 'jquery.fileupload.js');
+        $this->getContext()->controller->addJs(_EPH_JS_DIR_ . 'jquery.fileupload-process.js');
+        $this->getContext()->controller->addJs(_EPH_JS_DIR_ . 'jquery.fileupload-validate.js');
         $this->getContext()->controller->addJs('https://cdn.ephenyx.io/vendor/spin.js');
         $this->getContext()->controller->addJs('https://cdn.ephenyx.io/vendor/ladda.js');
 

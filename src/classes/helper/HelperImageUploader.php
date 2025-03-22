@@ -14,7 +14,7 @@ class HelperImageUploader extends HelperUploader {
      * @version 1.8.5.0
      */
     public function getMaxSize() {
-        
+
         return (int) Tools::getMaxUploadSize();
     }
 
@@ -58,11 +58,11 @@ class HelperImageUploader extends HelperUploader {
         if ($file['error']) {
             return false;
         }
-       
+
         $postMaxSize = Tools::convertBytes(ini_get('post_max_size'));
 
         $uploadMaxFilesize = Tools::convertBytes(ini_get('upload_max_filesize'));
-        
+
         if ($postMaxSize && ($this->_getServerVars('CONTENT_LENGTH') > $postMaxSize)) {
             $file['error'] = Tools::displayError('The uploaded file exceeds the post_max_size directive in php.ini');
 

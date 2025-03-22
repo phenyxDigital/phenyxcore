@@ -41,7 +41,7 @@ class ComposerCssEditor extends Composer {
 	}
 
 	public function render() {
-        $vc_manager = ephenyx_manager();
+		$vc_manager = ephenyx_manager();
 		$output = '<div class="vc_css-editor vc_row" data-css-editor="true">';
 		$output .= $this->onionLayout();
 		$output .= '<div class="vc_col-xs-5 vc_settings">'
@@ -82,7 +82,7 @@ class ComposerCssEditor extends Composer {
 	}
 
 	public function getBorderStyleOptions() {
-        $vc_manager = ephenyx_manager();
+		$vc_manager = ephenyx_manager();
 		$output = '<option value="">' . $vc_manager->l('Theme defaults') . '</option>';
 		$styles = ['solid', 'dotted', 'dashed', 'none', 'hidden', 'double', 'groove', 'ridge', 'inset', 'outset', 'initial', 'inherit'];
 
@@ -94,7 +94,7 @@ class ComposerCssEditor extends Composer {
 	}
 
 	public function getBackgroundStyleOptions() {
-        $vc_manager = ephenyx_manager();
+		$vc_manager = ephenyx_manager();
 		$output = '<option value="">' . $vc_manager->l('Theme defaults') . '</option>';
 		$styles = [
 			$vc_manager->l("Cover")     => 'cover',

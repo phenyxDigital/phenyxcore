@@ -6,15 +6,14 @@
  * @since 1.9.1.0
  */
 class DbQuery {
-    
-    
+
     public $dbprefix;
-    
+
     public function __construct($dbprefix = _DB_PREFIX_) {
-                
+
         $this->dbprefix = $dbprefix;
 
-	}
+    }
 
     /**
      * List of data to build the query
@@ -271,15 +270,18 @@ class DbQuery {
         if ($this->query['type'] == 'SELECT') {
             $sql = 'SELECT ' . ((($this->query['select'])) ? implode(",\n", $this->query['select']) : '*') . "\n";
         } else
+
         if ($this->query['type'] == 'DELETE') {
             $sql = 'DELETE ' . (($this->query['delete']) ? implode(",\n", $this->query['delete']) : '') . "\n";
         } else
+
         if ($this->query['type'] == 'INSERT') {
             $sql = 'INSERT ' . (isset($this->query['insert']) ? implode(",\n", $this->query['insert']) : '') . "\n";
         } else
+
         if ($this->query['type'] == 'REPLACE') {
             $sql = 'REPLACE ' . (isset($this->query['insert']) ? implode(",\n", $this->query['insert']) : '') . "\n";
-        }else {
+        } else {
             $sql = $this->query['type'] . ' ';
         }
 
@@ -290,6 +292,7 @@ class DbQuery {
         if ($this->query['type'] == 'UPDATE') {
             $sql .= implode(', ', $this->query['from']) . ' SET ' . implode(', ', $this->query['set']) . "\n";
         } else
+
         if ($this->query['type'] == 'INSERT' || $this->query['type'] == 'REPLACE') {
             $sql .= 'INTO ' . implode(', ', $this->query['from']) . ' (' . implode(', ', $this->query['fields']) . ') VALUES (' . implode(', ', $this->query['values']) . ') ' . "\n";
         } else {

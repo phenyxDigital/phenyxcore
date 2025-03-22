@@ -754,7 +754,7 @@ abstract class Plugin {
 
         }
 
-        $plugins = Plugin::getPluginsOnDisk(true, false, $context->employee->id, true);
+        $plugins = Plugin::getPluginsOnDisk(true);
 
         if ($context->cache_enable && is_object($context->cache_api)) {
             $temp = $plugins === null ? null : Tools::jsonEncode($plugins);
@@ -765,7 +765,7 @@ abstract class Plugin {
 
     }
 
-    public static function getPluginsOnDisk($useConfig = false, $loggedOnAddons = false, $idEmployee = false, $full = false) {
+    public static function getPluginsOnDisk($full = false) {
 
         $context = Context::getContext();
         $link = new Link();
@@ -828,7 +828,7 @@ abstract class Plugin {
 
             $item = [];
             $tmpPlugin = Adapter_ServiceLocator::get($plugin);
-
+            
             $item = [
                 'id'                     => is_null($tmpPlugin->id) ? 0 : $tmpPlugin->id,
                 'specific'               => $specific,
@@ -861,6 +861,7 @@ abstract class Plugin {
                 'image_link'             => $link->getBaseFrontLink() . $image,
                 'is_ondisk'              => true,
                 'installed'              => Plugin::isInstalled($plugin),
+                'has_reset'              => method_exists($tmpPlugin, 'reset') ? true : false,
             ];
 
             $pluginList[] = $item;
@@ -918,7 +919,7 @@ abstract class Plugin {
         $return = [];
 
         foreach ($pluginList as $plugin) {
-            $return[$plugin->name] = $plugin;
+            $return[$plugin['name']] = Tools::jsonDecode(Tools::jsonEncode($plugin));
         }
 
         ksort($return);

@@ -9,18 +9,18 @@ class ComposerGoogleFonts extends Composer {
 		$set = isset($settings['settings'], $settings['settings']['fields']) ? $settings['settings']['fields'] : [];
 		extract($this->_vc_google_fonts_parse_attributes($set, $value));
 		ob_start();
-		
-        $data = $context->smarty->createTemplate(_EPH_COMPOSER_DIR_ .  'goofle_fonts/template.tpl');
-        $data->assign(
-				[
-					'values' => $values,
-                    'fields' => $fields,
-                    'settings' => $settings,
-                    'value'   => $value,
-                    'fonts' => $this->_vc_google_fonts_get_fonts()
-				]
-			);
-        $data->fetch();
+
+		$data = $context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'goofle_fonts/template.tpl');
+		$data->assign(
+			[
+				'values'   => $values,
+				'fields'   => $fields,
+				'settings' => $settings,
+				'value'    => $value,
+				'fonts'    => $this->_vc_google_fonts_get_fonts(),
+			]
+		);
+		$data->fetch();
 
 		return ob_get_clean();
 	}

@@ -2,65 +2,65 @@
 
 use PHPMailer\PHPMailer\PHPMailer;
 
-class PhenyxMailer  {
-    
+class PhenyxMailer {
+
     protected $context;
-    
+
     public $mailer;
-    
+
     public $sender = [];
-    
+
     public $to = [];
-    
+
     public $cc = [];
-    
+
     public $subject;
-    
+
     public $htmlContent;
-    
+
     public $attachment = null;
-    
+
     public $meta_description = null;
-    
+
     public $postfields = [];
-    
+
     public $tpl_folder;
-    
-     public $_smarty;
-    
-    
-    public function __construct($tplName = null) 	{
-		
+
+    public $_smarty;
+
+    public function __construct($tplName = null) {
+
         $this->context = Context::getContext();
-        
+
         $this->_smarty = $this->context->smarty;
-        
+
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
-            
+
         }
+
         if (!isset($this->context->company)) {
             $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
-            
+
         }
+
         if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
-           
-        
+
         if (!isset($this->context->translations)) {
 
             $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
         }
-        
-        if(!is_null($tplName)) {
+
+        if (!is_null($tplName)) {
             $this->mailer = $this->createTemplate($tplName);
         }
-        
-	}
-    
+
+    }
+
     public function createTemplate($tplName) {
-        
+
         $extraTplPaths = $this->context->_hook->exec('actionCreateMailTemplate', ['tplName' => $tplName], null, true);
 
         if (is_array($extraTplPaths)) {
@@ -74,61 +74,61 @@ class PhenyxMailer  {
             }
 
         }
-        
+
         $path_parts = pathinfo($tplName);
         $tpl = '';
-        
-        if(!is_null($this->tpl_folder) && file_exists($this->context->theme->path .$this->tpl_folder. '/pdf/' . $path_parts['filename'].'.tpl')) {
-            $tpl = $this->context->theme->path .$this->tpl_folder. '/pdf/' . $path_parts['filename'].'.tpl';
-            
-        } else if (file_exists($this->context->theme->path . 'pdf/' . $path_parts['filename'].'.tpl')) {
-        
-            $tpl = $this->context->theme->path . 'pdf/' . $path_parts['filename'].'.tpl';
+
+        if (!is_null($this->tpl_folder) && file_exists($this->context->theme->path . $this->tpl_folder . '/pdf/' . $path_parts['filename'] . '.tpl')) {
+            $tpl = $this->context->theme->path . $this->tpl_folder . '/pdf/' . $path_parts['filename'] . '.tpl';
+
+        } else
+
+        if (file_exists($this->context->theme->path . 'pdf/' . $path_parts['filename'] . '.tpl')) {
+
+            $tpl = $this->context->theme->path . 'pdf/' . $path_parts['filename'] . '.tpl';
 
         } else {
-            
+
             $tpl = $tplName;
-            
+
         }
-        
-        
+
         if (file_exists($tpl)) {
             return $this->_smarty->createTemplate($tpl, $this->_smarty);
         }
 
     }
-    
+
     public function generatePostfield() {
-        
+
         $this->postfields = [
             'sender'      => $this->sender,
             'to'          => $this->to,
             'cc'          => $this->cc,
-			'subject'     => $this->subject,
-			"htmlContent" => $this->htmlContent,
+            'subject'     => $this->subject,
+            "htmlContent" => $this->htmlContent,
             'attachment'  => $this->attachment,
         ];
     }
-    
+
     public function send() {
 
-        
         $mail_allowed = $this->context->phenyxConfig->get('EPH_ALLOW_SEND_EMAIL') ? 1 : 0;
-        if($mail_allowed) {
-            
+
+        if ($mail_allowed) {
 
             $this->htmlContent = $this->mailer->fetch();
             $tpl = $this->context->smarty->createTemplate(_EPH_MAIL_DIR_ . 'header.tpl');
             $url = 'https://' . $this->context->company->domain_ssl;
             $bckImg = !empty($this->context->phenyxConfig->get('EPH_BCK_LOGO_MAIL')) ? 'https://' . $url . '/content/img/' . $this->context->phenyxConfig->get('EPH_BCK_LOGO_MAIL') : false;
             $tpl->assign([
-                'title'        => $this->subject,
+                'title'          => $this->subject,
                 'show_head_logo' => $this->context->phenyxConfig->get('EPH_SHOW_HEADER_LOGO_MAIL') ? 1 : 0,
-                'css_dir'      => 'https://' . $this->context->company->domain_ssl . $this->context->theme->css_theme,
-                'shop_link'    => $this->context->link->getBaseFrontLink(),
-                'shop_name'    => $this->context->company->company_name,
-                'bckImg'       => $bckImg,
-                'logoMailLink' => $url.'/content/img/' . $this->context->phenyxConfig->get('EPH_LOGO_MAIL'),
+                'css_dir'        => 'https://' . $this->context->company->domain_ssl . $this->context->theme->css_theme,
+                'shop_link'      => $this->context->link->getBaseFrontLink(),
+                'shop_name'      => $this->context->company->company_name,
+                'bckImg'         => $bckImg,
+                'logoMailLink'   => $url . '/content/img/' . $this->context->phenyxConfig->get('EPH_LOGO_MAIL'),
             ]);
 
             if (!is_null($this->meta_description)) {
@@ -171,7 +171,7 @@ class PhenyxMailer  {
                         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
                     }
 
-                } 
+                }
 
                 $mail->Body = $this->htmlContent;
                 $mail->isHTML(true);
@@ -186,8 +186,10 @@ class PhenyxMailer  {
                     return true;
                 }
 
-            } else if ($mail_method == 2) {
-                
+            } else
+
+            if ($mail_method == 2) {
+
                 $this->generatePostfield();
                 $api_key = $this->context->phenyxConfig->get('EPH_SENDINBLUE_API');
 
@@ -220,6 +222,7 @@ class PhenyxMailer  {
                 }
 
             }
+
         } else {
             return true;
         }

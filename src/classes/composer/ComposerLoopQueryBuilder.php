@@ -162,7 +162,9 @@ class ComposerLoopQueryBuilder {
 
 			if ($this->args['orderby'] == 'meta_title' || $this->args['orderby'] == 'link_rewrite') {
 				$orderby = "sbpl.{$this->args['orderby']}";
-			} else if ($this->args['orderby'] == 'date') {
+			} else
+
+			if ($this->args['orderby'] == 'date') {
 				$this->args['orderby'] = 'created';
 				$orderby = "sbp.{$this->args['orderby']}";
 			} else {

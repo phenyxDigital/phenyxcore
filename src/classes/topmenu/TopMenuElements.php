@@ -2,12 +2,10 @@
 
 class TopMenuElements extends PhenyxObjectModel {
 
-   
-    
     public $id_topmenu_column;
     public $id_cms;
-    public $id_specific_page;    
-    
+    public $id_specific_page;
+
     public $privacy;
     public $chosen_groups;
     public $type;
@@ -19,19 +17,18 @@ class TopMenuElements extends PhenyxObjectModel {
     public $target;
     public $have_image;
     public $image_hash;
-    
+
     public $generated;
     public $link;
     public $name;
     public $image_legend;
     public $image_class;
-    
+
     public $link_output_value;
 
     public $backName;
-    
-    public $typeName;
 
+    public $typeName;
 
     public static $definition = [
         'table'     => 'topmenu_elements',
@@ -49,12 +46,12 @@ class TopMenuElements extends PhenyxObjectModel {
             'target'            => ['type' => self::TYPE_STRING, 'validate' => 'isString'],
             'active'            => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'required' => true],
             'active_desktop'    => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-            'active_mobile'     => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],  
-            'have_image'               => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],           
-			'image_hash'             => ['type' => self::TYPE_STRING],
+            'active_mobile'     => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+            'have_image'        => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+            'image_hash'        => ['type' => self::TYPE_STRING],
             'custom_class'      => ['type' => self::TYPE_STRING, 'size' => 255],
 
-            'generated'                             => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'lang' => true],
+            'generated'         => ['type' => self::TYPE_BOOL, 'validate' => 'isBool', 'lang' => true],
             'name'              => ['type' => self::TYPE_STRING, 'validate' => 'isCatalogName', 'lang' => true, 'size' => 255],
             'link'              => ['type' => self::TYPE_STRING, 'validate' => 'isUrl', 'lang' => true, 'size' => 255],
             'image_legend'      => ['type' => self::TYPE_STRING, 'validate' => 'isCatalogName', 'lang' => true, 'size' => 255],
@@ -64,15 +61,16 @@ class TopMenuElements extends PhenyxObjectModel {
     public function __construct($id = null, $id_lang = null) {
 
         parent::__construct($id, $id_lang);
-        if($this->id) {
-			$this->backName = $this->getBackOutputNameValue();
+
+        if ($this->id) {
+            $this->backName = $this->getBackOutputNameValue();
             $this->chosen_groups = Tools::jsonDecode($this->chosen_groups);
             $this->link_output_value = $this->getFrontOutputValue();
             $this->typeName = $this->getType();
         }
-        
+
     }
-    
+
     public function getFrontOutputValue() {
 
         $context = Context::getContext();
@@ -136,7 +134,7 @@ class TopMenuElements extends PhenyxObjectModel {
 
             return $return;
             break;
-        
+
         case 3:
 
             if (!$this->have_image) {
@@ -173,7 +171,7 @@ class TopMenuElements extends PhenyxObjectModel {
             }
 
             break;
-       
+
         case 8:
 
             $name = '';
@@ -234,7 +232,7 @@ class TopMenuElements extends PhenyxObjectModel {
             $url .= $link->getPageLink($page->page);
 
             break;
-      
+
         }
 
         $linkSettings = [
@@ -267,22 +265,29 @@ class TopMenuElements extends PhenyxObjectModel {
 
         return $return;
     }
-	
-	public function getBackOutputNameValue() {
+
+    public function getBackOutputNameValue() {
 
         $return = '';
         $context = Context::getContext();
         $_iso_lang = Language::getIsoById($context->cookie->id_lang);
         $classVars = get_class_vars(get_class($this));
         $fields = $classVars['definition']['fields'];
-        
+
         foreach ($fields as $field => $params) {
 
             if (array_key_exists('lang', $params) && $params['lang']) {
-                if(isset($this->{$field}) && is_array($this->{$field}) && count($this->{$field})) {
-                    $this->{$field} = $this->{$field}[$context->language->id];
+
+                if (isset($this->{$field}) && is_array($this->{$field}) && count($this->{$field})) {
+                    $this->{$field}
+
+                    = $this->{$field}
+
+                    [$context->language->id];
                 }
+
             }
+
         }
 
         switch ($this->type) {
@@ -423,42 +428,46 @@ class TopMenuElements extends PhenyxObjectModel {
 
             break;
         }
-        
+
         $hookname = $this->context->_hook->exec('displayTopMenuElementBackOutputNameValue', ['type' => $this->type, 'menu' => $this], null, true);
-        if(is_array($hookname)) {
+
+        if (is_array($hookname)) {
             $hookname = array_shift($hookname);
-            if(!empty($hookname)) {
-                $return = $hookname;    
+
+            if (!empty($hookname)) {
+                $return = $hookname;
             }
-        }  
+
+        }
 
         return $return;
     }
 
-  
     public static function getMenuColumnElements($id_topmenu_column, $id_lang, $active = true, $groupRestrict = false) {
 
         $sql_groups_join = '';
         $sql_groups_where = '';
-		$file = fopen("testgetMenuColumnElements.txt","w");
-         $query = new DbQuery();
-		$query->select('ate.*, atel.*, cl.link_rewrite, cl.meta_title');
+        $file = fopen("testgetMenuColumnElements.txt", "w");
+        $query = new DbQuery();
+        $query->select('ate.*, atel.*, cl.link_rewrite, cl.meta_title');
         $query->from('topmenu_elements', 'ate');
         $query->leftJoin('topmenu_elements_lang', 'atel', 'ate.`id_topmenu_elements` = atel.`id_topmenu_elements` AND atel.`id_lang` = ' . (int) $id_lang);
-		$query->leftJoin('cms', 'c', 'c.`id_cms` = ate.`id_cms`');
-        $query->leftJoin('cms_lang', 'cl', 'c.`id_cms` = cl.`id_cms` AND cl.`id_lang` = ' . (int) $id_lang); 
+        $query->leftJoin('cms', 'c', 'c.`id_cms` = ate.`id_cms`');
+        $query->leftJoin('cms_lang', 'cl', 'c.`id_cms` = cl.`id_cms` AND cl.`id_lang` = ' . (int) $id_lang);
         $query->where('ate.`id_topmenu_column` = ' . (int) $id_topmenu_column);
-        if($active) {
+
+        if ($active) {
             $query->where('ate.`active` = 1 AND (ate.`active_desktop` = 1 || ate.`active_mobile` = 1) AND ((ate.`id_cms` = 0)  OR c.id_cms IS NOT NULL)');
         }
+
         $query->groupBy('ate.`id_topmenu_elements`');
-        $query->orderBy('ate.`position`');        
-        
-         fwrite($file,$query.PHP_EOL);
-       
+        $query->orderBy('ate.`position`');
+
+        fwrite($file, $query . PHP_EOL);
+
         return Db::getInstance(_EPH_USE_SQL_SLAVE_)->ExecuteS($query);
     }
-    
+
     public static function getMenuColumnsElements($menus, $id_lang, $active = true, $groupRestrict = false) {
 
         $elements = [];
@@ -484,25 +493,23 @@ class TopMenuElements extends PhenyxObjectModel {
 
     public function getType() {
 
-		if ($this->type == 1) {
-			return $this->l('CMS');
-		} else
+        if ($this->type == 1) {
+            return $this->l('CMS');
+        } else
 
-		if ($this->type == 2) {
-			return $this->l('Link');
-		} else
+        if ($this->type == 2) {
+            return $this->l('Link');
+        } else
 
-		
+        if ($this->type == 7) {
+            return $this->l('Only image or icon');
+        } else
 
-		if ($this->type == 7) {
-			return $this->l('Only image or icon');
-		} else
+        if ($this->type == 9) {
+            return $this->l('Specific page');
+        }
 
-		if ($this->type == 9) {
-			return $this->l('Specific page');
-		} 
-
-	}
+    }
 
     public static function getElementsFromIdCategory($idCategory) {
 
@@ -523,8 +530,6 @@ class TopMenuElements extends PhenyxObjectModel {
         AND atp.`id_cms` = ' . (int) $idCms;
         return Db::getInstance(_EPH_USE_SQL_SLAVE_)->ExecuteS($sql);
     }
-
-    
 
     public static function disableById($idElement) {
 
@@ -548,4 +553,3 @@ class TopMenuElements extends PhenyxObjectModel {
     }
 
 }
-

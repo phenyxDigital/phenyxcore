@@ -158,7 +158,7 @@ abstract class Db {
      * @return string
      */
     abstract public function _escape($str);
-    
+
     abstract public function _translate_escape($str);
 
     abstract public function _sescape($str);
@@ -650,12 +650,15 @@ abstract class Db {
         if ($type == static::INSERT) {
             $insertKeyword = 'INSERT';
         } else
+
         if ($type == static::INSERT_IGNORE) {
             $insertKeyword = 'INSERT IGNORE';
         } else
+
         if ($type == static::REPLACE) {
             $insertKeyword = 'REPLACE';
         } else
+
         if ($type == static::ON_DUPLICATE_KEY) {
             $insertKeyword = 'INSERT';
         } else {
@@ -746,8 +749,7 @@ abstract class Db {
         if (!$data) {
             return true;
         }
-        
-        
+
         if ($addPrefix && strncmp(_DB_PREFIX_, $table, strlen(_DB_PREFIX_)) !== 0) {
             $table = _DB_PREFIX_ . $table;
         }
@@ -777,7 +779,7 @@ abstract class Db {
         if ($limit) {
             $sql .= ' LIMIT ' . (int) $limit;
         }
-        
+
         return (bool) $this->q($sql, $useCache);
     }
 
@@ -821,12 +823,13 @@ abstract class Db {
         if ($sql instanceof DbQuery) {
             $sql = $sql->build();
         }
-       
-        if(!is_null($params) && is_array($params)) {
-                 
+
+        if (!is_null($params) && is_array($params)) {
+
             $sql = vsprintf(str_replace('?', '\'%s\'', $sql), $params);
-            
+
         }
+
         $this->result = $this->query($sql);
 
         return (bool) $this->result;
@@ -851,10 +854,11 @@ abstract class Db {
 
         $this->result = false;
         $this->last_query = $sql;
-        if(!is_null($params) && is_array($params)) {
-                 
+
+        if (!is_null($params) && is_array($params)) {
+
             $sql = vsprintf(str_replace('?', '\'%s\'', $sql), $params);
-            
+
         }
 
         // This method must be used only with queries which display results
@@ -903,12 +907,12 @@ abstract class Db {
         if ($sql instanceof DbQuery) {
             $sql = $sql->build();
         }
-        
-        if(!is_null($params) && is_array($params)) {
-         
+
+        if (!is_null($params) && is_array($params)) {
+
             $sql = str_replace('?', '\'%s\'', $sql);
             $sql = vsprintf($sql, $params);
-            
+
         }
 
         $sql = rtrim($sql, " \t\n\r\0\x0B;") . ' LIMIT 1';
@@ -974,8 +978,7 @@ abstract class Db {
         array_walk($args, [$this, 'escape_by_ref']);
         return @vsprintf($query, $args);
     }
-    
-    
+
     /**
      * Get number of rows for last result
      *
@@ -1081,7 +1084,7 @@ abstract class Db {
     public function escapeTranslation($string, $htmlOk = false, $bqSql = false) {
 
         if (!is_numeric($string)) {
-            
+
             $string = $this->_translate_escape($string);
 
             if (!$htmlOk && !is_null($string)) {

@@ -32,7 +32,7 @@ abstract class PluginStats extends Plugin {
     protected $_sort = null;
     /**@var string sort direction DESC/ASC */
     protected $_direction = null;
-    
+
     public $_id_lang;
     // @codingStandardsIgnoreEnd
 
@@ -45,7 +45,7 @@ abstract class PluginStats extends Plugin {
 
         $this->_id_lang = $id_lang;
     }
-    
+
     protected function setDateGraph($layers, $legend = false) {
 
         // Get dates in a manageable format
@@ -79,7 +79,9 @@ abstract class PluginStats extends Plugin {
                 $this->setDayValues($layers);
             }
 
-        } else if (strtotime($this->_employee->stats_date_to) - strtotime($this->_employee->stats_date_from) <= 2678400) {
+        } else
+
+        if (strtotime($this->_employee->stats_date_to) - strtotime($this->_employee->stats_date_from) <= 2678400) {
             // If the granularity is inferior to 1 month
             // @TODO : change to manage 28 to 31 days
 
@@ -126,7 +128,9 @@ abstract class PluginStats extends Plugin {
                 $this->setMonthValues($layers);
             }
 
-        } else if (strtotime('-1 year', strtotime($this->_employee->stats_date_to)) < strtotime($this->_employee->stats_date_from)) {
+        } else
+
+        if (strtotime('-1 year', strtotime($this->_employee->stats_date_to)) < strtotime($this->_employee->stats_date_from)) {
             // If the granularity is less than 1 year
 
             if ($legend) {
@@ -438,7 +442,7 @@ abstract class PluginStats extends Plugin {
     }
 
     public function engineGrid($params) {
-        
+
         $render = $this->context->phenyxConfig->get('EPH_STATS_GRID_RENDER');
         $grider = '/app/grider.php?render=' . $render . '&engine=grid&plugin=' . Tools::safeOutput(Tools::getValue('plugin'));
 
@@ -488,7 +492,7 @@ abstract class PluginStats extends Plugin {
         if (isset($params['dir']) && Validate::isSortDirection($params['dir'])) {
             $grider .= '&dir=' . $params['dir'];
         }
-       
+
         if (file_exists(_EPH_ROOT_DIR_ . '/includes/plugins/' . $render . '/' . $render . '.php')) {
             require_once _EPH_ROOT_DIR_ . '/includes/plugins/' . $render . '/' . $render . '.php';
 
@@ -496,8 +500,9 @@ abstract class PluginStats extends Plugin {
         } else {
             return call_user_func(['PluginGridEngine', 'hookGridEngine'], $params, $grider);
         }
+
     }
-    
+
     protected static function getEmployee($employee = null, $context = null) {
 
         if (!Validate::isLoadedObject($employee)) {

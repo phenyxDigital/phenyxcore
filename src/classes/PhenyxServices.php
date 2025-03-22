@@ -6,12 +6,11 @@ class PhenyxServices extends stdClass {
     // Fields
 
     protected $services;
-    
+
     public $context;
-    
+
     public function __construct() {
 
-        
         $this->context = Context::getContext();
 
         if (!isset($this->context->phenyxConfig)) {
@@ -27,14 +26,12 @@ class PhenyxServices extends stdClass {
             $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
 
-
     }
-
 
     // Methods
 
     public function setServiceContainer($container) {
-        
+
         $this->services = $container;
 
         $this->onRegister();
@@ -45,14 +42,15 @@ class PhenyxServices extends stdClass {
     public function onRemove() {}
 
     public function get($serviceId) {
-        
+
         return $this->services->get($serviceId);
     }
 
     public function getApp() {
-        
+
         return $this->services->getApp();
     }
+
 }
 
 ?>
