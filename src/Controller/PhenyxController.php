@@ -1967,7 +1967,7 @@ abstract class PhenyxController {
             $this->context->smarty->assign(
                 [
                    // 'js_def'           => ($this->_defer && $this->_domAvailable) ? [] : $this->js_def,
-                    //'extracss'         => $this->extracss,
+                    'extracss'         => $this->extracss,
                     //'js_heads'         => [],
                     //'js_files'         => $this->_defer ? [] : $this->js_files,
                     'favicon_dir'      => __EPH_BASE_URI__ . 'content/backoffice/img/',
