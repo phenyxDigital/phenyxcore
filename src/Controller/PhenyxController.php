@@ -1961,27 +1961,15 @@ abstract class PhenyxController {
     public function tabDisplay() {
        
         if ($this->ajax_layout) {
-                
-            if (($this->_back_css_cache || $this->_back_js_cache) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
-
-                if ($this->_back_css_cache) {
-                    $this->extracss = $this->context->media->admincccCss($this->extracss);
-                }
-
-                if ($this->_back_js_cache) {
-                    $this->js_files = $this->context->media->admincccJS($this->js_files);
-                }
-
-            }
-
-            $controller = $this->context->_tools->getValue('controller');
+            
+            
 
             $this->context->smarty->assign(
                 [
-                    'js_def'           => ($this->_defer && $this->_domAvailable) ? [] : $this->js_def,
-                    'extracss'         => $this->extracss,
-                    'js_heads'         => [],
-                    'js_files'         => $this->_defer ? [] : $this->js_files,
+                   // 'js_def'           => ($this->_defer && $this->_domAvailable) ? [] : $this->js_def,
+                    //'extracss'         => $this->extracss,
+                    //'js_heads'         => [],
+                    //'js_files'         => $this->_defer ? [] : $this->js_files,
                     'favicon_dir'      => __EPH_BASE_URI__ . 'content/backoffice/img/',
                     'meta_title'       => $this->page_title,
                     'meta_description' => $this->page_description,
