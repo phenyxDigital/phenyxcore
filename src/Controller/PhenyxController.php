@@ -1739,6 +1739,69 @@ abstract class PhenyxController {
 
         return $return;
     }
+    
+    public function openTargetController($active) {
+        
+        $this->paragridScript = $this->generateParaGridScript();
+        $data = $this->createTemplate($this->table . '.tpl');
+        $extraVars = $this->context->_hook->exec('action' . $this->controller_name . 'TargetGetExtraVars', ['controller_type' => $this->controller_type], null, true);
+
+        if (is_array($extraVars)) {
+
+            foreach ($extraVars as $plugin => $vars) {
+
+                if (is_array($vars)) {
+
+                    foreach ($vars as $key => $value) {
+                        $data->assign($key, $value);
+                    }
+
+                }
+
+            }
+
+        }
+
+        if (is_array($this->extra_vars)) {
+
+            foreach ($this->extra_vars as $key => $value) {
+                $data->assign($key, $value);
+            }
+
+        }
+        if (method_exists($this, 'get' . $this->className . 'Fields')) {
+            $configurationField = $this->{'get' . $this->className . 'Fields'}();
+            $data->assign([
+                'manageHeaderFields' => $this->manageHeaderFields,
+                'customHeaderFields' => $this->manageFieldsVisibility($configurationField),
+            ]);
+        } 
+
+        $this->addJsDef([
+                'AjaxLink' . $this->controller_name => $this->context->link->getAdminLink($this->controller_name),
+            ]);
+
+
+        $data->assign([
+            'paragridScript'     => $this->paragridScript,
+            'controller'         => $this->controller_name,
+            'tableName'          => $this->table,
+            'className'          => $this->className,
+            'link'               => $this->context->link,
+            'id_lang_default'    => $this->default_language,
+            'languages'          => Language::getLanguages(false),
+            'tabs'               => $this->ajaxOptions,
+            'bo_imgdir'          => __EPH_BASE_URI__ . 'content/backoffice/' . $this->bo_theme . '/img/',
+        ]);
+        
+        $this->tab_content = '<div id="content' . $this->controller_name . '" class="panel wpb_text_column  wpb_slideInUp slideInUp wpb_start_animation animated col-lg-12" style="display: content;">' .$data->fetch() . '</div>';
+        
+        $this->context->tabs_controllers[] = [
+            $this->builderTabController($active) => $this->tabDisplay()
+        ];        
+       
+        
+    }
 
     public function ajaxProcessRefreshTargetController() {
 
@@ -1894,6 +1957,91 @@ abstract class PhenyxController {
         $this->ajaxDisplay();
 
     }
+    
+    public function tabDisplay() {
+       
+        if ($this->ajax_layout) {
+                
+            if (($this->_back_css_cache || $this->_back_js_cache) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
+
+                if ($this->_back_css_cache) {
+                    $this->extracss = $this->context->media->admincccCss($this->extracss);
+                }
+
+                if ($this->_back_js_cache) {
+                    $this->js_files = $this->context->media->admincccJS($this->js_files);
+                }
+
+            }
+
+            $controller = $this->context->_tools->getValue('controller');
+
+            $this->context->smarty->assign(
+                [
+                    'js_def'           => ($this->_defer && $this->_domAvailable) ? [] : $this->js_def,
+                    'extracss'         => $this->extracss,
+                    'js_heads'         => [],
+                    'js_files'         => $this->_defer ? [] : $this->js_files,
+                    'favicon_dir'      => __EPH_BASE_URI__ . 'content/backoffice/img/',
+                    'meta_title'       => $this->page_title,
+                    'meta_description' => $this->page_description,
+                ]
+            );
+
+            $dir = $this->context->smarty->getTemplateDir(0);
+            $override_dir = $this->context->smarty->getTemplateDir(1) . DIRECTORY_SEPARATOR;
+            $pluginListDir = $this->context->smarty->getTemplateDir(0) . 'helpers' . DIRECTORY_SEPARATOR . 'plugins_list' . DIRECTORY_SEPARATOR;
+
+            $headerTpl = file_exists($dir . 'ajax_header.tpl') ? $dir . 'ajax_header.tpl' : 'ajax_header.tpl';
+            $footerTpl = file_exists($dir . 'ajax_footer.tpl') ? $dir . 'ajax_footer.tpl' : 'ajax_footer.tpl';
+
+            $this->context->smarty->assign(
+                [
+                    'content'     => $this->tab_content,
+                    'ajax_header' => $this->context->smarty->fetch($headerTpl),
+                    'ajax_footer' => $this->context->smarty->fetch($footerTpl),
+                ]
+            );
+            
+            $content = $this->context->smarty->fetch($this->ajax_layout);
+            
+            return $this->tabShowContent($content);
+        }
+
+    }
+    
+    public function tabShowContent($content) {
+
+        $this->context->cookie->write();
+        $html = '';
+        $jsTag = 'js_def';
+        $this->context->smarty->assign($jsTag, $jsTag);
+        $html = $content;
+        
+        $html = trim($html);
+
+        if (!empty($html)) {
+    
+
+            if ($this->_defer && $this->_domAvailable) {
+                $html = $this->context->media->deferInlineScripts($html);
+            }
+            
+            $head = '<div id="content' . $this->controller_name . '" class="panel wpb_text_column  wpb_slideInUp slideInUp wpb_start_animation animated col-lg-12" style="display: content;">' . "\n";
+            $foot = '</div></content>';
+            $header = $this->context->media->deferTagOutput('ajax_head', $html) . '<content>';
+            $html = trim(str_replace($header, '', $html)) . "\n";
+
+            $content = $this->context->media->deferIdOutput('content' . $this->controller_name, $html);
+          
+
+            $content = str_replace('<input>', '', $content);
+            $content = $head . $header . $content .  $foot;
+          
+            return $content;
+        }
+
+    }
 
     public function ajaxDisplay() {
         
@@ -2041,7 +2189,7 @@ abstract class PhenyxController {
 
     }
 
-    protected function showContent($content) {
+    public function showContent($content) {
 
         $this->context->cookie->write();
         $html = '';
@@ -2103,7 +2251,7 @@ abstract class PhenyxController {
         return $layout;
     }
 
-    protected function ajaxShowContent($content) {
+    public function ajaxShowContent($content) {
 
         $this->context->cookie->write();
         $html = '';
@@ -2283,7 +2431,7 @@ abstract class PhenyxController {
 
     }
 
-    protected function ajaxShowEditContent($content) {
+    public function ajaxShowEditContent($content) {
         
         $this->context->cookie->write();
         $html = '';
@@ -2412,7 +2560,7 @@ abstract class PhenyxController {
 
     }
     
-    protected function ajaxShowModalEditContent($content) {
+    public function ajaxShowModalEditContent($content) {
         
         $this->context->cookie->write();
         $html = '';
