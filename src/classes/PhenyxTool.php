@@ -5687,7 +5687,7 @@ FileETag none
     public function generateTabs($use_cache = true) {
 
         if ($use_cache && $this->context->cache_enable && is_object($this->context->cache_api)) {
-            $value = $this->context->cache_api->getData('generateTabs');
+            $value = $this->context->cache_api->getData('generateTabs_'.$this->context->employee->id);
             $temp = empty($value) ? null : $this->jsonDecode($value, true);
 
             if (!empty($temp)) {
@@ -5807,7 +5807,7 @@ FileETag none
 
         if ($this->context->cache_enable && is_object($this->context->cache_api)) {
             $temp = $topbars === null ? null : $this->jsonEncode($topbars);
-            $this->context->cache_api->putData('generateTabs', $temp);
+            $this->context->cache_api->putData('generateTabs_'.$this->context->employee->id, $temp);
         }
 
         return $topbars;
