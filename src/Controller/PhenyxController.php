@@ -2612,9 +2612,9 @@ abstract class PhenyxController {
 
     }
 
-    public function generateTabs(Context $context, $use_cache = true) {
+    public function generateTabs($use_cache = true) {
 
-        return $this->context->_tools->generateTabs($context, $use_cache);
+        return $this->context->_tools->generateTabs($use_cache);
     }
 
     protected function initTabPluginList() {

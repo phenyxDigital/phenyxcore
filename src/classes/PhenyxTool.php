@@ -5684,7 +5684,7 @@ FileETag none
         return $langs;
     }
 
-    public function generateTabs(Context $context, $use_cache = true) {
+    public function generateTabs($use_cache = true) {
 
         if ($use_cache && $this->context->cache_enable && is_object($this->context->cache_api)) {
             $value = $this->context->cache_api->getData('generateTabs');
@@ -5696,117 +5696,103 @@ FileETag none
 
         }
 
-        $hookBars = Hook::getInstance()->exec('actionAdminTabs', [], null, true);
+        $topbars = BackTab::getBackTabs($this->context->language->id, 1, $use_cache);
 
-        if (is_array($hookBars)) {
+        foreach ($topbars as $index => $tab) {
 
-            foreach ($hookBars as $plugin => $hookBar) {
-                $topbars = $hookBar;
+            if (!BackTab::checkTabRights($tab['id_back_tab'])) {
+                unset($topbars[$index]);
+                continue;
             }
 
-        } else {
+            if ($tab['master'] && $this->context->employee->phenyx_admin == 0) {
+                unset($topbars[$index]);
+                continue;
+            }
 
-            $topbars = BackTab::getBackTabs($this->context->language->id, 1, $use_cache);
+            if (!empty($tab['plugin'])) {
 
-            foreach ($topbars as $index => $tab) {
-
-                if (!BackTab::checkTabRights($tab['id_back_tab'])) {
+                if (!Plugin::isActive($tab['plugin'])) {
                     unset($topbars[$index]);
                     continue;
                 }
 
-                if (isset($tab['master']) && $tab['master'] && !$this->context->employee->phenyx_admin) {
-                    unset($topbars[$index]);
+            }
+
+            if (!is_null($tab['function'])) {
+                $topbars[$index]['function'] = str_replace("‘", "'", $tab['function']);
+            }
+
+            $topbars[$index]['name'] = $tab['name'];
+            $subTabs = BackTab::getBackTabs($this->context->language->id, $tab['id_back_tab'], $use_cache);
+
+            foreach ($subTabs as $index2 => &$subTab) {
+
+                if (!BackTab::checkTabRights($subTab['id_back_tab'])) {
+                    unset($subTabs[$index2]);
                     continue;
                 }
 
-                if (!empty($tab['plugin'])) {
-
-                    if (!Plugin::isActive($tab['plugin'])) {
-                        unset($topbars[$index]);
-                        continue;
-                    }
-
+                if ($subTab['master'] && $this->context->employee->phenyx_admin == 0) {
+                    unset($subTabs[$index2]);
+                    continue;
                 }
 
-                if (!is_null($tab['function'])) {
-                    $topbars[$index]['function'] = str_replace("‘", "'", $tab['function']);
-                }
-
-                $topbars[$index]['name'] = $tab['name'];
-                $subTabs = BackTab::getBackTabs($this->context->language->id, $tab['id_back_tab'], $use_cache);
-
-                foreach ($subTabs as $index2 => &$subTab) {
-
-                    if (!BackTab::checkTabRights($subTab['id_back_tab'])) {
+                if (!empty($subTab['plugin'])) {
+                    if (!Plugin::isActive($subTab['plugin'])) {
                         unset($subTabs[$index2]);
                         continue;
                     }
+                }
 
-                    if (isset($subTab['master']) && $subTab['master'] && !$this->context->employee->phenyx_admin) {
-                        unset($subTabs[$index2]);
+                if ((bool) $subTab['active']) {
+
+                    if (!is_null($subTab['function'])) {
+                        $subTabs[$index2]['function'] = str_replace("‘", "'", $subTab['function']);
+                    }
+
+                    $subTabs[$index2]['name'] = $subTab['name'];
+                }
+
+                $terTabs = BackTab::getBackTabs($this->context->language->id, $subTab['id_back_tab'], $use_cache);
+
+                foreach ($terTabs as $index3 => $terTab) {
+
+                    if (!BackTab::checkTabRights($terTab['id_back_tab'])) {
+                        unset($terTabs[$index3]);
                         continue;
                     }
 
-                    if (!empty($subTab['plugin'])) {
-
-                        if (!Plugin::isActive($subTab['plugin'])) {
-                            unset($subTabs[$index2]);
-                            continue;
-                        }
-
+                    if ($terTab['master'] && $this->context->employee->phenyx_admin == 0) {
+                        unset($terTabs[$index3]);
+                        continue;
                     }
 
-                    if ((bool) $subTab['active']) {
+                    if (!empty($terTab['plugin'])) {
 
-                        if (!is_null($subTab['function'])) {
-                            $subTabs[$index2]['function'] = str_replace("‘", "'", $subTab['function']);
-                        }
-
-                        $subTabs[$index2]['name'] = $subTab['name'];
-                    }
-
-                    $terTabs = BackTab::getBackTabs($this->context->language->id, $subTab['id_back_tab'], $use_cache);
-
-                    foreach ($terTabs as $index3 => $terTab) {
-
-                        if (!BackTab::checkTabRights($terTab['id_back_tab'])) {
+                        if (!Plugin::isActive($terTab['plugin'])) {
                             unset($terTabs[$index3]);
                             continue;
                         }
 
-                        if (isset($terTab['master']) && $terTab['master'] && !$this->context->employee->phenyx_admin) {
-                            unset($terTabs[$index3]);
-                            continue;
-                        }
-
-                        if (!empty($terTab['plugin'])) {
-
-                            if (!Plugin::isActive($terTab['plugin'])) {
-                                unset($terTabs[$index3]);
-                                continue;
-                            }
-
-                        }
-
-                        if ((bool) $terTab['active']) {
-
-                            if (!is_null($terTab['function'])) {
-                                $terTabs[$index3]['function'] = str_replace("‘", "'", $terTab['function']);
-                            }
-
-                            $terTabs[$index3]['name'] = $terTab['name'];
-                        }
-
                     }
 
-                    $subTabs[$index2]['sub_tabs'] = array_values($terTabs);
+                    if ((bool) $terTab['active']) {
+
+                        if (!is_null($terTab['function'])) {
+                            $terTabs[$index3]['function'] = str_replace("‘", "'", $terTab['function']);
+                        }
+
+                        $terTabs[$index3]['name'] = $terTab['name'];
+                    }
 
                 }
 
-                $topbars[$index]['sub_tabs'] = array_values($subTabs);
+                $subTabs[$index2]['sub_tabs'] = array_values($terTabs);
+
             }
 
+            $topbars[$index]['sub_tabs'] = array_values($subTabs);
         }
 
         $hookBars = Hook::getInstance()->exec('actionAfterAdminTabs', ['topbars' => $topbars], null, true);
