@@ -31,11 +31,16 @@ class PhenyxTools {
 			$this->context->phenyxConfig = Configuration::getInstance();
 
 		}
-
-		$this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
-		$this->context->theme = new Theme((int) $this->context->company->id_theme);
+        if (!isset($this->context->company)) {
+            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+        }
+        if (!isset($this->context->theme)) {
+            $this->context->theme = new Theme((int) $this->context->company->id_theme);
+        }
 		$this->default_theme = $this->context->theme->directory;
-		$this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+        if (!isset($this->context->language)) {
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+        }
 
 		$this->_url = _EPH_PHENYX_API_;
 		$string = $this->context->phenyxConfig->get('_EPHENYX_LICENSE_KEY_', null, false) . '/' . $this->context->company->company_url;
@@ -483,9 +488,13 @@ class PhenyxTools {
 		return $string;
 	}
 
-	public static function cleanBackTabs() {
+	public function cleanBackTabs() {        
+                
+        $idLang = $this->context->language->id;
+                
+        $result = true;
 
-		$query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'back_tab_lang` WHERE id_lang = 1 ORDER BY id_back_tab ASC';
+		$query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'back_tab_lang` WHERE id_lang = '.$idLang.' ORDER BY id_back_tab ASC';
 		$tabLangs = Db::getInstance()->executeS($query);
 
 		foreach ($tabLangs as $tabLang) {
@@ -498,12 +507,13 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'back_tab_lang` WHERE id_back_tab = ' . $tabLang['id_back_tab'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
 
 		$query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'employee_access` ORDER BY id_back_tab ASC';
+        
 		$tabAccess = Db::getInstance()->executeS($query);
 
 		foreach ($tabAccess as $access) {
@@ -516,13 +526,13 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'employee_access` WHERE id_back_tab = ' . $access['id_back_tab'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
 
 		$query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'back_tab` ORDER BY id_back_tab ASC';
-
+        
 		$tabs = Db::getInstance()->executeS($query);
 
 		$i = 1;
@@ -538,23 +548,34 @@ class PhenyxTools {
 
 			foreach ($parents as $parent) {
 				$sql = 'UPDATE `' . _DB_PREFIX_ . 'back_tab` SET id_parent = ' . $i . ' WHERE id_back_tab = ' . $parent['id_back_tab'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'back_tab` SET id_back_tab = ' . $i . ' WHERE id_back_tab = ' . $tab['id_back_tab'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'back_tab_lang` SET id_back_tab = ' . $i . ' WHERE id_back_tab = ' . $tab['id_back_tab'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'employee_access` SET id_back_tab = ' . $i . ' WHERE id_back_tab = ' . $tab['id_back_tab'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$i++;
 		}
+        
+        if($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
+            $this->context->cache_api->cleanByStartingKey('generateTabs_');
+            $this->context->cache_api->cleanByStartingKey('getBckTab_');
+        }
+        
+        return $result;
 
 	}
 
-	public static function cleanMetas() {
+	public function cleanMetas() {
+        
+        $idLang = $this->context->language->id;
+        
+        $result = true;
 
-		$query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_lang = 1 ORDER BY id_meta ASC';
+		$query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_lang = '.$idLang.' ORDER BY id_meta ASC';
 		$metaLangs = Db::getInstance()->executeS($query);
 
 		foreach ($metaLangs as $metaLang) {
@@ -567,7 +588,7 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_meta = ' . $metaLang['id_meta'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
@@ -585,7 +606,7 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'theme_meta` WHERE id_meta = ' . $themeMeta['id_meta'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
@@ -599,17 +620,25 @@ class PhenyxTools {
 		foreach ($metas as $meta) {
 
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'meta` SET id_meta = ' . $i . ' WHERE id_meta = ' . $meta['id_meta'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'meta_lang` SET id_meta = ' . $i . ' WHERE id_meta = ' . $meta['id_meta'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET id_meta = ' . $i . ' WHERE id_meta = ' . $meta['id_meta'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$i++;
 		}
+        
+        if($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
+            $this->context->cache_api->cleanByStartingKey('metaGetPages_');
+        }
+        
+        return $result;
 
 	}
 
-	public static function cleanPlugins() {
+	public function cleanPlugins() {
+        
+        $result = true;
 
 		$query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'plugin_access`  ORDER BY id_plugin ASC';
 		$pluginAccess = Db::getInstance()->executeS($query);
@@ -624,7 +653,7 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_access` WHERE id_plugin = ' . $access['id_plugin'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
@@ -642,7 +671,7 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_carrier` WHERE id_plugin = ' . $carrier['id_plugin'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
@@ -660,7 +689,7 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_country` WHERE id_plugin = ' . $country['id_plugin'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
@@ -678,7 +707,7 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_currency` WHERE id_plugin = ' . $country['id_plugin'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
@@ -696,7 +725,7 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_group` WHERE id_plugin = ' . $country['id_plugin'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
@@ -714,7 +743,7 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin` WHERE id_plugin = ' . $country['id_plugin'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
@@ -732,7 +761,7 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin_exceptions` WHERE id_plugin = ' . $country['id_plugin'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
@@ -750,7 +779,7 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'payment_mode` WHERE id_plugin = ' . $country['id_plugin'];
-				Db::getInstance()->execute($sql);
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
@@ -769,23 +798,23 @@ class PhenyxTools {
 			}
 
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin` WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_access` WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_carrier` WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_country` WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_currency` WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_group` WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin` WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin_exceptions` WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'payment_mode` WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 
 		}
 
@@ -795,33 +824,38 @@ class PhenyxTools {
 
 		foreach ($plugins as $plugin) {
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_carrier` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_country` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_currency` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_group` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'payment_mode` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$i++;
 
 		}
+        
+        return $result;
 
 	}
 
-	public static function cleanHook() {
+	public function cleanHook() {
+        
+        $result = true;
 
 		$query = 'SELECT DISTINCT(id_hook)  FROM `' . _DB_PREFIX_ . 'hook_plugin_exceptions`  ORDER BY id_hook ASC';
+        
 		$hooks = Db::getInstance()->executeS($query);
 
 		foreach ($hooks as $hook) {
@@ -834,12 +868,14 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin_exceptions` WHERE id_hook = ' . $hook['id_hook'];
-				Db::getInstance()->execute($sql);
+                
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
 
 		$query = 'SELECT DISTINCT(id_hook)  FROM `' . _DB_PREFIX_ . 'hook_plugin`  ORDER BY id_hook ASC';
+        
 		$hooks = Db::getInstance()->executeS($query);
 
 		foreach ($hooks as $hook) {
@@ -852,53 +888,41 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin` WHERE id_hook = ' . $hook['id_hook'];
-				Db::getInstance()->execute($sql);
+                
+				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
 
-		$query = 'SELECT DISTINCT(id_hook)  FROM `' . _DB_PREFIX_ . 'hook_plugin_exceptions`  ORDER BY id_hook ASC';
-		$hooks = Db::getInstance()->executeS($query);
-
-		foreach ($hooks as $hook) {
-			$parent = Db::getInstance()->getValue(
-				(new DbQuery())
-					->select('`id_hook`')
-					->from('hook')
-					->where('`id_hook` = ' . (int) $hook['id_hook'])
-			);
-
-			if (!$parent) {
-				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin_exceptions` WHERE id_hook = ' . $hook['id_hook'];
-				Db::getInstance()->execute($sql);
-			}
-
-		}
 
 		$query = 'SELECT *  FROM `' . _DB_PREFIX_ . 'hook` ORDER BY id_hook ASC';
+        
 		$hooks = Db::getInstance()->executeS($query);
 
 		$i = 1;
 
 		foreach ($hooks as $hook) {
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook` SET id_hook = ' . $i . ' WHERE id_hook = ' . $hook['id_hook'];
-			Db::getInstance()->execute($sql);
+            
+			$result &= Db::getInstance()->execute($sql);
 
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_hook = ' . $i . ' WHERE id_hook = ' . $hook['id_hook'];
-			Db::getInstance()->execute($sql);
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_lang` SET id_hook = ' . $i . ' WHERE id_hook = ' . $hook['id_hook'];
-			Db::getInstance()->execute($sql);
+            
+			$result &= Db::getInstance()->execute($sql);
+			
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_hook = ' . $i . ' WHERE id_hook = ' . $hook['id_hook'];
-			Db::getInstance()->execute($sql);
+			$result &= Db::getInstance()->execute($sql);
 			$i++;
 
 		}
 
-		self::resetPlugin();
+		$ths->resetPlugin();
+        
+        return $result;
 
 	}
 
-	public static function resetPlugin() {
+	public function resetPlugin() {
 
 		$query = 'SELECT *  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
 		$plugins = Db::getInstance()->executeS($query);
@@ -930,8 +954,6 @@ class PhenyxTools {
 	}
 
 	public function exportLang($iso, $theme, $plugins) {
-
-		$file = fopen("testProcessSubmitExportLan.txt", "w");
 
 		if ($iso && $theme) {
 

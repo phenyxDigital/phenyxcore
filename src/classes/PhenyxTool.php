@@ -5683,9 +5683,42 @@ FileETag none
 
         return $langs;
     }
+    
+    public function getTabs() {
+        
+        $idLang = $this->context->phenyxConfig->get('EPH_LANG_DEFAULT');
+        
+        $topbars = BackTab::getBackTabs($idLang, 1, false);
+        
+        foreach ($topbars as $index => $tab) {
+
+            
+            $topbars[$index]['name'] = $tab['name'];
+            $subTabs = BackTab::getBackTabs($idLang, $tab['id_back_tab'], false);
+
+            foreach ($subTabs as $index2 => &$subTab) {
+
+                
+                $terTabs = BackTab::getBackTabs($idLang, $subTab['id_back_tab'], false);
+
+                foreach ($terTabs as $index3 => $terTab) {
+
+                    
+                }
+
+                $subTabs[$index2]['sub_tabs'] = array_values($terTabs);
+
+            }
+
+            $topbars[$index]['sub_tabs'] = array_values($subTabs);
+        }
+        
+        return $topbars;
+
+    }
 
     public function generateTabs($use_cache = true) {
-
+        
         if ($use_cache && $this->context->cache_enable && is_object($this->context->cache_api)) {
             $value = $this->context->cache_api->getData('generateTabs_'.$this->context->employee->id);
             $temp = empty($value) ? null : $this->jsonDecode($value, true);
@@ -5794,7 +5827,7 @@ FileETag none
 
             $topbars[$index]['sub_tabs'] = array_values($subTabs);
         }
-
+        
         $hookBars = Hook::getInstance()->exec('actionAfterAdminTabs', ['topbars' => $topbars], null, true);
 
         if (is_array($hookBars)) {
@@ -5804,7 +5837,7 @@ FileETag none
             }
 
         }
-
+       
         if ($this->context->cache_enable && is_object($this->context->cache_api)) {
             $temp = $topbars === null ? null : $this->jsonEncode($topbars);
             $this->context->cache_api->putData('generateTabs_'.$this->context->employee->id, $temp);
