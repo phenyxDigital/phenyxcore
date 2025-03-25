@@ -933,7 +933,7 @@ class PhenyxTools {
 
 		}
 
-		$ths->resetPlugin();
+		$this->resetPlugin();
         
         return $result;
 

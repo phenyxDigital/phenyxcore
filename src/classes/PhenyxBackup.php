@@ -8,52 +8,31 @@
 class PhenyxBackup {
 
     
-    // @codingStandardsIgnoreStart
-    /** @var string default backup directory. */
-    public static $backupDir = '/app/backup/';
-    /** @var int Object id */
+    public static $backupDir = '/app/backup';
+    public $context;
     public $id;
-    /** @var string Last error messages */
     public $error;
-    /** @var string custom backup directory. */
     public $customBackupDir = null;
-    /** @var bool|string $psBackupAll */
-    public $psBackupAll = true;
-    /** @var bool|string $psBackupDropTable */
-    public $psBackupDropTable = true;
-    // @codingStandardsIgnoreEnd
-
-    /**
-     * Creates a new backup object
-     *
-     * @param string $filename Filename of the backup file
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
+    public $ephBackupAll = true;
+    public $ephBackupDropTable = true;
+    
     public function __construct($filename = null) {
 
         if ($filename) {
             $this->id = $this->getRealBackupPath($filename);
         }
+        $this->context = Context::getContext();
+        if (!isset($this->context->phenyxConfig)) {
+            $this->context->phenyxConfig = Configuration::getInstance();
+            
+        }
 
-        $psBackupAll = $this->context->phenyxConfig->get('EPH_BACKUP_ALL');
-        $psBackupDropTable = $this->context->phenyxConfig->get('EPH_BACKUP_DROP_TABLE');
-        $this->psBackupAll = $psBackupAll !== false ? $psBackupAll : true;
-        $this->psBackupDropTable = $psBackupDropTable !== false ? $psBackupDropTable : true;
+        $ephBackupAll = $this->context->phenyxConfig->get('EPH_BACKUP_ALL');
+        $ephBackupDropTable = $this->context->phenyxConfig->get('EPH_BACKUP_DROP_TABLE');
+        $this->ephBackupAll = $ephBackupAll !== false ? $ephBackupAll : true;
+        $this->ephBackupDropTable = $ephBackupDropTable !== false ? $ephBackupDropTable : true;
     }
-
-    /**
-     * get the path to use for backup (customBackupDir if specified, or default)
-     *
-     * @param string $filename filename to use
-     *
-     * @return string full path
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
+    
     public function getRealBackupPath($filename = null) {
 
         $backupDir = static::getBackupPath($filename);
@@ -74,16 +53,6 @@ class PhenyxBackup {
         return $backupDir;
     }
 
-    /**
-     * Get the full path of the backup file
-     *
-     * @param string $filename prefix of the backup file (datetime will be the second part)
-     *
-     * @return string The full path of the backup file, or false if the backup file does not exists
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public static function getBackupPath($filename = '') {
 
         $backupdir = realpath(_EPH_ROOT_DIR_ . static::$backupDir);
@@ -107,16 +76,6 @@ class PhenyxBackup {
         return $backupfile;
     }
 
-    /**
-     * Check if a backup file exist
-     *
-     * @param string $filename prefix of the backup file (datetime will be the second part)
-     *
-     * @return bool true if backup file exist
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public static function backupExist($filename) {
 
         $backupdir = realpath(_EPH_ROOT_DIR_ . static::$backupDir);
@@ -128,18 +87,6 @@ class PhenyxBackup {
         return @filemtime($backupdir . DIRECTORY_SEPARATOR . $filename);
     }
 
-    /**
-     * you can set a different path with that function
-     *
-     * @TODO    include the prefix name
-     *
-     * @param string $dir
-     *
-     * @return bool bo
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function setCustomBackupPath($dir) {
 
         $customDir = DIRECTORY_SEPARATOR . trim($dir, '/') . DIRECTORY_SEPARATOR;
@@ -153,27 +100,11 @@ class PhenyxBackup {
         return true;
     }
 
-    /**
-     * Get the URL used to retrieve this backup file
-     *
-     * @return string The url used to request the backup file
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function getBackupURL() {
 
-        return __EPH_BASE_URI__ . basename(_EPH_ROOT_DIR_) . '/backup.php?filename=' . basename($this->id);
+        return __EPH_BASE_URI__ . basename(_EPH_ROOT_DIR_) . 'app/backup.php?filename=' . basename($this->id);
     }
 
-    /**
-     * Deletes a range of backup files
-     *
-     * @return bool True on success
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function deleteSelection($list) {
 
         foreach ($list as $file) {
@@ -190,19 +121,9 @@ class PhenyxBackup {
         return true;
     }
 
-    /**
-     * Creates a new backup file
-     *
-     * @return bool true on successful backup
-     *
-     * @throws EphenyxShopDatabaseException
-     * @throws PhenyxException
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function add() {
 
-        if (!$this->psBackupAll) {
+        if (!$this->ephBackupAll) {
             $ignoreInsertTable = [
                 _DB_PREFIX_ . 'connections',
                 _DB_PREFIX_ . 'connections_page',
@@ -269,7 +190,7 @@ class PhenyxBackup {
 
             fwrite($fp, '/* Scheme for table ' . $schema[0]['Table'] . " */\n");
 
-            if ($this->psBackupDropTable) {
+            if ($this->ephBackupDropTable) {
                 fwrite($fp, 'DROP TABLE IF EXISTS `' . $schema[0]['Table'] . '`;' . "\n");
             }
 
@@ -392,7 +313,7 @@ class PhenyxBackup {
 
             fwrite($fp, '/* Scheme for table ' . $schema[0]['Table'] . " */\n");
 
-            if ($this->psBackupDropTable) {
+            if ($this->ephBackupDropTable) {
                 fwrite($fp, 'DROP TABLE IF EXISTS `' . $schema[0]['Table'] . '`;' . "\n");
             }
 
@@ -472,14 +393,6 @@ class PhenyxBackup {
         return $sql;
     }
 
-    /**
-     * Delete the current backup file
-     *
-     * @return bool Deletion result, true on success
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public function delete() {
 
         if (!$this->id || !unlink($this->id)) {
