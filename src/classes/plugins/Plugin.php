@@ -2773,7 +2773,7 @@ abstract class Plugin {
         foreach ($hookNames as $hookName) {
 
             if (!Validate::isHookName($hookName)) {
-                throw new PhenyxException('Invalid hook name');
+                return false;
             }
 
             if (!isset($this->id) || !is_numeric($this->id)) {
