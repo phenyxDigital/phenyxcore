@@ -114,8 +114,6 @@ class CacheApcu extends CacheApi implements CacheApiInterface {
 	 */
 	public function cleanCache($type = '') {
 
-		$this->invalidateCache();
-
 		return apcu_clear_cache();
 	}
 
