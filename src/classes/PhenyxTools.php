@@ -660,23 +660,7 @@ class PhenyxTools {
 
 		}
 
-		$query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'plugin_carrier`  ORDER BY id_plugin ASC';
-		$pluginCarriers = Db::getInstance()->executeS($query);
-
-		foreach ($pluginCarriers as $carrier) {
-			$parent = Db::getInstance()->getValue(
-				(new DbQuery())
-					->select('`id_plugin`')
-					->from('plugin')
-					->where('`id_plugin` = ' . (int) $carrier['id_plugin'])
-			);
-
-			if (!$parent) {
-				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_carrier` WHERE id_plugin = ' . $carrier['id_plugin'];
-				$result &= Db::getInstance()->execute($sql);
-			}
-
-		}
+		
 
 		$query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'plugin_country`  ORDER BY id_plugin ASC';
 		$pluginCountries = Db::getInstance()->executeS($query);
@@ -695,24 +679,63 @@ class PhenyxTools {
 			}
 
 		}
+        if($this->ephenyx_shop_active) {
 
-		$query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'plugin_currency`  ORDER BY id_plugin ASC';
-		$pluginCountries = Db::getInstance()->executeS($query);
+            $query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'plugin_currency`  ORDER BY id_plugin ASC';
+            $pluginCountries = Db::getInstance()->executeS($query);
 
-		foreach ($pluginCountries as $country) {
-			$parent = Db::getInstance()->getValue(
-				(new DbQuery())
+            foreach ($pluginCountries as $country) {
+                $parent = Db::getInstance()->getValue(
+                    (new DbQuery())
 					->select('`id_plugin`')
 					->from('plugin')
 					->where('`id_plugin` = ' . (int) $country['id_plugin'])
-			);
+                );
 
-			if (!$parent) {
-				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_currency` WHERE id_plugin = ' . $country['id_plugin'];
-				$result &= Db::getInstance()->execute($sql);
-			}
+                if (!$parent) {
+                    $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_currency` WHERE id_plugin = ' . $country['id_plugin'];
+                    $result &= Db::getInstance()->execute($sql);
+                }
 
-		}
+            }
+            
+            $query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'plugin_carrier`  ORDER BY id_plugin ASC';
+            $pluginCarriers = Db::getInstance()->executeS($query);
+
+            foreach ($pluginCarriers as $carrier) {
+                $parent = Db::getInstance()->getValue(
+                    (new DbQuery())
+					->select('`id_plugin`')
+					->from('plugin')
+					->where('`id_plugin` = ' . (int) $carrier['id_plugin'])
+                );
+
+                if (!$parent) {
+                    $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_carrier` WHERE id_plugin = ' . $carrier['id_plugin'];
+                    $result &= Db::getInstance()->execute($sql);
+                }
+
+            }
+            
+            $query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'payment_mode`  ORDER BY id_plugin ASC';
+            $pluginCountries = Db::getInstance()->executeS($query);
+
+            foreach ($pluginCountries as $country) {
+                $parent = Db::getInstance()->getValue(
+                    (new DbQuery())
+					->select('`id_plugin`')
+					->from('plugin')
+					->where('`id_plugin` = ' . (int) $country['id_plugin'])
+                );
+
+                if (!$parent) {
+                    $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'payment_mode` WHERE id_plugin = ' . $country['id_plugin'];
+                    $result &= Db::getInstance()->execute($sql);
+                }
+
+            }
+
+        }
 
 		$query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'plugin_group`  ORDER BY id_plugin ASC';
 		$pluginCountries = Db::getInstance()->executeS($query);
@@ -768,24 +791,7 @@ class PhenyxTools {
 
 		}
 
-		$query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'payment_mode`  ORDER BY id_plugin ASC';
-		$pluginCountries = Db::getInstance()->executeS($query);
-
-		foreach ($pluginCountries as $country) {
-			$parent = Db::getInstance()->getValue(
-				(new DbQuery())
-					->select('`id_plugin`')
-					->from('plugin')
-					->where('`id_plugin` = ' . (int) $country['id_plugin'])
-			);
-
-			if (!$parent) {
-				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'payment_mode` WHERE id_plugin = ' . $country['id_plugin'];
-				$result &= Db::getInstance()->execute($sql);
-			}
-
-		}
-
+		
 		$query = 'SELECT *  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
 		$plugins = Db::getInstance()->executeS($query);
 
