@@ -2749,7 +2749,7 @@ abstract class Plugin {
             $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
         }
 
-        return $this->context->translations->getPluginTranslation($this, $string, ($specific) ? $specific : $this->name);
+        return $this->context->translations->getPluginTranslation($this->name, $string, ($specific) ? $specific : $this->name);
     }
 
     public function registerHook($hookName, $companyList = null, $position = null) {
