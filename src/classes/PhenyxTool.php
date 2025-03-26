@@ -5833,7 +5833,9 @@ FileETag none
         if (is_array($hookBars)) {
 
             foreach ($hookBars as $plugin => $hookBar) {
-                $topbars = $hookBar;
+                if(is_array($hookBar)) {
+                    $topbars = $hookBar;
+                }
             }
 
         }
