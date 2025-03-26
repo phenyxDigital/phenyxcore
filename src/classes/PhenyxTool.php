@@ -5723,7 +5723,7 @@ FileETag none
             $value = $this->context->cache_api->getData('generateTabs_'.$this->context->employee->id);
             $temp = empty($value) ? null : $this->jsonDecode($value, true);
 
-            if (!empty($temp)) {
+            if (!empty($temp) && is_array($temp)) {
                 return $temp;
             }
 
