@@ -712,6 +712,11 @@ class Translate {
     
     public function getDbTranslation($string) {
         
+        $javareturn = $this->context->_session->get('getExistingTranslationByIso_'.$iso_code);
+        if(is_array($javareturn) && array_key_exists($string, $javareturn)) {
+            return $javareturn[$string];
+        }
+        
         $trad = $this->translation->getExistingTranslation($this->context->language->iso_code, $string);
         if(!empty($trad)) {
             $str = $trad;

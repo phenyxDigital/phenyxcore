@@ -79,12 +79,20 @@ class Translation extends PhenyxObjectModel {
     
     public function getGlobalTranslations($isos = null) {
         
+        $translations = $this->context->_session->get('getGlobalTranslations');
+
+        if (!empty($translations) && is_array($translations)) {
+            return $translations;
+        }
+        
         $translations = [];
         if(is_null($isos)) {
             $isos = Language::getLanguages(true);
         } else {
             $isos = Language::getLanguagesByIsos($isos);
         }
+        
+       
         
         foreach ($isos as $lang) {   
             
@@ -96,6 +104,7 @@ class Translation extends PhenyxObjectModel {
             );
             
         }
+        $this->context->_session->set('getGlobalTranslations', $translations);
         
         return $translations;
     }
@@ -192,6 +201,12 @@ class Translation extends PhenyxObjectModel {
     }
 
     public function getExistingTranslationByIso($iso_code) {
+        
+        $javareturn = $this->context->_session->get('getExistingTranslationByIso_'.$iso_code);
+
+        if (!empty($javareturn) && is_array($javareturn)) {
+            return $javareturn;
+        }
 
         $javareturn = [];
 
@@ -205,6 +220,8 @@ class Translation extends PhenyxObjectModel {
         foreach ($results as $result) {
             $javareturn[$result['origin']] = $result['translation'];
         }
+        
+        $this->context->_session->set('getExistingTranslationByIso_'.$iso_code, $javareturn);
 
         return $javareturn;
     }
