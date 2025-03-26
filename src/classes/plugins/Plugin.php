@@ -2773,10 +2773,12 @@ abstract class Plugin {
         foreach ($hookNames as $hookName) {
 
             if (!Validate::isHookName($hookName)) {
+                PhenyxLogger::addLog("Bad hook name: ".$hookName);
                 return false;
             }
 
             if (!isset($this->id) || !is_numeric($this->id)) {
+                
                 return false;
             }
 

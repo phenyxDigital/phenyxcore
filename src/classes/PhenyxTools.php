@@ -562,6 +562,9 @@ class PhenyxTools {
 			$i++;
 		}
         
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` MODIFY `id_back_tab` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
+        $result &= Db::getInstance()->execute($sql);
+        
         if($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
             $this->context->cache_api->cleanByStartingKey('generateTabs_');
             $this->context->cache_api->cleanByStartingKey('getBckTab_');
@@ -629,6 +632,8 @@ class PhenyxTools {
 			$result &= Db::getInstance()->execute($sql);
 			$i++;
 		}
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` MODIFY `id_meta` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
+        $result &= Db::getInstance()->execute($sql);
         
         if($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
             $this->context->cache_api->cleanByStartingKey('metaGetPages_');
@@ -830,12 +835,12 @@ class PhenyxTools {
 
 		}
 
-		$query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
+		$query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY position ASC';
 		$plugins = Db::getInstance()->executeS($query);
 		$i = 1;
 
 		foreach ($plugins as $plugin) {
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $i . ', position = '.$i.' WHERE id_plugin = ' . $plugin['id_plugin'];
 			$result &= Db::getInstance()->execute($sql);
 
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
@@ -862,6 +867,8 @@ class PhenyxTools {
 			$i++;
 
 		}
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` MODIFY `id_plugin` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
+        $result &= Db::getInstance()->execute($sql);
         
         return $result;
 
@@ -932,6 +939,9 @@ class PhenyxTools {
 			$i++;
 
 		}
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'hook` MODIFY `id_hook` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
+        $result &= Db::getInstance()->execute($sql);
 
 		$this->resetPlugin();
         
@@ -941,7 +951,7 @@ class PhenyxTools {
 
 	public function resetPlugin() {
 
-		$query = 'SELECT *  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
+		$query = 'SELECT *  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY position ASC';
 		$plugins = Db::getInstance()->executeS($query);
 
 		foreach ($plugins as $plugin) {
