@@ -86,7 +86,7 @@ class Translate {
         if (file_exists(_EPH_TRANSLATIONS_DIR_ . $iso . '/pdf.php')) {
             require_once _EPH_TRANSLATIONS_DIR_ . $iso . '/pdf.php';
         }
-        $this->translation = new Translation();
+        $this->translation = Translation::getInstance();
         
         $this->fileExists();
         $this->frontlang = $_LANG;
