@@ -26,6 +26,8 @@ class Translate {
     public $langpdf;
     
     public $frontlang;
+    
+    public $translation;
 
     public function __construct($iso = null, $company = null, $affectContext = true) {
         
@@ -84,6 +86,7 @@ class Translate {
         if (file_exists(_EPH_TRANSLATIONS_DIR_ . $iso . '/pdf.php')) {
             require_once _EPH_TRANSLATIONS_DIR_ . $iso . '/pdf.php';
         }
+        $this->translation = new Translation();
         
         $this->fileExists();
         $this->frontlang = $_LANG;
@@ -701,10 +704,23 @@ class Translate {
             $str = $langArray['AdminTab' . $key];
         } else {
             // note in 1.5, some translations has moved from AdminXX to helper/*.tpl
-            $str = $string;
+            $str = $this->getDbTranslation($string);
         }
 
         return $str;
+    }
+    
+    public function getDbTranslation($string) {
+        
+        $trad = $this->translation->getExistingTranslation($this->context->language->iso_code, $string);
+        if(!empty($trad)) {
+            $str = $trad;
+        } else {
+            $str = $string;
+        }
+        
+        return $str;
+        
     }
 
     public function getGenericFrontTranslation($string, &$langArray, $key = null) {

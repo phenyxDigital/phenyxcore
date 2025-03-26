@@ -154,14 +154,24 @@ class Translation extends PhenyxObjectModel {
 	}
 
     public function getExistingTranslation($iso_code, $origin) {
+        
+        $result = $this->context->_session->get('getExistingTranslation_'.$origin.'_'.$iso_code);
 
-       return Db::getCrmInstance($this->dbUser, $this->dbPasswd, $this->dbName, $this->dbServer)->getValue(
+        if (!empty($result) && is_string($result)) {
+            return $result;
+        }
+
+       $translation = Db::getCrmInstance($this->dbUser, $this->dbPasswd, $this->dbName, $this->dbServer)->getValue(
             (new DbQuery())
             ->select('`translation`')
             ->from('translation')
             ->where('`iso_code` = \'' . trim($iso_code) . '\'')
             ->where('`origin` = \'' . bqSQL(trim($origin)) . '\'')
         );
+        
+        $this->context->_session->set('getExistingTranslation_'.$origin.'_'.$iso_code, $translation);
+        
+        return $translation;
     }
     
     public function getExistingObjectTranslation($iso_code, $origin) {
