@@ -644,7 +644,7 @@ class PhenyxTools {
 	}
 
 	public function cleanPlugins() {
-        
+        $file = fopen("testcleanPlugins.txt","w");
         $result = true;
         
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL';
@@ -655,7 +655,72 @@ class PhenyxTools {
         $result &= Db::getInstance()->execute($sql);
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` DROP PRIMARY KEY';
         $result &= Db::getInstance()->execute($sql);
+        
+        $query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
+		$plugs = Db::getInstance()->executeS($query);
+        $maxIndex = count($plugs)+1;
+        foreach ($plugs as $plugin) {
+            
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+            $result &= Db::getInstance()->execute($sql);
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+            $result &= Db::getInstance()->execute($sql);
+			
+            $maxIndex++;
+            
+            
+            
+        }
+        
+        $query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY position ASC';
+		$plugins = Db::getInstance()->executeS($query);
+		$i = 1;
+        
+		foreach ($plugins as $plugin) {
+            
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $i . ', position = '.$i.' WHERE id_plugin = ' . $plugin['id_plugin'];
+            $result &= Db::getInstance()->execute($sql);
+            
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+            
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+            $result &= Db::getInstance()->execute($sql);
+			
+            if($this->ephenyx_shop_active) {
+                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_carrier` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+                $result &= Db::getInstance()->execute($sql);
+                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_country` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+                $result &= Db::getInstance()->execute($sql);
+                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_currency` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+                $result &= Db::getInstance()->execute($sql);
+                $sql = 'UPDATE `' . _DB_PREFIX_ . 'payment_mode` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+                $result &= Db::getInstance()->execute($sql);
+            }
+			
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_group` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+            $result &= Db::getInstance()->execute($sql);
+			
+			$i++;
 
+		}
+        
+        $sql = 'ALTER TABLE`' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_plugin`);';
+        $result &= Db::getInstance()->execute($sql);
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_access` ADD PRIMARY KEY(`id_profile`, `id_plugin`)';
+        $result &= Db::getInstance()->execute($sql);
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` ADD PRIMARY KEY(`id_plugin`, `id_group`)';
+        $result &= Db::getInstance()->execute($sql);
+      
 		$query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'plugin_access`  ORDER BY id_plugin ASC';
 		$pluginAccess = Db::getInstance()->executeS($query);
 
@@ -828,6 +893,7 @@ class PhenyxTools {
                 $result &= Db::getInstance()->execute($sql);
                 $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_country` WHERE id_plugin = ' . $plugin['id_plugin'];
                 $result &= Db::getInstance()->execute($sql);
+
                 $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'plugin_currency` WHERE id_plugin = ' . $plugin['id_plugin'];
                 $result &= Db::getInstance()->execute($sql);
                 $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'payment_mode` WHERE id_plugin = ' . $plugin['id_plugin'];
@@ -843,63 +909,55 @@ class PhenyxTools {
 			
 
 		}
+                
+        $result &= $this->resetPlugin($result);
         
-        $query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
-		$plugs = Db::getInstance()->executeS($query);
-        $maxIndex = count($plugs)+1;
-        foreach ($plugs as $plugin) {
-            
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-             $result &= Db::getInstance()->execute($sql);
-			
-            $maxIndex++;
-            
-            
-            
-        }
+        return $result;
 
-		$query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY position ASC';
-		$plugins = Db::getInstance()->executeS($query);
-		$i = 1;
+	}
+    
+    public function resetPlugin(&$result = true) {
         
+		$query = 'SELECT *  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
+		$plugins = Db::getInstance()->executeS($query);
+
 		foreach ($plugins as $plugin) {
-            
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $i . ', position = '.$i.' WHERE id_plugin = ' . $plugin['id_plugin'];
-            $result &= Db::getInstance()->execute($sql);
-            
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-			$result &= Db::getInstance()->execute($sql);
-			
-            if($this->ephenyx_shop_active) {
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_carrier` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_country` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_currency` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'payment_mode` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-            }
-			
-			$result &= Db::getInstance()->execute($sql);
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_group` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			$result &= Db::getInstance()->execute($sql);
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			$result &= Db::getInstance()->execute($sql);
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-            $result &= Db::getInstance()->execute($sql);
-			
-			$i++;
+			if (file_exists(_EPH_PLUGIN_DIR_ . $plugin['name'] . '/' . $plugin['name'] . '.php')) {
+				require_once _EPH_PLUGIN_DIR_ . $plugin['name'] . '/' . $plugin['name'] . '.php';
+			} else
+
+			if (file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin['name'] . '/' . $plugin['name'] . '.php')) {
+				require_once _EPH_SPECIFIC_PLUGIN_DIR_ . $plugin['name'] . '/' . $plugin['name'] . '.php';
+			}
+
+			if (class_exists($plugin['name'], false)) {
+                
+				$tmpPlugin = Adapter_ServiceLocator::get($plugin['name']);
+
+				if (method_exists($tmpPlugin, 'reset')) {
+                    
+					$plugin = Plugin::getInstanceByName($plugin['name']);
+                    
+                    try {
+                        
+                        $result &= $plugin->reset();
+                        
+                    } catch (PhenyxException $e) {
+                        
+                        PhenyxLogger::addLog("Plugin reset error for :".$plugin['name']." ".$e->getMessage(), 4);
+
+                    }
+					
+
+				}
+
+			}
 
 		}
-        $sql = 'ALTER TABLE`' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_plugin`);';
-        $result &= Db::getInstance()->execute($sql);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_access` ADD PRIMARY KEY(`id_profile`, `id_plugin`)';
-        $result &= Db::getInstance()->execute($sql);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` ADD PRIMARY KEY(`id_plugin`, `id_group`)';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $result &= $this->resetPlugin($result);
+        if($this->context->cache_enable && is_object($this->context->cache_api)) {
+            $this->context->cache_api->cleanCache();
+        }
+        $this->context->_session->destroy();
         
         return $result;
 
@@ -978,48 +1036,7 @@ class PhenyxTools {
 
 	}
 
-	public function resetPlugin(&$result) {
-
-		$query = 'SELECT *  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY position ASC';
-		$plugins = Db::getInstance()->executeS($query);
-
-		foreach ($plugins as $plugin) {
-
-			if (file_exists(_EPH_PLUGIN_DIR_ . $plugin['name'] . '/' . $plugin['name'] . '.php')) {
-				require_once _EPH_PLUGIN_DIR_ . $plugin['name'] . '/' . $plugin['name'] . '.php';
-			} else
-
-			if (file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin['name'] . '/' . $plugin['name'] . '.php')) {
-				require_once _EPH_SPECIFIC_PLUGIN_DIR_ . $plugin['name'] . '/' . $plugin['name'] . '.php';
-			}
-
-			if (class_exists($plugin['name'], false)) {
-
-				$tmpPlugin = Adapter_ServiceLocator::get($plugin['name']);
-
-				if (method_exists($tmpPlugin, 'reset')) {
-					$plugin = Plugin::getInstanceByName($plugin['name']);
-                    
-                    try {
-                        
-                        $result &= $plugin->reset();
-                        
-                    } catch (PhenyxException $e) {
-                        
-                        PhenyxLogger::addLog("Plugin reset error for :".$plugin['name']." ".$e->getMessage());
-
-                    }
-					
-
-				}
-
-			}
-
-		}
-        
-        return $result;
-
-	}
+	
 
 	public function exportLang($iso, $theme, $plugins) {
 
