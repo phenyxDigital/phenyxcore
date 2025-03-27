@@ -646,6 +646,11 @@ class PhenyxTools {
 	public function cleanPlugins() {
         
         $result = true;
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL';
+        $result &= Db::getInstance()->execute($sql);
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` DROP PRIMARY KEY';
+        $result &= Db::getInstance()->execute($sql);
 
 		$query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'plugin_access`  ORDER BY id_plugin ASC';
 		$pluginAccess = Db::getInstance()->executeS($query);
@@ -868,6 +873,8 @@ class PhenyxTools {
 
 		}
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` MODIFY `id_plugin` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
+        $result &= Db::getInstance()->execute($sql);
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` ADD PRIMARY KEY(`id_plugin`)';
         $result &= Db::getInstance()->execute($sql);
         
         $result &= $this->resetPlugin($result);
