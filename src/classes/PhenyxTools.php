@@ -651,6 +651,10 @@ class PhenyxTools {
         $result &= Db::getInstance()->execute($sql);
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` DROP PRIMARY KEY';
         $result &= Db::getInstance()->execute($sql);
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_access` DROP PRIMARY KEY';
+        $result &= Db::getInstance()->execute($sql);
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` DROP PRIMARY KEY';
+        $result &= Db::getInstance()->execute($sql);
 
 		$query = 'SELECT DISTINCT(id_plugin)  FROM `' . _DB_PREFIX_ . 'plugin_access`  ORDER BY id_plugin ASC';
 		$pluginAccess = Db::getInstance()->executeS($query);
@@ -839,15 +843,30 @@ class PhenyxTools {
 			
 
 		}
+        
+        $query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
+		$plugs = Db::getInstance()->executeS($query);
+        $maxIndex = count($plugs)+1;
+        foreach ($plugs as $plugin) {
+            
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+             $result &= Db::getInstance()->execute($sql);
+			
+            $maxIndex++;
+            
+            
+            
+        }
 
 		$query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY position ASC';
 		$plugins = Db::getInstance()->executeS($query);
 		$i = 1;
-
+        
 		foreach ($plugins as $plugin) {
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $i . ', position = '.$i.' WHERE id_plugin = ' . $plugin['id_plugin'];
-			$result &= Db::getInstance()->execute($sql);
-
+            
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $i . ', position = '.$i.' WHERE id_plugin = ' . $plugin['id_plugin'];
+            $result &= Db::getInstance()->execute($sql);
+            
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
 			$result &= Db::getInstance()->execute($sql);
 			
@@ -868,13 +887,16 @@ class PhenyxTools {
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
 			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+            $result &= Db::getInstance()->execute($sql);
 			
 			$i++;
 
 		}
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` MODIFY `id_plugin` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
+        $sql = 'ALTER TABLE`' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_plugin`);';
         $result &= Db::getInstance()->execute($sql);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` ADD PRIMARY KEY(`id_plugin`)';
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_access` ADD PRIMARY KEY(`id_profile`, `id_plugin`)';
+        $result &= Db::getInstance()->execute($sql);
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` ADD PRIMARY KEY(`id_plugin`, `id_group`)';
         $result &= Db::getInstance()->execute($sql);
         
         $result &= $this->resetPlugin($result);
