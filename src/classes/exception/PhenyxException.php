@@ -57,6 +57,8 @@ class PhenyxException extends Exception {
     <tbody>
         <tr>
             <td><img src="/vendor/phenyxdigital/phenyxcore/lib/error.png"></td>
+            <td>
+            <a href="/tableau-de-bord?action=eraseCache&ajax=true">'.$this->l('Erase the deep cash').'</a>
         </tr>
         <tr>
             <td>
@@ -346,6 +348,21 @@ class PhenyxException extends Exception {
         }
 
         return $content;
+    }
+    
+    public function l($string, $idLang = null, $context = null) {
+
+        $class = 'PhenyxException';
+
+        if (strtolower(substr($class, -4)) == 'core') {
+            $class = substr($class, 0, -4);
+        }
+        if(isset($this->context->translations)) {
+            return $this->context->translations->getClassTranslation($string, $class);
+        }
+        return $string;
+
+        
     }
 
 }
