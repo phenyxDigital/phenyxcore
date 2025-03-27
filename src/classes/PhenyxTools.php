@@ -870,6 +870,8 @@ class PhenyxTools {
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` MODIFY `id_plugin` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
         $result &= Db::getInstance()->execute($sql);
         
+        $result &= $this->resetPlugin($result);
+        
         return $result;
 
 	}
@@ -941,15 +943,13 @@ class PhenyxTools {
 		}
         
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'hook` MODIFY `id_hook` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
-        $result &= Db::getInstance()->execute($sql);
-
-		$this->resetPlugin();
+        $result &= Db::getInstance()->execute($sql);		
         
         return $result;
 
 	}
 
-	public function resetPlugin() {
+	public function resetPlugin(&$result) {
 
 		$query = 'SELECT *  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY position ASC';
 		$plugins = Db::getInstance()->executeS($query);
@@ -970,13 +970,15 @@ class PhenyxTools {
 
 				if (method_exists($tmpPlugin, 'reset')) {
 					$plugin = Plugin::getInstanceByName($plugin['name']);
-					$plugin->reset();
+					$result &= $plugin->reset();
 
 				}
 
 			}
 
 		}
+        
+        return $result;
 
 	}
 
