@@ -999,7 +999,17 @@ class PhenyxTools {
 
 				if (method_exists($tmpPlugin, 'reset')) {
 					$plugin = Plugin::getInstanceByName($plugin['name']);
-					$result &= $plugin->reset();
+                    
+                    try {
+                        
+                        $result &= $plugin->reset();
+                        
+                    } catch (PhenyxException $e) {
+                        
+                        PhenyxLogger::addLog("Plugin reset error for :".$plugin['name']." ".$e->getMessage());
+
+                    }
+					
 
 				}
 
