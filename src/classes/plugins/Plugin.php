@@ -2724,10 +2724,21 @@ abstract class Plugin {
     }
 
     public function l($string, $specific = false) {
-
+        
         if (!isset($this->context)) {
             $this->context = Context::getContext();
         }
+        
+        if (!isset($this->context->language)) {
+            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+
+        }
+        $_translate = Translation::getInstance();
+        
+        return $_translate->getExistingTranslation($this->context->language->iso_code, $string);  
+
+
+        
 
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();

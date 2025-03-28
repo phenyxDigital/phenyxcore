@@ -143,6 +143,9 @@ class Translate {
         if (str_contains($string, "\‘")) {
             $string = str_replace("\‘", "'", $string);
         }
+        if (str_contains($string, "‘")) {
+            $string = str_replace("‘", "'", $string);
+        }
 
         $key = md5($string);
 
@@ -399,6 +402,9 @@ class Translate {
         }
         if (str_contains($string, "\‘")) {
             $string = str_replace("\‘", "'", $string);
+        }
+        if (str_contains($string, "‘")) {
+            $string = str_replace("‘", "'", $string);
         }
         $_PLUGIN = [];
 
