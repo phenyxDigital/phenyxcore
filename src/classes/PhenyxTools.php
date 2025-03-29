@@ -688,7 +688,8 @@ class PhenyxTools {
         if(!is_null($last_maintenance) && $last_maintenance > $dateCheck) {
             return true;
         }
-                
+        
+       
         $result = true;
         $query = 'SELECT hp.id_plugin, hp.id_hook, h.name as hookname, p.name
         FROM `' . _DB_PREFIX_ . 'hook_plugin` hp
@@ -708,7 +709,7 @@ class PhenyxTools {
 				require_once _EPH_PLUGIN_DIR_ . $pluginhook['name'] . '/' . $pluginhook['name'] . '.php';
 			} else
 
-			if (file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $pluginhook['name'] . '/' . $plugin['name'] . '.php')) {
+			if (file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $pluginhook['name'] . '/' . $pluginhook['name'] . '.php')) {
 				require_once _EPH_SPECIFIC_PLUGIN_DIR_ . $pluginhook['name'] . '/' . $pluginhook['name'] . '.php';
 			}
             if (class_exists($pluginhook['name'], false)) {
@@ -721,42 +722,45 @@ class PhenyxTools {
                 if($method) {
                     continue;
                 }
-                $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin` WHERE id_hook = ' . $pluginhook['id_hook'].' AND id_plugin = '. $pluginhook['id_plugin'];
+                $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin` WHERE `id_hook` = ' . $pluginhook['id_hook'].' AND `id_plugin` = '. $pluginhook['id_plugin'];
 			    $result &= Db::getInstance()->execute($sql);
             }
             
         }
         
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'hook_plugin` CHANGE `id_hook_plugin` `id_hook_plugin` INT(10) UNSIGNED NOT NULL';
-        
         $result &= Db::getInstance()->execute($sql);
-        $query = 'SELECT id_hook_plugin  FROM `' . _DB_PREFIX_ . 'hook_plugin` ORDER BY id_hook_plugin ASC';
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'hook_plugin` DROP PRIMARY KEY';
+        $result &= Db::getInstance()->execute($sql);
+        $query = 'SELECT `id_hook_plugin`  FROM `' . _DB_PREFIX_ . 'hook_plugin` ORDER BY `id_hook_plugin` ASC';
 		$hookPlugins = Db::getInstance()->executeS($query);
-        $maxIndex = count($hookPlugins)+1;
-        
+        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+            (new DbQuery())
+                ->select('MAX(`id_hook_plugin`) + 1')
+                ->from('hook_plugin')
+        );
         foreach ($hookPlugins as $hook) {
             
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_hook_plugin = ' . $maxIndex . ' WHERE id_hook_plugin = ' . $hook['id_hook_plugin'];
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET `id_hook_plugin` = ' . $maxIndex . ' WHERE `id_hook_plugin` = ' . $hook['id_hook_plugin'];
             $result &= Db::getInstance()->execute($sql);
             
             $maxIndex++;
             
-            
-            
         }
         
-        $query = 'SELECT id_hook_plugin  FROM `' . _DB_PREFIX_ . 'hook_plugin` ORDER BY id_hook_plugin ASC';
+        $query = 'SELECT `id_hook_plugin`  FROM `' . _DB_PREFIX_ . 'hook_plugin` ORDER BY `id_hook_plugin` ASC';
 		$hookPlugins = Db::getInstance()->executeS($query);
+        
 		$i = 1;
         foreach ($hookPlugins as $hook) {
             
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_hook_plugin = ' . $i . ' WHERE id_hook_plugin = ' . $hook['id_hook_plugin'];
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET `id_hook_plugin` = ' . $i . ' WHERE `id_hook_plugin` = ' . $hook['id_hook_plugin'];
             $result &= Db::getInstance()->execute($sql);
             		
 			$i++;
 
 		}
-        $sql = 'ALTER TABLE`' . _DB_PREFIX_ . 'hook_plugin` CHANGE `id_hook_plugin` `id_hook_plugin` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT';
+        $sql = 'ALTER TABLE`' . _DB_PREFIX_ . 'hook_plugin` CHANGE `id_hook_plugin` `id_hook_plugin` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_hook_plugin`)';
         $result &= Db::getInstance()->execute($sql);
         if($result) {
             $this->context->phenyxConfig->updateValue('PLUGIN_HOOK_MAINTENANCE', date("Y-m-d"));
@@ -777,41 +781,35 @@ class PhenyxTools {
         if(!is_null($last_maintenance) && $last_maintenance > $dateCheck) {
             return true;
         }
-        $file = fopen("testcleanPlugins.txt","w");
+       
         $result = true;
         
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL';
-        fwrite($file,"Remove autoIncrement Plugin : ".$sql.PHP_EOL);
         $result &= Db::getInstance()->execute($sql);
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` DROP PRIMARY KEY';
-        fwrite($file,"DROP PRIMARY KEY : ".$sql.PHP_EOL);
         $result &= Db::getInstance()->execute($sql);
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_access` DROP PRIMARY KEY';
-         fwrite($file,"DROP PRIMARY KEY : ".$sql.PHP_EOL);
         $result &= Db::getInstance()->execute($sql);
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` DROP PRIMARY KEY';
-         fwrite($file,"DROP PRIMARY KEY : ".$sql.PHP_EOL);
         $result &= Db::getInstance()->execute($sql);
         
         $query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
 		$plugs = Db::getInstance()->executeS($query);
-        $maxIndex = count($plugs)+1;
+        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+            (new DbQuery())
+                ->select('MAX(`id_plugin`) + 1')
+                ->from('plugin')
+        );
         foreach ($plugs as $plugin) {
-            fwrite($file,"Upgrade max Id for ".$plugin['id_plugin'].PHP_EOL);
             $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-            fwrite($file,"Upgrade max Id for plugin table : ".PHP_EOL.$sql.PHP_EOL);
             $result &= Db::getInstance()->execute($sql);
             $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-            fwrite($file,"Upgrade max Id for hook_plugin table : ".PHP_EOL.$sql.PHP_EOL);
 			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-            fwrite($file,"Upgrade max Id for hook_plugin_exceptions table : ".PHP_EOL.$sql.PHP_EOL);
             $result &= Db::getInstance()->execute($sql);
             $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-             fwrite($file,"Upgrade max Id for plugin_access table : ".PHP_EOL.$sql.PHP_EOL);
 			$result &= Db::getInstance()->execute($sql);
             $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_group` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-            fwrite($file,"Upgrade max Id for plugin_group table : ".PHP_EOL.$sql.PHP_EOL);
 			$result &= Db::getInstance()->execute($sql);
             if($this->ephenyx_shop_active) {
                 $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_carrier` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
@@ -837,23 +835,18 @@ class PhenyxTools {
 		foreach ($plugins as $plugin) {
             
             $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $i . ', position = '.$i.' WHERE id_plugin = ' . $plugin['id_plugin'];
-            fwrite($file,"Restore new increment Id for plugin table : ".PHP_EOL.$sql.PHP_EOL);
             $result &= Db::getInstance()->execute($sql);
             
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-            fwrite($file,"Restore  new increment Id for plugin_access table : ".PHP_EOL.$sql.PHP_EOL);
 			$result &= Db::getInstance()->execute($sql);
             
             $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-            fwrite($file,"Restore  new increment Id for hook_plugin table : ".PHP_EOL.$sql.PHP_EOL);
 			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-            fwrite($file,"Restore  new increment Id for hook_plugin_exceptions : ".PHP_EOL.$sql.PHP_EOL);
             $result &= Db::getInstance()->execute($sql);
             
             $result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_group` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-            fwrite($file,"Restore  new increment Id for plugin_group : ".PHP_EOL.$sql.PHP_EOL);
 			$result &= Db::getInstance()->execute($sql);
 			
             if($this->ephenyx_shop_active) {
@@ -874,13 +867,10 @@ class PhenyxTools {
 		}
         
         $sql = 'ALTER TABLE`' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_plugin`);';
-        fwrite($file,"Restore  Autologin for plugin table : ".PHP_EOL.$sql.PHP_EOL);
         $result &= Db::getInstance()->execute($sql);
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_access` ADD PRIMARY KEY(`id_profile`, `id_plugin`)';
-        fwrite($file,"Restore  PRIMARY KEY for plugin_access table : ".PHP_EOL.$sql.PHP_EOL);
         $result &= Db::getInstance()->execute($sql);
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` ADD PRIMARY KEY(`id_plugin`, `id_group`)';
-        fwrite($file,"Restore  PRIMARY KEY for plugin_group table : ".PHP_EOL.$sql.PHP_EOL);
         $result &= Db::getInstance()->execute($sql);
                       
         $result &= $this->resetPlugin($result);
@@ -1414,6 +1404,7 @@ class PhenyxTools {
 
 		foreach ($toInsert as $key => $value) {
 			$value = htmlspecialchars_decode($value, ENT_QUOTES);
+
 			fwrite($file, '$_LANGPDF[\'' . translateSQL($key, true) . '\'] = \'' . translateSQL($value, true) . '\';' . "\n");
 		}
 
