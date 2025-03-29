@@ -161,9 +161,6 @@ class PhenyxBackup {
 
         $this->id = realpath($backupfile);
 
-        fwrite($fp, '/* Backup for ' . Tools::getHttpHost(false, false) . __EPH_BASE_URI__ . "\n *  at " . date($date) . "\n */\n");
-        fwrite($fp, "\n" . 'SET NAMES \'utf8\';' . "\n\n");
-
         // Find all tables
         $tables = Db::getInstance()->executeS('SHOW TABLES');
         $found = 0;
@@ -187,8 +184,6 @@ class PhenyxBackup {
 
                 return false;
             }
-
-            fwrite($fp, '/* Scheme for table ' . $schema[0]['Table'] . " */\n");
 
             if ($this->ephBackupDropTable) {
                 fwrite($fp, 'DROP TABLE IF EXISTS `' . $schema[0]['Table'] . '`;' . "\n");
