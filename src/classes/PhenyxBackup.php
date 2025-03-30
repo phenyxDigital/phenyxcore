@@ -134,6 +134,15 @@ class PhenyxBackup {
         } else {
             $ignoreInsertTable = [];
         }
+        
+        $extraIgnoreTables = Hook::getInstance()->exec('getExtraIgonesBackupTables', [], null, true);
+        if (is_array($extraIgnoreTables)) {
+
+            foreach ($extraIgnoreTables as $plugin => $ignoreTable) {
+                $ignoreInsertTable[] = $ignoreTable;
+            }
+
+        }
 
         // Generate some random number, to make it extra hard to guess backup file names
         $rand = dechex(mt_rand(0, min(0xffffffff, mt_getrandmax())));

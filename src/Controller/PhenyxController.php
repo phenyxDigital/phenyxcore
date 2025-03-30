@@ -281,7 +281,7 @@ abstract class PhenyxController {
         }
         
         if (!isset($this->context->link)) {
-            $this->context->link = new Link();
+            $this->context->link = Link::getInstance();
         }
         if (!isset($this->context->_tools)) {
             $this->context->_tools = PhenyxTool::getInstance();
