@@ -251,9 +251,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             $this->context->_hook = PhenyxObjectModel::$hook_instance;
             $this->context->hook_args = $this->context->_hook->getHookArgs();
         }
-        if (!isset($this->context->cache_enable)) {
-            $this->context->cache_enable = $this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED');
-        } 
+        $this->buildContext();
         if ($this->context->cache_enable && is_object($this->context->cache_api)) {            
             $value = $this->context->cache_api->getData('getExtra' . $this->className . 'Vars');
             $temp = empty($value) ? null : Tools::jsonDecode($value, true);
@@ -303,51 +301,6 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
             $entityMapper->load($id, $idLang, $this, $this->def, static::$cache_objects);
         }
-        
-        
-        if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = Configuration::getInstance();
-            
-        }
-        if (!isset($this->context->company)) {
-            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
-            
-        }
-        if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
-        }
-           
-        
-        if (!isset($this->context->translations)) {
-
-            $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
-        }
-        
-        if (!isset($this->context->media)) {
-            $this->context->media = Media::getInstance();
-        }
-        
-        if (!isset($this->context->_session)) {
-            $this->context->_session = new PhenyxSession();
-        }
-        
-        if(!isset($this->context->_link)) {
-            $this->context->_link = Link::getInstance();
-        }
-        
-        if (!isset($this->context->_tools)) {
-            $this->context->_tools = PhenyxTool::getInstance();
-        }
-        if(!isset($this->context->img_manager)) {
-            $this->context->img_manager = ImageManager::getInstance();
-        }
-        
-        if (!isset($this->context->phenyxgrid)) {
-            $this->context->phenyxgrid = new ParamGrid();
-        }
-        
-         
-         
 
          if ($this->context->cache_enable && !is_object($this->context->cache_api)) {
             $this->context->cache_api = CacheApi::getInstance();
@@ -432,6 +385,61 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         }
         
 
+    }
+    
+    public function buildContext() {
+        
+        
+        if (!isset($this->context->phenyxConfig)) {
+            $this->context->phenyxConfig = Configuration::getInstance();
+            
+        }
+        
+        
+        if (!isset($this->context->company)) {
+            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+        }
+                
+
+        if (!isset($this->context->_hook)) {
+            $this->context->_hook = Hook::getInstance();
+        }
+
+        if (!isset($this->context->hook_args)) {
+            $this->context->hook_args = $this->context->_hook->getHookArgs();
+        }
+
+        if (!isset($this->context->media)) {
+            $this->context->media = Media::getInstance();
+        }
+        
+        if (!isset($this->context->_session)) {
+            $this->context->_session = new PhenyxSession();
+        }
+        
+        if (!isset($this->context->_link)) {
+            $this->context->_link = Link::getInstance();
+        }
+        if (!isset($this->context->_tools)) {
+            $this->context->_tools = PhenyxTool::getInstance();
+        }
+        if(!isset($this->context->img_manager)) {
+            $this->context->img_manager = ImageManager::getInstance();
+        }
+        if (!isset($this->context->language)) {
+            $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+        }
+
+        if (!isset($this->context->translations)) {
+            $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
+        }
+        
+        if (!isset($this->context->cache_enable)) {
+            $this->context->cache_enable = $this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED');
+        } 
+        
+        
+       
     }
     
     public function setServiceContainer($container) {

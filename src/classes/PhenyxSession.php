@@ -88,14 +88,20 @@ class PhenyxSession extends PhenyxServices {
     }
 
     public function getSessionValues() {
-
         ini_set('memory_limit', '-1');
         $result = [];
 
         foreach ($_SESSION[self::SESSION_NAMESPACE] as $key => $value) {
-            $result[$key] = Validate::isJSON($value) ? Tools::jsonDecode($value, true) : $value;
+            
+            if(is_array($value)) {
+                $result[$key] = $value;
+            } else if(Validate::isJSON($value)) {
+                $result[$key] = Tools::jsonDecode($value, true);
+            } else {
+                $result[$key] = $value;
+            }
+            
         }
-
         ksort($result);
         return $result;
     }
