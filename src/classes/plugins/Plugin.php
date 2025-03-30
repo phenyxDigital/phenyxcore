@@ -2997,7 +2997,7 @@ abstract class Plugin {
 
     public function getExceptions($idHook, $dispatch = false) {
 
-        $array_return = $this->context->_session->get('getExceptions_' . $idHook . '_' . $dispatch);
+        $array_return = PhenyxSession::getInstance()->get('getExceptions_' . $idHook . '_' . $dispatch);
 
         if (!empty($array_return) && is_array($array_return)) {
             return $array_return;
@@ -3050,7 +3050,7 @@ abstract class Plugin {
 
         }
 
-        $this->context->_session->set('getExceptions_' . $idHook . '_' . $dispatch, $array_return);
+        PhenyxSession::getInstance()->set('getExceptions_' . $idHook . '_' . $dispatch, $array_return);
 
         return $array_return;
     }

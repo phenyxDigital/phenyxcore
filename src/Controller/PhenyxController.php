@@ -277,7 +277,7 @@ abstract class PhenyxController {
         }
         
         if (!isset($this->context->_session)) {
-            $this->context->_session = PhenyxSession::getInstance();
+            $this->context->_session = new PhenyxSession();
         }
         
         if (!isset($this->context->_link)) {
