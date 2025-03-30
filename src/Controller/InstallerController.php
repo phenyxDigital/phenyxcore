@@ -223,7 +223,7 @@ class InstallerController extends PhenyxController {
                 'videoLink'         => $this->context->phenyxConfig->get('EPH_HOME_VIDEO_LINK'),
                 'showParallax'      => $this->context->phenyxConfig->get('EPH_HOME_PARALLAX_ACTIVE'),
                 'imgParallax'       => $this->context->phenyxConfig->get('EPH_HOME_PARALLAX_FILE'),
-                'baseUrl'           => $this->context->link->getBaseLink(),
+                'baseUrl'           => $this->context->_link->getBaseLink(),
                 'oggPic'            => $this->context->phenyxConfig->get('EPH_OGGPIC'),
                 'ajax_mode'         => $this->context->phenyxConfig->get('EPH_FRONT_AJAX') ? 1 : 0,
                 'fonts'             => $font,
@@ -262,12 +262,12 @@ class InstallerController extends PhenyxController {
         case 'cms':
             $idCms = Tools::getValue('id_cms');
 
-            $canonical = $this->context->link->getCMSLink((int) $idCms);
+            $canonical = $this->context->_link->getCMSLink((int) $idCms);
             $hreflang = $this->getHrefLang('cms', (int) $idCms, $languages, $defaultLang);
 
             break;
         default:
-            $canonical = $this->context->link->getPageLink($this->php_self);
+            $canonical = $this->context->_link->getPageLink($this->php_self);
             $hreflang = $this->getHrefLang($this->php_self, 0, $languages, $defaultLang);
             break;
 
@@ -296,10 +296,10 @@ class InstallerController extends PhenyxController {
             switch ($entity) {
 
             case 'cms':
-                $lnk = $this->context->link->getCMSLink((int) $idItem, null, null, $lang['id_lang']);
+                $lnk = $this->context->_link->getCMSLink((int) $idItem, null, null, $lang['id_lang']);
                 break;
             default:
-                $lnk = $this->context->link->getPageLink($entity, null, $lang['id_lang']);
+                $lnk = $this->context->_link->getPageLink($entity, null, $lang['id_lang']);
                 break;
             }
 
@@ -424,7 +424,7 @@ class InstallerController extends PhenyxController {
             $this->context->smarty->assign(
                 [
 
-                    'default_tab_link' => $this->context->link->getAdminLink('admindashboard'),
+                    'default_tab_link' => $this->context->_link->getAdminLink('admindashboard'),
 
                 ]
             );
@@ -452,9 +452,9 @@ class InstallerController extends PhenyxController {
         $mobileDevice = $this->isMobileDevice();
 
         if ($mobileDevice && $this->context->phenyxConfig->get('EPH_LOGO_MOBILE')) {
-            $logo = $this->context->link->getMediaLink(_EPH_IMG_ . $this->context->phenyxConfig->get('EPH_LOGO_MOBILE') . '?' . $this->context->phenyxConfig->get('EPH_IMG_UPDATE_TIME'));
+            $logo = $this->context->_link->getMediaLink(_EPH_IMG_ . $this->context->phenyxConfig->get('EPH_LOGO_MOBILE') . '?' . $this->context->phenyxConfig->get('EPH_IMG_UPDATE_TIME'));
         } else {
-            $logo = $this->context->link->getMediaLink(_EPH_IMG_ . $this->context->phenyxConfig->get('EPH_LOGO'));
+            $logo = $this->context->_link->getMediaLink(_EPH_IMG_ . $this->context->phenyxConfig->get('EPH_LOGO'));
         }
 
         return [
@@ -738,7 +738,7 @@ class InstallerController extends PhenyxController {
                         'css_files'        => $this->css_files,
                         'js_files'         => $this->js_files,
                         'is_admin'         => $this->context->cookie->is_admin ? $this->context->cookie->is_admin : 0,
-                        'link'             => $this->context->link,
+                        'link'             => $this->context->_link,
                     ]
                 );
 
@@ -889,11 +889,11 @@ class InstallerController extends PhenyxController {
             'useLazyLoad'   => $this->context->phenyxConfig->get('EPH_LAZY_LOAD') ? 1 : 0,
             'useWebp'       => ($this->context->phenyxConfig->get('EPH_USE_WEBP') && function_exists('imagewebp')) ? 1 : 0,
             'AjaxMemberId'  => $this->context->user->id ? $this->context->user->id : null,
-            'AjaxLinkIndex' => $this->context->link->getPageLink('index', true),
-            'ajaxCmsLink'   => $this->context->link->getPageLink('cms', true),
-            'ajaxFormLink'  => $this->context->link->getPageLink('pfg', true),
-            'AjaxAuthLink'  => $this->context->link->getPageLink('authentication', true),
-            'AjaxFrontLink' => $this->context->link->getPageLink('front', true),
+            'AjaxLinkIndex' => $this->context->_link->getPageLink('index', true),
+            'ajaxCmsLink'   => $this->context->_link->getPageLink('cms', true),
+            'ajaxFormLink'  => $this->context->_link->getPageLink('pfg', true),
+            'AjaxAuthLink'  => $this->context->_link->getPageLink('authentication', true),
+            'AjaxFrontLink' => $this->context->_link->getPageLink('front', true),
             'css_dir'       => $this->context->theme->css_theme,
             'js_dir'        => $this->context->theme->js_theme,
             'baseDir'       => Tools::getDomainSsl(true),
@@ -1244,7 +1244,7 @@ class InstallerController extends PhenyxController {
         $useSSL = ((isset($this->ssl) && $this->ssl && $this->context->phenyxConfig->get('EPH_SSL_ENABLED')) || Tools::usingSecureMode()) ? true : false;
         $protocolContent = ($useSSL) ? 'https://' : 'http://';
         $link = new Link($protocolLink, $protocolContent);
-        $this->context->link = $link;
+        $this->context->_link = $link;
 
         if ($this->auth && !$this->_user->isLogged($this->guestAllowed)) {
             Tools::redirect('index.php');
@@ -1329,7 +1329,7 @@ class InstallerController extends PhenyxController {
         // Automatically redirect to the canonical URL if needed
 
         if (!empty($this->php_self) && !Tools::getValue('ajax')) {
-            $this->canonicalRedirection($this->context->link->getPageLink($this->php_self, $this->ssl, $this->context->language->id));
+            $this->canonicalRedirection($this->context->_link->getPageLink($this->php_self, $this->ssl, $this->context->language->id));
         }
 
         $languages = Language::getLanguages(true);
@@ -1673,7 +1673,7 @@ class InstallerController extends PhenyxController {
             [
                 'shop_name'   => $this->context->company->name,
                 'favicon_url' => _EPH_IMG_ . $this->context->phenyxConfig->get('EPH_FAVICON'),
-                'logo_url'    => $this->context->link->getMediaLink(_EPH_IMG_ . $this->context->phenyxConfig->get('EPH_LOGO')),
+                'logo_url'    => $this->context->_link->getMediaLink(_EPH_IMG_ . $this->context->phenyxConfig->get('EPH_LOGO')),
             ]
         );
         $this->smartyOutputContent($this->getTemplatePath($this->getThemeDir() . 'restricted-country.tpl'));
@@ -1763,7 +1763,7 @@ class InstallerController extends PhenyxController {
     public function ajaxProcessGetFrontLinkController() {
 
         $controller = Tools::getValue('souceController');
-        $link = $this->context->link->getPageLink($controller, true);
+        $link = $this->context->_link->getPageLink($controller, true);
         $return = [
             'link' => $link,
         ];

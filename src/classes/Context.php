@@ -48,7 +48,7 @@ class Context {
     
     public $hook_args;
 	/** @var Link */
-	public $link;
+	public $_link;
 	/** @var Country */
 	public $country;
 	/** @var Employee */

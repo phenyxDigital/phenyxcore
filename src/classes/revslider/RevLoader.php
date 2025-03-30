@@ -1764,7 +1764,7 @@ class RevLoader {
     static function getAjaxUrl() {
 
         $context = \Context::getContext();
-        $ajaxUrl = $context->link->getAdminLink('AdminRevolutionsliderAjax');
+        $ajaxUrl = $context->_link->getAdminLink('AdminRevolutionsliderAjax');
         return $ajaxUrl;
     }
 

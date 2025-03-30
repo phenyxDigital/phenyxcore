@@ -238,8 +238,8 @@ abstract class Plugin {
             $this->context->media = Media::getInstance();
         }
 
-        if (!isset($this->context->link)) {
-            $this->context->link = new Link();
+        if (!isset($this->context->_link)) {
+            $this->context->_link = new Link();
         }
 
         if (!isset($this->context->_tools)) {
@@ -258,7 +258,7 @@ abstract class Plugin {
         $this->_company = $this->context->company;
         $this->_user = $this->context->user;
         $this->_cookie = $this->context->cookie;
-        $this->_link = $this->context->link;
+        $this->_link = $this->context->_link;
         $this->_language = $this->context->language;
         $this->_smarty = $this->context->smarty;
         $this->context->cache_enable = $this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED');
@@ -3155,7 +3155,7 @@ abstract class Plugin {
 
             $this->context->smarty->assign(
                 [
-                    'plugin_dir'          => $this->context->link->getBaseFrontLink() . 'includes/plugins/' . basename($file, '.php') . '/',
+                    'plugin_dir'          => Link::getInstance()->getBaseFrontLink() . 'includes/plugins/' . basename($file, '.php') . '/',
                     'plugin_template_dir' => ($overloaded ? _THEME_DIR_ : __EPH_BASE_URI__) . 'includes/plugins/' . basename($file, '.php') . '/',
                     'allow_push'          => $this->allow_push,
                 ]

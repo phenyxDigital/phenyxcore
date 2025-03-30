@@ -331,8 +331,8 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             $this->context->_session = PhenyxSession::getInstance();
         }
         
-        if(!isset($this->context->link)) {
-            $this->context->link = Link::getInstance();
+        if(!isset($this->context->_link)) {
+            $this->context->_link = Link::getInstance();
         }
         
         if (!isset($this->context->_tools)) {

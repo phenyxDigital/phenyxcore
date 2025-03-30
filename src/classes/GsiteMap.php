@@ -411,7 +411,7 @@ class GsiteMap extends PhenyxObjectModel {
 			$url = '';
 
 			if (!in_array($meta['page'], $this->disable_link)) {
-				$url = $this->context->link->getPageLink($meta['page'], null, $lang['id_lang']);
+				$url = $this->context->_link->getPageLink($meta['page'], null, $lang['id_lang']);
 
 				if (!$this->_addLinkToSitemap(
 					$link_sitemap, [
@@ -448,7 +448,7 @@ class GsiteMap extends PhenyxObjectModel {
 			foreach ($cmss_id as $cms_id) {
 				$cms = new CMS((int) $cms_id['id_cms'], $lang['id_lang']);
 				$cms->link_rewrite = urlencode((is_array($cms->link_rewrite) ? $cms->link_rewrite[(int) $lang['id_lang']] : $cms->link_rewrite));
-				$url = $this->context->link->getCMSLink($cms, null, null, $lang['id_lang']);
+				$url = $this->context->_link->getCMSLink($cms, null, null, $lang['id_lang']);
 
 				if (!$this->_addLinkToSitemap(
 					$link_sitemap, [

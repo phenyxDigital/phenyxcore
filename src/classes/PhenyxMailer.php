@@ -125,7 +125,7 @@ class PhenyxMailer {
                 'title'          => $this->subject,
                 'show_head_logo' => $this->context->phenyxConfig->get('EPH_SHOW_HEADER_LOGO_MAIL') ? 1 : 0,
                 'css_dir'        => 'https://' . $this->context->company->domain_ssl . $this->context->theme->css_theme,
-                'shop_link'      => $this->context->link->getBaseFrontLink(),
+                'shop_link'      => $this->context->_link->getBaseFrontLink(),
                 'shop_name'      => $this->context->company->company_name,
                 'bckImg'         => $bckImg,
                 'logoMailLink'   => $url . '/content/img/' . $this->context->phenyxConfig->get('EPH_LOGO_MAIL'),

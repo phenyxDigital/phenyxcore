@@ -431,7 +431,7 @@ class TopMenu extends PhenyxObjectModel {
 
         $is_ajax = $this->context->phenyxConfig->get('EPH_FRONT_AJAX') ? 1 : 0;
 
-        $link = $this->context->link;
+        $link = $this->context->_link;
         $_iso_lang = Language::getIsoById($this->context->cookie->id_lang);
         $return = false;
         $name = false;
@@ -482,7 +482,7 @@ class TopMenu extends PhenyxObjectModel {
             if ($use_ajax) {
                 $return .= '<a href="javascript:void()" rel="nofollow"  onClick="openAjaxCms(' . (int) $cms->id . ')" title="' . $name . '"  class="a-niveau1 ' . $this->custom_class . '" data-type="cms" data-id="' . (int) $cms->id . '">';
             } else {
-                $return .= '<a href="' . $this->context->link->getCMSLink($cms) . '" title="' . $name . '"  class="a-niveau1 ' . $this->custom_class . '" data-type="cms" data-id="' . (int) $cms->id . '">';
+                $return .= '<a href="' . $this->context->_link->getCMSLink($cms) . '" title="' . $name . '"  class="a-niveau1 ' . $this->custom_class . '" data-type="cms" data-id="' . (int) $cms->id . '">';
             }
 
             $return .= '<span class="phtm_menu_span phtm_menu_span_' . (int) $this->id . ' ">';
@@ -541,7 +541,7 @@ class TopMenu extends PhenyxObjectModel {
             if ($use_ajax) {
                 $return .= '<a href="javascript:void()" rel="nofollow"  onClick="openAjaxFormulaire(' . (int) $pfg->id . ')" title="' . $name . '"  class="a-niveau1" data-type="pfg" data-id="' . (int) $pfg->id . '">';
             } else {
-                $return .= '<a href="' . $this->context->link->getPFGLink($pfg) . '" title="' . $name . '"  class="a-niveau1" data-type="pfg" data-id="' . (int) $pfg->id . '">';
+                $return .= '<a href="' . $this->context->_link->getPFGLink($pfg) . '" title="' . $name . '"  class="a-niveau1" data-type="pfg" data-id="' . (int) $pfg->id . '">';
             }
 
             $return .= '<span class="phtm_menu_span phtm_menu_span_' . (int) $this->id . '">';
@@ -1078,7 +1078,7 @@ class TopMenu extends PhenyxObjectModel {
         $context = Context::getContext();
         $is_ajax = $context->phenyxConfig->get('EPH_FRONT_AJAX') ? 1 : 0;
 
-        $link = $context->link;
+        $link = $context->_link;
         $_iso_lang = Language::getIsoById($context->cookie->id_lang);
         $return = false;
         $name = false;
@@ -1110,7 +1110,7 @@ class TopMenu extends PhenyxObjectModel {
             if ($use_ajax) {
                 $return .= '<a href="javascript:void()" rel="nofollow"  onClick="openAjaxCms(' . (int) $cms->id . ')" title="' . $name . '"  class="a-niveau1 ' . $objectData['custom_class'] . '" data-type="cms" data-id="' . (int) $cms->id . '">';
             } else {
-                $return .= '<a href="' . $context->link->getCMSLink($cms) . '" title="' . $name . '"  class="a-niveau1 ' . $objectData['custom_class'] . '" data-type="cms" data-id="' . (int) $cms->id . '">';
+                $return .= '<a href="' . $context->_link->getCMSLink($cms) . '" title="' . $name . '"  class="a-niveau1 ' . $objectData['custom_class'] . '" data-type="cms" data-id="' . (int) $cms->id . '">';
             }
 
             $return .= '<span class="phtm_menu_span phtm_menu_span_' . (int) $objectData['id'] . ' ">';
@@ -1169,7 +1169,7 @@ class TopMenu extends PhenyxObjectModel {
             if ($use_ajax) {
                 $return .= '<a href="javascript:void()" rel="nofollow"  onClick="openAjaxFormulaire(' . (int) $pfg->id . ')" title="' . $name . '"  class="a-niveau1" data-type="pfg" data-id="' . (int) $pfg->id . '">';
             } else {
-                $return .= '<a href="' . $context->link->getPFGLink($pfg) . '" title="' . $name . '"  class="a-niveau1" data-type="pfg" data-id="' . (int) $pfg->id . '">';
+                $return .= '<a href="' . $context->_link->getPFGLink($pfg) . '" title="' . $name . '"  class="a-niveau1" data-type="pfg" data-id="' . (int) $pfg->id . '">';
             }
 
             $return .= '<span class="phtm_menu_span phtm_menu_span_' . (int) $objectData['id'] . '">';
@@ -1787,7 +1787,7 @@ class TopMenu extends PhenyxObjectModel {
             'cms'                  => $cms,
             'cmsCategories'        => $cmsCategories,
             'manufacturer'         => $manufacturer,
-            'linkTopMenu'          => $this->context->link->getAdminLink('AdminTopMenu'),
+            'linkTopMenu'          => $this->context->_link->getAdminLink('AdminTopMenu'),
             'ObjTopMenu'           => $ObjEphenyxTopMenuClass,
             'ObjTopMenuColumnWrap' => $ObjEphenyxTopMenuColumnWrapClass,
             'ObjTopMenuColumn'     => $ObjEphenyxTopMenuColumnClass,
@@ -1858,7 +1858,7 @@ class TopMenu extends PhenyxObjectModel {
         $tpl = $context->smarty->createTemplate('controllers/top_menu/' . $tpl, $context->smarty);
         $tpl->assign(
             [
-                'linkTopMenu'      => $context->link->getAdminLink('AdminTopMenu'),
+                'linkTopMenu'      => $context->_link->getAdminLink('AdminTopMenu'),
                 'topMenu_img_dir'  => _EPH_MENU_DIR_,
                 'menu_img_dir'     => __EPH_BASE_URI__ . $admin_webpath . '/themes/default/img/topmenu/',
                 'current_iso_lang' => Language::getIsoById($context->cookie->id_lang),

@@ -44,6 +44,10 @@ class PhenyxTools {
             $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
         }
         
+        if(!isset($this->context->_link)) {
+            $this->context->_link = Link::getInstance();
+        }
+        
         if (!isset($this->context->translations)) {
 
             $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);

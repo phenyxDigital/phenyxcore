@@ -8,6 +8,10 @@
 class PhenyxException extends Exception {
 
     protected $trace;
+    
+    public $context;
+    
+    public $_link;
 
     /**
      * PhenyxExceptionCore constructor.
@@ -36,6 +40,35 @@ class PhenyxException extends Exception {
         if ($line) {
             $this->line = $line;
         }
+        
+        $this->context = Context::getContext();
+        
+        if (!isset($this->context->phenyxConfig)) {
+            $this->context->phenyxConfig = Configuration::getInstance();
+            
+        }
+        if (!isset($this->context->company)) {
+            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+        }
+        
+        if (!isset($this->context->language)) {
+            $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+        }
+
+        if (!isset($this->context->translations)) {
+            $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
+        }
+        
+        
+        $this->_link = Link::getInstance();
+        
+         if (!isset($this->context->language)) {
+            $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+        }
+
+        if (!isset($this->context->translations)) {
+            $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
+        }
 
     }
 
@@ -53,16 +86,18 @@ class PhenyxException extends Exception {
             // Display error message
 
             echo '<link rel="stylesheet" href="/content/backoffice/blacktie/css/exception.css" type="text/css" media="all" />';
+            echo '<script> 
+            var AjaxLinkAdminDashboard = "'.$this->_link->getAdminLink('admindashboard').'";
+            </script>';
             echo '<div id="ephException"><table id="table_exception" width="100%" border="1">
     <tbody>
         <tr>
             <td><img src="/vendor/phenyxdigital/phenyxcore/lib/error.png"></td>
-            <td>
-            <a href="/tableau-de-bord?action=eraseCache&ajax=true">'.$this->l('Erase the deep cash').'</a>
+           
         </tr>
         <tr>
-            <td>
-';
+            <td>';
+            echo '<a href="javascript:void(0)" style="color:white" onClick="eraseCache()">'.$this->l('Erase the deep cash').'</a><br>';
             echo '<h2>[' . str_replace('EphenyxShop', 'Ephenyx', get_class($this)) . ']</h2>';
             echo $this->getExtendedMessage();
 
@@ -102,6 +137,15 @@ class PhenyxException extends Exception {
             echo '</td>
         </tr>
     </tbody>
+    <script
+  src="https://code.jquery.com/jquery-3.7.1.min.js"
+  integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+  crossorigin="anonymous"></script>
+  <script
+  src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js"
+  integrity="sha256-AlTido85uXPlSyyaZNsjJXeCs07eSv3r43kyCVc8ChI="
+  crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/content/js/exception.js" data-script="headJs"></script>
 </table></div>';
         } else {
             header('Content-Type: text/plain; charset=UTF-8');

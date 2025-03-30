@@ -2864,7 +2864,7 @@ FileETag none
             if ($ajax_mode && $cms_ajax_mode) {
                 $fullPath[$i] = '<a href="javascript:void(0)" onClick="openAjaxCms(' . $cms->id . ')" title="' . $cms->meta_title . '" data-gg="">' . htmlentities($cms->meta_title, ENT_NOQUOTES, 'UTF-8') . '</a><span class="navigation-pipe">' . $pipe . '</span>';
             } else {
-                $fullPath[$i] = '<a href="' . $context->link->getCMSLink($cms->id) . '" title="' . $cms->meta_title . '" data-gg="">' . htmlentities($cms->meta_title, ENT_NOQUOTES, 'UTF-8') . '</a><span class="navigation-pipe">' . $pipe . '</span>';
+                $fullPath[$i] = '<a href="' . $context->_link->getCMSLink($cms->id) . '" title="' . $cms->meta_title . '" data-gg="">' . htmlentities($cms->meta_title, ENT_NOQUOTES, 'UTF-8') . '</a><span class="navigation-pipe">' . $pipe . '</span>';
             }
 
         }
@@ -2912,7 +2912,7 @@ FileETag none
             if ($ajax_mode && $wiki_ajax_mode) {
                 $fullPath[$i] = '<a href="javascript:void(0)" onClick="openAjaxCms(' . $wiki->id . ')" data-gg="">' . htmlentities($wiki->meta_title, ENT_NOQUOTES, 'UTF-8') . '</a><span class="navigation-pipe">' . $pipe . '</span>';
             } else {
-                $fullPath[$i] = '<a href="' . $context->link->getPhenyxWikiLink($wiki->id) . '" data-gg="">' . htmlentities($wiki->meta_title, ENT_NOQUOTES, 'UTF-8') . '</a><span class="navigation-pipe">' . $pipe . '</span>';
+                $fullPath[$i] = '<a href="' . $context->_link->getPhenyxWikiLink($wiki->id) . '" data-gg="">' . htmlentities($wiki->meta_title, ENT_NOQUOTES, 'UTF-8') . '</a><span class="navigation-pipe">' . $pipe . '</span>';
             }
 
         }
@@ -4539,7 +4539,7 @@ FileETag none
             $tpl->assign([
                 'title'        => $postfields['subject'],
                 'css_dir'      => 'https://' . $context->company->domain_ssl . $context->theme->css_theme,
-                'shop_link'    => $context->link->getBaseFrontLink(),
+                'shop_link'    => $context->_link->getBaseFrontLink(),
                 'shop_name'    => $context->company->company_name,
                 'bckImg'       => $bckImg,
                 'logoMailLink' => $url . '/content/img/' . $phenyxConfig->get('EPH_LOGO_MAIL'),

@@ -75,7 +75,7 @@ class TopMenuElements extends PhenyxObjectModel {
 
         $context = Context::getContext();
 
-        $link = $context->link;
+        $link = $context->_link;
         $_iso_lang = Language::getIsoById($context->language->id_lang);
         $return = false;
         $name = false;

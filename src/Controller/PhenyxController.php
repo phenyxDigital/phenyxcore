@@ -280,8 +280,8 @@ abstract class PhenyxController {
             $this->context->_session = PhenyxSession::getInstance();
         }
         
-        if (!isset($this->context->link)) {
-            $this->context->link = Link::getInstance();
+        if (!isset($this->context->_link)) {
+            $this->context->_link = Link::getInstance();
         }
         if (!isset($this->context->_tools)) {
             $this->context->_tools = PhenyxTool::getInstance();
@@ -730,7 +730,7 @@ abstract class PhenyxController {
         }
 
         $result = [
-            'link' => $this->context->link->getAdminLink('admindashboard'),
+            'link' => $this->context->_link->getAdminLink('admindashboard'),
         ];
 
         die($this->context->_tools->jsonEncode($result));
@@ -1778,7 +1778,7 @@ abstract class PhenyxController {
         } 
 
         $this->addJsDef([
-                'AjaxLink' . $this->controller_name => $this->context->link->getAdminLink($this->controller_name),
+                'AjaxLink' . $this->controller_name => Link::getInstance()->getAdminLink($this->controller_name),
             ]);
 
 
@@ -1787,7 +1787,7 @@ abstract class PhenyxController {
             'controller'         => $this->controller_name,
             'tableName'          => $this->table,
             'className'          => $this->className,
-            'link'               => $this->context->link,
+            'link'               => Link::getInstance(),
             'id_lang_default'    => $this->default_language,
             'languages'          => Language::getLanguages(false),
             'tabs'               => $this->ajaxOptions,
@@ -1846,7 +1846,7 @@ abstract class PhenyxController {
         } 
         
         $this->addJsDef([
-            'AjaxLink' . $this->controller_name => $this->context->link->getAdminLink($this->controller_name),
+            'AjaxLink' . $this->controller_name => $this->context->_link->getAdminLink($this->controller_name),
         ]);
 
         $data->assign([
@@ -1854,7 +1854,7 @@ abstract class PhenyxController {
             'controller'         => $this->controller_name,
             'tableName'          => $this->table,
             'className'          => $this->className,
-            'link'               => $this->context->link,
+            'link'               => $this->context->_link,
             'id_lang_default'    => $this->default_language,
             'languages'          => Language::getLanguages(false),
             'tabs'               => $this->ajaxOptions,
@@ -1936,7 +1936,7 @@ abstract class PhenyxController {
         } 
 
         $this->addJsDef([
-            'AjaxLink' . $this->controller_name => $this->context->link->getAdminLink($this->controller_name),
+            'AjaxLink' . $this->controller_name => $this->context->_link->getAdminLink($this->controller_name),
         ]);
 
         $data->assign([
@@ -1944,7 +1944,7 @@ abstract class PhenyxController {
             'controller'         => $this->controller_name,
             'tableName'          => $this->table,
             'className'          => $this->className,
-            'link'               => $this->context->link,
+            'link'               => $this->context->_link,
             'id_lang_default'    => $this->default_language,
             'languages'          => Language::getLanguages(false),
             'tabs'               => $this->ajaxOptions,
@@ -2631,8 +2631,8 @@ abstract class PhenyxController {
             $this->context->smarty->assign(
                 [
                     'tab_plugins_list'      => implode(',', $this->tab_plugins_list['slider_list']),
-                    'admin_plugin_ajax_url' => $this->context->link->getAdminLink('AdminPlugins'),
-                    'back_tab_plugins_list' => $this->context->link->getAdminLink($this->context->_tools->getValue('controller')),
+                    'admin_plugin_ajax_url' => $this->context->_link->getAdminLink('AdminPlugins'),
+                    'back_tab_plugins_list' => $this->context->_link->getAdminLink($this->context->_tools->getValue('controller')),
                     'tab_plugins_open'      => (int) $this->context->_tools->getValue('tab_plugins_open'),
                 ]
             );
