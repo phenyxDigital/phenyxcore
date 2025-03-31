@@ -438,6 +438,10 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
             $this->context->cache_enable = $this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED');
         } 
         
+        if(!isset($this->context->phenyxgrid)) {            
+            $this->context->phenyxgrid = new ParamGrid();
+        }
+        
         
        
     }
