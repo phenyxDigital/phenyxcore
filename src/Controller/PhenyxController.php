@@ -392,6 +392,10 @@ abstract class PhenyxController {
             $this->context->cache_enable = $this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED');
         } 
         
+        if(!isset($this->context->phenyxgrid)) {            
+            $this->context->phenyxgrid = new ParamGrid();
+        }
+        
         
        
     }
