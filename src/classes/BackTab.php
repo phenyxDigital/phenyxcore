@@ -770,7 +770,7 @@ class BackTab extends PhenyxObjectModel {
         
         $result = parent::delete();
         if($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $this->context->cache_api->removeData('generateTabs');
+            $this->context->cache_api->cleanByStartingKey('generateTabs');
         }
         return $result;
     }
@@ -781,7 +781,7 @@ class BackTab extends PhenyxObjectModel {
 
         if (parent::update($nullValues)) {
             if($this->context->cache_enable && is_object($this->context->cache_api)) {
-                $this->context->cache_api->removeData('generateTabs');
+                $this->context->cache_api->cleanByStartingKey('generateTabs');
             }
             
             if ($init) {

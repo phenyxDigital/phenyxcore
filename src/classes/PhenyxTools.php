@@ -514,48 +514,55 @@ class PhenyxTools {
         if(!is_null($last_maintenance) && $last_maintenance > $dateCheck) {
             return true;
         }
-                
+        
+        $query = 'SELECT id_back_tab, class_name  FROM `' . _DB_PREFIX_ . 'back_tab` ORDER BY id_back_tab ASC';
+		$tabClasses = Db::getInstance()->executeS($query);
+        
+        foreach($tabClasses as $tablasse) {
+            if(class_exists($tablasse['class_name'].'Controller')) {
+                continue;
+            } else {
+                if (str_contains($tablasse['class_name'], 'Parent')) {
+                   continue;
+                } else {
+                    $bckTab = new BackTab($tablasse['id_back_tab']);
+                    $bckTab->delete();
+                    $id_meta = Meta::getIdMetaByPage(strtolower($tablasse['class_name']));
+                    if($id_meta > 0) {
+                        $meta = new Meta($id_meta);
+                        $meta->delete();
+                    }
+                }
+            }
+            
+        }
         $idLang = $this->context->language->id;
                 
         $result = true;
-
-		$query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'back_tab_lang` WHERE id_lang = '.$idLang.' ORDER BY id_back_tab ASC';
-		$tabLangs = Db::getInstance()->executeS($query);
-
-		foreach ($tabLangs as $tabLang) {
-			$parent = Db::getInstance()->getValue(
-				(new DbQuery())
-					->select('`id_back_tab`')
-					->from('back_tab')
-					->where('`id_back_tab` = ' . (int) $tabLang['id_back_tab'])
-			);
-
-			if (!$parent) {
-				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'back_tab_lang` WHERE id_back_tab = ' . $tabLang['id_back_tab'];
-				$result &= Db::getInstance()->execute($sql);
-			}
-
-		}
-
-		$query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'employee_access` ORDER BY id_back_tab ASC';
         
-		$tabAccess = Db::getInstance()->executeS($query);
-
-		foreach ($tabAccess as $access) {
-			$parent = Db::getInstance()->getValue(
-				(new DbQuery())
-					->select('`id_back_tab`')
-					->from('back_tab')
-					->where('`id_back_tab` = ' . (int) $access['id_back_tab'])
-			);
-
-			if (!$parent) {
-				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'employee_access` WHERE id_back_tab = ' . $access['id_back_tab'];
-				$result &= Db::getInstance()->execute($sql);
-			}
-
-		}
-
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` CHANGE `id_back_tab` `id_back_tab` INT(10) UNSIGNED NOT NULL';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'back_tab` ORDER BY id_back_tab ASC';
+		$tabClasses = Db::getInstance()->executeS($query);
+        
+        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+            (new DbQuery())
+                ->select('MAX(`id_back_tab`) + 1')
+                ->from('back_tab')
+        );
+        foreach ($tabClasses as $tab) {
+            
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'back_tab` SET `id_back_tab` = ' . $maxIndex . ' WHERE `id_back_tab` = ' . $tab['id_back_tab'];
+            $result &= Db::getInstance()->execute($sql);
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'back_tab_lang` SET id_back_tab = ' . $maxIndex . ' WHERE id_back_tab = ' . $tab['id_back_tab'];
+            $result &= Db::getInstance()->execute($sql);
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'employee_access` SET `id_back_tab` = ' . $maxIndex . ' WHERE `id_back_tab` = ' . $tab['id_back_tab'];
+            $result &= Db::getInstance()->execute($sql);
+            $maxIndex++;
+            
+        }
+              
 		$query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'back_tab` ORDER BY id_back_tab ASC';
         
 		$tabs = Db::getInstance()->executeS($query);
@@ -585,7 +592,10 @@ class PhenyxTools {
 			$i++;
 		}
         
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` MODIFY `id_back_tab` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` CHANGE `id_back_tab` `id_back_tab` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT';
+        $result &= Db::getInstance()->execute($sql);
+        
+        //$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` MODIFY `id_back_tab` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
         $result &= Db::getInstance()->execute($sql);
         
         if($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
@@ -599,6 +609,26 @@ class PhenyxTools {
         return $result;
 
 	}
+    
+    public function getLegitimeMeta() {
+        
+        $controllers = [];
+        $ctrls = Meta::getPages();
+        foreach($ctrls as $key => $ctrl) {
+            foreach($ctrl as $k => $value) {
+                if (str_contains($k, '/')) {
+                    $ks = explode('/', $k);
+                    $controllers[] = $ks[1];
+                } else {
+                    $controllers[] = $k;
+                }
+            }
+        }
+        
+        return $controllers;
+
+        
+    }
 
 	public function cleanMetas() {
         
@@ -611,11 +641,16 @@ class PhenyxTools {
         if(!is_null($last_maintenance) && $last_maintenance > $dateCheck) {
             return true;
         }
-        $idLang = $this->context->language->id;
         
         $result = true;
-
-		$query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_lang = '.$idLang.' ORDER BY id_meta ASC';
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` CHANGE `id_meta` `id_meta` INT(10) UNSIGNED NOT NULL';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $legitimeMetas = $this->getLegitimeMeta();
+        $idLang = $this->context->language->id;
+        
+        $query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_lang = '.$idLang.' ORDER BY id_meta ASC';
 		$metaLangs = Db::getInstance()->executeS($query);
 
 		foreach ($metaLangs as $metaLang) {
@@ -632,8 +667,8 @@ class PhenyxTools {
 			}
 
 		}
-
-		$query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_meta ASC';
+        
+        $query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_meta ASC';
 		$themeMetas = Db::getInstance()->executeS($query);
 
 		foreach ($themeMetas as $themeMeta) {
@@ -650,6 +685,41 @@ class PhenyxTools {
 			}
 
 		}
+        
+        $query = 'SELECT id_meta, page  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
+		
+        $metas = Db::getInstance()->executeS($query);
+        
+        foreach($metas as $meta) {
+            if(in_array($meta['page'], $legitimeMetas)) {
+                continue;
+            } else {
+                $meta = new Meta($meta['id_meta']);
+                $meta->delete();
+            }
+            
+        }
+        
+        $query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
+		
+        $metas = Db::getInstance()->executeS($query);
+        
+        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+            (new DbQuery())
+                ->select('MAX(`id_meta`) + 1')
+                ->from('meta')
+        );
+        
+        foreach($metas as $meta) {
+            
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'meta` SET `id_meta` = ' . $maxIndex . ' WHERE `id_meta` = ' . $meta['id_meta'];
+            $result &= Db::getInstance()->execute($sql);
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'meta_lang` SET `id_meta` = ' . $maxIndex . ' WHERE `id_meta` = ' . $meta['id_meta'];
+            $result &= Db::getInstance()->execute($sql);
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET `id_meta` = ' . $maxIndex . ' WHERE `id_meta` = ' . $meta['id_meta'];
+            $result &= Db::getInstance()->execute($sql);
+            
+        }
 
 		$query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
 
