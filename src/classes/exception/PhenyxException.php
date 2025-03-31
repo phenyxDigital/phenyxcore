@@ -396,13 +396,11 @@ class PhenyxException extends Exception {
     
     public function l($string, $idLang = null, $context = null) {
 
-        $class = 'PhenyxException';
+        $_translate = Translation::getInstance();
+        $translation = $_translate->getExistingTranslation($this->context->language->iso_code, $string);
 
-        if (strtolower(substr($class, -4)) == 'core') {
-            $class = substr($class, 0, -4);
-        }
-        if(isset($this->context->translations)) {
-            return $this->context->translations->getClassTranslation($string, $class);
+        if (!empty($translation)) {
+            return $translation;
         }
         return $string;
 

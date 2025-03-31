@@ -314,6 +314,9 @@ class PhenyxTools {
 				continue;
 			}
 
+
+
+
 			$md5List[$filePath] = md5_file($file->getPathname());
 		}
 
@@ -594,10 +597,7 @@ class PhenyxTools {
         
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` CHANGE `id_back_tab` `id_back_tab` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT';
         $result &= Db::getInstance()->execute($sql);
-        
-        //$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` MODIFY `id_back_tab` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
-        $result &= Db::getInstance()->execute($sql);
-        
+                
         if($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
             $this->context->cache_api->cleanByStartingKey('generateTabs_');
             $this->context->cache_api->cleanByStartingKey('getBckTab_');
@@ -632,41 +632,26 @@ class PhenyxTools {
 
 	public function cleanMetas() {
         
-        
-        $today = date("Y-m-d");
-        $date = new DateTime($today);
-		$date->modify('-180 days');
-		$dateCheck = $date->format('Y-m-d');
-        $last_maintenance = $this->context->phenyxConfig->get('META_MAINTENANCE');
-        if(!is_null($last_maintenance) && $last_maintenance > $dateCheck) {
-            return true;
-        }
-        
         $result = true;
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` CHANGE `id_meta` `id_meta` INT(10) UNSIGNED NOT NULL';
-        $result &= Db::getInstance()->execute($sql);
         
         $legitimeMetas = $this->getLegitimeMeta();
         $idLang = $this->context->language->id;
         
-        $query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_lang = '.$idLang.' ORDER BY id_meta ASC';
-		$metaLangs = Db::getInstance()->executeS($query);
-
-		foreach ($metaLangs as $metaLang) {
-			$parent = Db::getInstance()->getValue(
-				(new DbQuery())
-					->select('`id_meta`')
-					->from('meta')
-					->where('`id_meta` = ' . (int) $metaLang['id_meta'])
-			);
-
-			if (!$parent) {
-				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_meta = ' . $metaLang['id_meta'];
-				$result &= Db::getInstance()->execute($sql);
-			}
-
-		}
+        $query = 'SELECT id_meta, page  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
+		
+        $metas = Db::getInstance()->executeS($query);
+        
+        foreach($metas as $meta) {
+            if(in_array($meta['page'], $legitimeMetas)) {
+                continue;
+            } else {
+                $meta = new Meta($meta['id_meta']);
+                $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'theme_meta` WHERE id_meta = ' . $meta->id;
+                $meta->delete();
+                
+            }
+            
+        }
         
         $query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_meta ASC';
 		$themeMetas = Db::getInstance()->executeS($query);
@@ -686,19 +671,60 @@ class PhenyxTools {
 
 		}
         
-        $query = 'SELECT id_meta, page  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
-		
-        $metas = Db::getInstance()->executeS($query);
+        $query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_lang = '.$idLang.' ORDER BY id_meta ASC';
+		$metaLangs = Db::getInstance()->executeS($query);
+
+		foreach ($metaLangs as $metaLang) {
+			$parent = Db::getInstance()->getValue(
+				(new DbQuery())
+					->select('`id_meta`')
+					->from('meta')
+					->where('`id_meta` = ' . (int) $metaLang['id_meta'])
+			);
+
+			if (!$parent) {
+				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_meta = ' . $metaLang['id_meta'];
+				$result &= Db::getInstance()->execute($sql);
+			}
+
+		}
         
-        foreach($metas as $meta) {
-            if(in_array($meta['page'], $legitimeMetas)) {
-                continue;
-            } else {
-                $meta = new Meta($meta['id_meta']);
-                $meta->delete();
-            }
+        $query = 'SELECT id_theme_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_theme_meta ASC';
+		
+        $theme_metas = Db::getInstance()->executeS($query);
+        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+            (new DbQuery())
+                ->select('MAX(`id_theme_meta`) + 1')
+                ->from('theme_meta')
+        );
+        
+        foreach($theme_metas as $theme_meta) {
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET `id_theme_meta` = ' . $maxIndex . ' WHERE `id_theme_meta` = ' . $theme_meta['id_theme_meta'];
+            $result &= Db::getInstance()->execute($sql);
             
+            $maxIndex++;
         }
+        
+        $query = 'SELECT id_theme_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_theme_meta ASC';
+		
+        $theme_metas = Db::getInstance()->executeS($query);
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` DROP INDEX `id_theme_2`';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` DROP INDEX `id_theme`';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` DROP INDEX `id_meta`';
+        $result &= Db::getInstance()->execute($sql);
+        $i = 1;
+        foreach($theme_metas as $theme_meta) {
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET `id_theme_meta` = ' . $i . ' WHERE `id_theme_meta` = ' . $theme_meta['id_theme_meta'];
+            $result &= Db::getInstance()->execute($sql);
+            
+            $i++;
+        }
+        
+        
         
         $query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
 		
@@ -709,6 +735,23 @@ class PhenyxTools {
                 ->select('MAX(`id_meta`) + 1')
                 ->from('meta')
         );
+                
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` CHANGE `id_meta` `id_meta` INT(10) UNSIGNED NOT NULL';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` DROP PRIMARY KEY';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` DROP INDEX `page`';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` DROP PRIMARY KEY';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` DROP INDEX `id_lang`';
+        $result &= Db::getInstance()->execute($sql);
+        
+       
         
         foreach($metas as $meta) {
             
@@ -718,6 +761,8 @@ class PhenyxTools {
             $result &= Db::getInstance()->execute($sql);
             $sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET `id_meta` = ' . $maxIndex . ' WHERE `id_meta` = ' . $meta['id_meta'];
             $result &= Db::getInstance()->execute($sql);
+            
+            $maxIndex++;
             
         }
 
@@ -734,10 +779,27 @@ class PhenyxTools {
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'meta_lang` SET id_meta = ' . $i . ' WHERE id_meta = ' . $meta['id_meta'];
 			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET id_meta = ' . $i . ' WHERE id_meta = ' . $meta['id_meta'];
+            
 			$result &= Db::getInstance()->execute($sql);
 			$i++;
 		}
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` MODIFY `id_meta` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` CHANGE `id_meta` `id_meta` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_meta`)';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` ADD UNIQUE `page` (`page`) USING BTREE';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` ADD PRIMARY KEY (`id_meta`, `id_lang`) USING BTREE';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` ADD INDEX `id_lang` (`id_lang`) USING BTREE';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` ADD UNIQUE `id_theme_2` (`id_theme`, `id_meta`) USING BTREE';
+        $result &= Db::getInstance()->execute($sql);
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` ADD INDEX `id_theme` (`id_theme`) USING BTREE';
+        $result &= Db::getInstance()->execute($sql);
+         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` ADD INDEX `id_meta` (`id_meta`) USING BTREE';
         $result &= Db::getInstance()->execute($sql);
         
         if($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
@@ -753,17 +815,7 @@ class PhenyxTools {
 	}
     
     public function cleanPluginHook() {
-        
-        $today = date("Y-m-d");
-        $date = new DateTime($today);
-		$date->modify('-180 days');
-		$dateCheck = $date->format('Y-m-d');
-        $last_maintenance = $this->context->phenyxConfig->get('PLUGIN_HOOK_MAINTENANCE');
-        if(!is_null($last_maintenance) && $last_maintenance > $dateCheck) {
-            return true;
-        }
-        
-       
+              
         $result = true;
         $query = 'SELECT hp.id_plugin, hp.id_hook, h.name as hookname, p.name
         FROM `' . _DB_PREFIX_ . 'hook_plugin` hp
@@ -846,16 +898,7 @@ class PhenyxTools {
     }
 
 	public function cleanPlugins() {
-        
-        $today = date("Y-m-d");
-        $date = new DateTime($today);
-		$date->modify('-180 days');
-		$dateCheck = $date->format('Y-m-d');
-        $last_maintenance = $this->context->phenyxConfig->get('PLUGIN_MAINTENANCE');
-        if(!is_null($last_maintenance) && $last_maintenance > $dateCheck) {
-            return true;
-        }
-       
+               
         $result = true;
         
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL';
@@ -1003,16 +1046,7 @@ class PhenyxTools {
 	}
 
 	public function cleanHook() {
-        
-        $today = date("Y-m-d");
-        $date = new DateTime($today);
-		$date->modify('-180 days');
-		$dateCheck = $date->format('Y-m-d');
-        $last_maintenance = $this->context->phenyxConfig->get('HOOK_MAINTENANCE');
-        if(!is_null($last_maintenance) && $last_maintenance > $dateCheck) {
-            return true;
-        }
-        
+                
         $result = true;
 
 		$query = 'SELECT DISTINCT(id_hook)  FROM `' . _DB_PREFIX_ . 'hook_plugin_exceptions`  ORDER BY id_hook ASC';
