@@ -1857,7 +1857,7 @@ abstract class PhenyxController {
         } 
         
         $this->addJsDef([
-            'AjaxLink' . $this->controller_name => $this->context->_link->getAdminLink($this->controller_name),
+            'AjaxLink' . $this->controller_name => Link::getInstance()->getAdminLink($this->controller_name),
         ]);
 
         $data->assign([
@@ -1947,7 +1947,7 @@ abstract class PhenyxController {
         } 
 
         $this->addJsDef([
-            'AjaxLink' . $this->controller_name => $this->context->_link->getAdminLink($this->controller_name),
+            'AjaxLink' . $this->controller_name => Link::getInstance()->getAdminLink($this->controller_name),
         ]);
 
         $data->assign([
