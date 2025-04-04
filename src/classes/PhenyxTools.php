@@ -632,6 +632,12 @@ class PhenyxTools {
     
     public function cleanGuest() {
         
+        $guest = new PhenyxCollection('GUEST');
+        $guest->where('id_user', '=', 0);
+        foreach($guests as $guest) {
+            $guest->delete();
+        }
+        
         $result = true;
         
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` CHANGE `id_guest` `id_guest` INT(10) UNSIGNED NOT NULL';
