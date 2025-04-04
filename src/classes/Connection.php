@@ -76,7 +76,6 @@ class Connection extends PhenyxObjectModel {
             $idPage = Page::getCurrentId();
         }
 
-        // If we do not track the page views by customer, the id_page is the only information needed
 
         if (!$this->context->phenyxConfig->get('EPH_STATSDATA_CUSTOMER_PAGESVIEWS')) {
             return ['id_page' => $idPage];
@@ -151,7 +150,7 @@ class Connection extends PhenyxObjectModel {
             }
 
             $connection = new Connection();
-            $connection->id_guest = (int) $this->context->cookie->id_guest;
+            $connection->id_guest = (int) $this->context->guest->id;
             $connection->id_page = Page::getCurrentId();
             $connection->ip_address = Tools::getRemoteAddr() ? (int) ip2long(Tools::getRemoteAddr()) : '';
             $connection->date_add = $this->context->cookie->date_add;
@@ -168,7 +167,7 @@ class Connection extends PhenyxObjectModel {
                     ->type('UPDATE')
                     ->from('guest')
                     ->set('`last_activity` = "' . time() . '"')
-                    ->where('`id_guest` = ' . (int) $this->context->cookie->id_guest)
+                    ->where('`id_guest` = ' . (int) $this->context->guest->id)
             );
 
             return $connection->id_page;

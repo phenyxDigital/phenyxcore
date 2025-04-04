@@ -9,9 +9,10 @@ class Page extends PhenyxObjectModel {
 
     public $require_context = false;
     // @codingStandardsIgnoreStart
+
     public $id_page_type;
     public $id_object;
-    public $name;
+
     // @codingStandardsIgnoreEnd
     /**
      * @see PhenyxObjectModel::$definition
@@ -25,20 +26,11 @@ class Page extends PhenyxObjectModel {
         ],
     ];
 
-    /**
-     * @return int Current page ID
-     *
-     * @throws PhenyxDatabaseExceptionException
-     * @throws PhenyxException
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public static function getCurrentId() {
 
         $controller = Performer::getInstance()->getController();
         $pageTypeId = Page::getPageTypeByName($controller);
 
-        // Some pages must be distinguished in order to record exactly what is being seen
         $specialArray = [
             'pfg' => 'id_pfg',
         ];
@@ -87,17 +79,11 @@ class Page extends PhenyxObjectModel {
         return Db::getInstance()->Insert_ID();
     }
 
-    /**
-     * Return page type ID from page name
-     *
-     * @param string $name Page name (E.g. product.php)
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @return false|int|null|string
-     * @throws PhenyxException
-     */
     public static function getPageTypeByName($name) {
+        
+        if(empty($name)) {
+            return;
+        }
 
         if ($value = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
             (new DbQuery())
@@ -107,32 +93,22 @@ class Page extends PhenyxObjectModel {
         )) {
             return $value;
         }
+        $type = new PageType();
+        $type->name = $name;
+        return $type->add();
 
-        Db::getInstance()->insert('page_type', ['name' => pSQL($name)]);
-
-        return Db::getInstance()->Insert_ID();
     }
 
-    /**
-     * @param int $idPage
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     public static function setPageViewed($idPage) {
 
         $idDateRange = DateRange::getCurrentRange();
         $context = Context::getContext();
 
-        // Try to increment the visits counter
         $sql = 'UPDATE `' . _DB_PREFIX_ . 'page_viewed`
                 SET `counter` = `counter` + 1
                 WHERE `id_date_range` = ' . (int) $idDateRange . '
                     AND `id_page` = ' . (int) $idPage;
         Db::getInstance()->execute($sql);
-
-        // If no one has seen the page in this date range, it is added
 
         if (Db::getInstance()->Affected_Rows() == 0) {
             Db::getInstance()->insert(
