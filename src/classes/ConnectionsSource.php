@@ -8,7 +8,7 @@
 class ConnectionsSource extends PhenyxObjectModel {
 
     public $require_context = false;
-    // @codingStandardsIgnoreStart
+    
     public static $uri_max_size = 255;
     public $id_connections;
     public $http_referer;
@@ -32,16 +32,6 @@ class ConnectionsSource extends PhenyxObjectModel {
         ],
     ];
 
-    /**
-     * @param Cookie|null $cookie
-     *
-     * @return bool
-     *
-     * @throws PhenyxDatabaseExceptionException
-     * @throws PhenyxException
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public static function logHttpReferer($cookie = null) {
 
         if (!$cookie) {
@@ -52,21 +42,15 @@ class ConnectionsSource extends PhenyxObjectModel {
             return false;
         }
 
-        // If the referrer is not correct, we drop the connection
-
         if (isset($_SERVER['HTTP_REFERER']) && !Validate::isAbsoluteUrl($_SERVER['HTTP_REFERER'])) {
             return false;
         }
-
-        // If there is no referrer and we do not want to save direct traffic (as opposed to referral traffic), we drop the connection
 
         if (!isset($_SERVER['HTTP_REFERER']) && !Context::getContext()->phenyxConfig->get('TRACKING_DIRECT_TRAFFIC')) {
             return false;
         }
 
         $source = new ConnectionsSource();
-
-        // There are a few more operations if there is a referrer
 
         if (isset($_SERVER['HTTP_REFERER'])) {
             // If the referrer is internal (i.e. from your own website), then we drop the connection
@@ -101,16 +85,6 @@ class ConnectionsSource extends PhenyxObjectModel {
         return $source->add();
     }
 
-    /**
-     * @param bool $autoDate
-     * @param bool $nullValues
-     *
-     * @return bool
-     *
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     * @throws PhenyxException
-     */
     public function add($autoDate = true, $nullValues = false) {
 
         if ($result = parent::add($autoDate, $nullValues)) {
@@ -120,16 +94,6 @@ class ConnectionsSource extends PhenyxObjectModel {
         return $result;
     }
 
-    /**
-     * @param int $idOrder
-     *
-     * @return array|false|mysqli_result|null|PDOStatement|resource
-     *
-     * @throws PhenyxDatabaseExceptionException
-     * @throws PhenyxException
-     * @since 1.9.1.0
-     * @version 1.8.1.0 Initial version
-     */
     public static function getOrderSources($idOrder) {
 
         return Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS(
