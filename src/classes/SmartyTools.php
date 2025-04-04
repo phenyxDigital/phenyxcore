@@ -316,6 +316,15 @@ class SmartyTools {
         
     }
     
+    public static function explodes($args, $string) {
+        
+        if(is_string($string)) {
+            return explode($args, $string);
+        }
+        return $string;
+        
+    }
+    
     public static function fileExists($path) {
         
         return file_exists($path);

@@ -629,6 +629,53 @@ class PhenyxTools {
 
         
     }
+    
+    public function cleanGuest() {
+        
+        $result = true;
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` CHANGE `id_guest` `id_guest` INT(10) UNSIGNED NOT NULL';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` DROP PRIMARY KEY';
+        $result &= Db::getInstance()->execute($sql);
+                
+        $query = 'SELECT id_guest  FROM `' . _DB_PREFIX_ . 'guest` ORDER BY id_guest ASC';
+		
+        $guests = Db::getInstance()->executeS($query);
+        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+            (new DbQuery())
+                ->select('MAX(`id_guest`) + 1')
+                ->from('guest')
+        );
+        
+        foreach($guests as $guest) {
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest` SET `id_guest` = ' . $maxIndex . ' WHERE `id_guest` = ' . $guest['id_guest'];
+            $result &= Db::getInstance()->execute($sql);
+            Hook::getInstance()->exec('updateGuestIndex', ['index' => $maxIndex, 'id_guest' => $guest['id_guest']]);
+            $maxIndex++;
+        }
+        
+        
+        
+        
+        
+        $i = 1;
+        foreach($guests as $guest) {
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest` SET `id_guest` = ' . $i . ' WHERE `id_guest` = ' . $guest['id_guest'];
+            $result &= Db::getInstance()->execute($sql);
+            Hook::getInstance()->exec('updateGuestIndex', ['index' => $i, 'id_guest' => $guest['id_guest']]);
+            
+            $i++;
+        }
+               
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` CHANGE `id_guest` `id_guest` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_guest`)';
+        $result &= Db::getInstance()->execute($sql);
+        
+        
+        return $result;
+
+	}
 
 	public function cleanMetas() {
         
