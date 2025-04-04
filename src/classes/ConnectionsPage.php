@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Class ConnectionsSource
+ * Class ConnectionsPage
  *
  * @since 1.9.1.0
  */
-class ConnectionsSource extends PhenyxObjectModel {
+class ConnectionsPage extends PhenyxObjectModel {
 
     public $require_context = false;
     // @codingStandardsIgnoreStart
