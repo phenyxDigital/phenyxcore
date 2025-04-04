@@ -652,6 +652,8 @@ class PhenyxTools {
         foreach($guests as $guest) {
             $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest` SET `id_guest` = ' . $maxIndex . ' WHERE `id_guest` = ' . $guest['id_guest'];
             $result &= Db::getInstance()->execute($sql);
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest_meta` SET `id_guest` = ' . $maxIndex . ' WHERE `id_guest` = ' . $guest['id_guest'];
+            $result &= Db::getInstance()->execute($sql);
             Hook::getInstance()->exec('updateGuestIndex', ['index' => $maxIndex, 'id_guest' => $guest['id_guest']]);
             $maxIndex++;
         }
@@ -663,6 +665,8 @@ class PhenyxTools {
         $i = 1;
         foreach($guests as $guest) {
             $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest` SET `id_guest` = ' . $i . ' WHERE `id_guest` = ' . $guest['id_guest'];
+            $result &= Db::getInstance()->execute($sql);
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest_meta` SET `id_guest` = ' . $i . ' WHERE `id_guest` = ' . $guest['id_guest'];
             $result &= Db::getInstance()->execute($sql);
             Hook::getInstance()->exec('updateGuestIndex', ['index' => $i, 'id_guest' => $guest['id_guest']]);
             
