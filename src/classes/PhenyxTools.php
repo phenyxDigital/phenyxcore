@@ -632,9 +632,11 @@ class PhenyxTools {
     
     public function cleanGuest() {
         
-        $guest = new PhenyxCollection('GUEST');
-        $guest->where('id_user', '=', 0);
+        $query = 'SELECT id_guest  FROM `' . _DB_PREFIX_ . 'guest` WHERE id_user = 0';
+		
+        $guests = Db::getInstance()->executeS($query);
         foreach($guests as $guest) {
+            $guest = new Guest($guest['id_guest']);
             $guest->delete();
         }
         
@@ -665,7 +667,9 @@ class PhenyxTools {
             Hook::getInstance()->exec('updateGuestIndex', ['index' => $maxIndex, 'id_guest' => $guest['id_guest']]);
             $maxIndex++;
         }
-        
+        $query = 'SELECT id_guest  FROM `' . _DB_PREFIX_ . 'guest` ORDER BY id_guest ASC';
+		
+        $guests = Db::getInstance()->executeS($query);
         $i = 1;
         foreach($guests as $guest) {
             $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest` SET `id_guest` = ' . $i . ' WHERE `id_guest` = ' . $guest['id_guest'];
@@ -681,7 +685,77 @@ class PhenyxTools {
                
         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` CHANGE `id_guest` `id_guest` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_guest`)';
         $result &= Db::getInstance()->execute($sql);
+        if($result) {
+            $this->context->phenyxConfig->updateValue('GUEST_MAINTENANCE', date("Y-m-d"));
+        }
         
+        return $result;
+
+	}
+    
+    public function cleanConfiguration() {
+        
+        $query = 'SELECT id_configuration  FROM `' . _DB_PREFIX_ . 'configuration_lang` ORDER BY id_configuration ASC';
+		$configurations = Db::getInstance()->executeS($query);
+        
+        foreach($configurations as $configuration) {
+            $parent = Db::getInstance()->getValue(
+				(new DbQuery())
+					->select('`id_configuration`')
+					->from('configuration')
+					->where('`id_configuration` = ' . (int) $configuration['id_configuration'])
+			);
+
+			if (!$parent) {
+				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'configuration_lang` WHERE id_configuration = ' . $configuration['id_configuration'];
+				$result &= Db::getInstance()->execute($sql);
+			}
+            
+        }
+        
+        $result = true;
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'configuration` CHANGE `id_configuration` `id_configuration` INT(10) UNSIGNED NOT NULL';
+        $result &= Db::getInstance()->execute($sql);
+        
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'configuration` DROP PRIMARY KEY';
+        $result &= Db::getInstance()->execute($sql);
+                
+        $query = 'SELECT id_configuration  FROM `' . _DB_PREFIX_ . 'configuration` ORDER BY id_configuration ASC';
+		
+        $configurations = Db::getInstance()->executeS($query);
+        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+            (new DbQuery())
+                ->select('MAX(`id_configuration`) + 1')
+                ->from('configuration')
+        );
+        
+        foreach($configurations as $configuration) {
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration` SET `id_configuration` = ' . $maxIndex . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
+            $result &= Db::getInstance()->execute($sql);
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration_lang` SET `id_configuration` = ' . $maxIndex . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
+            $result &= Db::getInstance()->execute($sql);
+            
+            $maxIndex++;
+        }
+        $query = 'SELECT id_configuration  FROM `' . _DB_PREFIX_ . 'configuration` ORDER BY id_configuration ASC';
+		
+        $configurations = Db::getInstance()->executeS($query);
+        $i = 1;
+        foreach($configurations as $configuration) {
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration` SET `id_configuration` = ' . $i . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
+            $result &= Db::getInstance()->execute($sql);
+            $sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration_lang` SET `id_configuration` = ' . $i . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
+            $result &= Db::getInstance()->execute($sql);
+            
+            $i++;
+        }
+               
+        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'configuration` CHANGE `id_configuration` `id_configuration` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_configuration`)';
+        $result &= Db::getInstance()->execute($sql);
+        if($result) {
+            $this->context->phenyxConfig->updateValue('CONFIGURATION_MAINTENANCE', date("Y-m-d"));
+        }
         
         return $result;
 
