@@ -1,6 +1,7 @@
 <?php
 
 use \Curl\Curl;
+use \Curl\MultiCurl;
 
 /**
  * Class PhenyxToolsCore
@@ -16,8 +17,8 @@ class PhenyxTools {
 	protected $_crypto_key;
 
 	public $context;
-    
-    public $ephenyx_shop_active;
+
+	public $ephenyx_shop_active;
 
 	public $default_theme;
 
@@ -33,31 +34,35 @@ class PhenyxTools {
 			$this->context->phenyxConfig = Configuration::getInstance();
 
 		}
-        if (!isset($this->context->company)) {
-            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
-        }
-        if (!isset($this->context->theme)) {
-            $this->context->theme = new Theme((int) $this->context->company->id_theme);
-        }
-        
-        if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT')))); 
-        }
-        
-        if(!isset($this->context->_link)) {
-            $this->context->_link = Link::getInstance();
-        }
-        
-        if (!isset($this->context->translations)) {
 
-            $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
-        }
-        
+		if (!isset($this->context->company)) {
+			$this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+		}
+
+		if (!isset($this->context->theme)) {
+			$this->context->theme = new Theme((int) $this->context->company->id_theme);
+		}
+
+		if (!isset($this->context->language)) {
+			$this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+		}
+
+		if (!isset($this->context->_link)) {
+			$this->context->_link = Link::getInstance();
+		}
+
+		if (!isset($this->context->translations)) {
+
+			$this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
+		}
+
 		$this->default_theme = $this->context->theme->directory;
-        if (!isset($this->context->language)) {
-            $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
-        }
-        $this->ephenyx_shop_active = $this->context->phenyxConfig->get('_EPHENYX_SHOP_ACTIVE_');
+
+		if (!isset($this->context->language)) {
+			$this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
+		}
+
+		$this->ephenyx_shop_active = $this->context->phenyxConfig->get('_EPHENYX_SHOP_ACTIVE_');
 		$this->_url = _EPH_PHENYX_API_;
 		$string = $this->context->phenyxConfig->get('_EPHENYX_LICENSE_KEY_', null, false) . '/' . $this->context->company->company_url;
 		$this->_crypto_key = Tools::encrypt_decrypt('encrypt', $string, _PHP_ENCRYPTION_KEY_, _COOKIE_KEY_);
@@ -314,9 +319,6 @@ class PhenyxTools {
 				continue;
 			}
 
-
-
-
 			$md5List[$filePath] = md5_file($file->getPathname());
 		}
 
@@ -507,67 +509,75 @@ class PhenyxTools {
 		return $string;
 	}
 
-	public function cleanBackTabs() {  
-        
-        $today = date("Y-m-d");
-        $date = new DateTime($today);
+	public function cleanBackTabs() {
+
+		$today = date("Y-m-d");
+		$date = new DateTime($today);
 		$date->modify('-180 days');
 		$dateCheck = $date->format('Y-m-d');
-        $last_maintenance = $this->context->phenyxConfig->get('BACK_TAB_MAINTENANCE');
-        if(!is_null($last_maintenance) && $last_maintenance > $dateCheck) {
-            return true;
-        }
-        
-        $query = 'SELECT id_back_tab, class_name  FROM `' . _DB_PREFIX_ . 'back_tab` ORDER BY id_back_tab ASC';
+		$last_maintenance = $this->context->phenyxConfig->get('BACK_TAB_MAINTENANCE');
+
+		if (!is_null($last_maintenance) && $last_maintenance > $dateCheck) {
+			return true;
+		}
+
+		$query = 'SELECT id_back_tab, class_name  FROM `' . _DB_PREFIX_ . 'back_tab` ORDER BY id_back_tab ASC';
 		$tabClasses = Db::getInstance()->executeS($query);
-        
-        foreach($tabClasses as $tablasse) {
-            if(class_exists($tablasse['class_name'].'Controller')) {
-                continue;
-            } else {
-                if (str_contains($tablasse['class_name'], 'Parent')) {
-                   continue;
-                } else {
-                    $bckTab = new BackTab($tablasse['id_back_tab']);
-                    $bckTab->delete();
-                    $id_meta = Meta::getIdMetaByPage(strtolower($tablasse['class_name']));
-                    if($id_meta > 0) {
-                        $meta = new Meta($id_meta);
-                        $meta->delete();
-                    }
-                }
-            }
-            
-        }
-        $idLang = $this->context->language->id;
-                
-        $result = true;
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` CHANGE `id_back_tab` `id_back_tab` INT(10) UNSIGNED NOT NULL';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'back_tab` ORDER BY id_back_tab ASC';
-		$tabClasses = Db::getInstance()->executeS($query);
-        
-        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
-            (new DbQuery())
-                ->select('MAX(`id_back_tab`) + 1')
-                ->from('back_tab')
-        );
-        foreach ($tabClasses as $tab) {
-            
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'back_tab` SET `id_back_tab` = ' . $maxIndex . ' WHERE `id_back_tab` = ' . $tab['id_back_tab'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'back_tab_lang` SET id_back_tab = ' . $maxIndex . ' WHERE id_back_tab = ' . $tab['id_back_tab'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'employee_access` SET `id_back_tab` = ' . $maxIndex . ' WHERE `id_back_tab` = ' . $tab['id_back_tab'];
-            $result &= Db::getInstance()->execute($sql);
-            $maxIndex++;
-            
-        }
-              
+
+		foreach ($tabClasses as $tablasse) {
+
+			if (class_exists($tablasse['class_name'] . 'Controller')) {
+				continue;
+			} else {
+
+				if (str_contains($tablasse['class_name'], 'Parent')) {
+					continue;
+				} else {
+					$bckTab = new BackTab($tablasse['id_back_tab']);
+					$bckTab->delete();
+					$id_meta = Meta::getIdMetaByPage(strtolower($tablasse['class_name']));
+
+					if ($id_meta > 0) {
+						$meta = new Meta($id_meta);
+						$meta->delete();
+					}
+
+				}
+
+			}
+
+		}
+
+		$idLang = $this->context->language->id;
+
+		$result = true;
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` CHANGE `id_back_tab` `id_back_tab` INT(10) UNSIGNED NOT NULL';
+		$result &= Db::getInstance()->execute($sql);
+
 		$query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'back_tab` ORDER BY id_back_tab ASC';
-        
+		$tabClasses = Db::getInstance()->executeS($query);
+
+		$maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+			(new DbQuery())
+				->select('MAX(`id_back_tab`) + 1')
+				->from('back_tab')
+		);
+
+		foreach ($tabClasses as $tab) {
+
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'back_tab` SET `id_back_tab` = ' . $maxIndex . ' WHERE `id_back_tab` = ' . $tab['id_back_tab'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'back_tab_lang` SET id_back_tab = ' . $maxIndex . ' WHERE id_back_tab = ' . $tab['id_back_tab'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'employee_access` SET `id_back_tab` = ' . $maxIndex . ' WHERE `id_back_tab` = ' . $tab['id_back_tab'];
+			$result &= Db::getInstance()->execute($sql);
+			$maxIndex++;
+
+		}
+
+		$query = 'SELECT id_back_tab  FROM `' . _DB_PREFIX_ . 'back_tab` ORDER BY id_back_tab ASC';
+
 		$tabs = Db::getInstance()->executeS($query);
 
 		$i = 1;
@@ -594,112 +604,121 @@ class PhenyxTools {
 			$result &= Db::getInstance()->execute($sql);
 			$i++;
 		}
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` CHANGE `id_back_tab` `id_back_tab` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT';
-        $result &= Db::getInstance()->execute($sql);
-                
-        if($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
-            $this->context->cache_api->cleanByStartingKey('generateTabs_');
-            $this->context->cache_api->cleanByStartingKey('getBckTab_');
-        }
-        if($result) {
-            $this->context->phenyxConfig->updateValue('BACK_TAB_MAINTENANCE', date("Y-m-d"));
-        }
-        
-        return $result;
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'back_tab` CHANGE `id_back_tab` `id_back_tab` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT';
+		$result &= Db::getInstance()->execute($sql);
+
+		if ($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
+			$this->context->cache_api->cleanByStartingKey('generateTabs_');
+			$this->context->cache_api->cleanByStartingKey('getBckTab_');
+		}
+
+		if ($result) {
+			$this->context->phenyxConfig->updateValue('BACK_TAB_MAINTENANCE', date("Y-m-d"));
+		}
+
+		return $result;
 
 	}
-    
-    public function getLegitimeMeta() {
-        
-        $controllers = [];
-        $ctrls = Meta::getPages();
-        foreach($ctrls as $key => $ctrl) {
-            foreach($ctrl as $k => $value) {
-                if (str_contains($k, '/')) {
-                    $ks = explode('/', $k);
-                    $controllers[] = $ks[1];
-                } else {
-                    $controllers[] = $k;
-                }
-            }
-        }
-        
-        return $controllers;
 
-        
-    }
-    
-    public function cleanGuest() {
-        
-        $query = 'SELECT id_guest  FROM `' . _DB_PREFIX_ . 'guest` WHERE id_user = 0';
-		
-        $guests = Db::getInstance()->executeS($query);
-        foreach($guests as $guest) {
-            $guest = new Guest($guest['id_guest']);
-            $guest->delete();
-        }
-        
-        $result = true;
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` CHANGE `id_guest` `id_guest` INT(10) UNSIGNED NOT NULL';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` DROP PRIMARY KEY';
-        $result &= Db::getInstance()->execute($sql);
-                
-        $query = 'SELECT id_guest  FROM `' . _DB_PREFIX_ . 'guest` ORDER BY id_guest ASC';
-		
-        $guests = Db::getInstance()->executeS($query);
-        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
-            (new DbQuery())
-                ->select('MAX(`id_guest`) + 1')
-                ->from('guest')
-        );
-        
-        foreach($guests as $guest) {
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest` SET `id_guest` = ' . $maxIndex . ' WHERE `id_guest` = ' . $guest['id_guest'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest_meta` SET `id_guest` = ' . $maxIndex . ' WHERE `id_guest` = ' . $guest['id_guest'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'connections` SET `id_guest` = ' . $maxIndex . ' WHERE `id_guest` = ' . $guest['id_guest'];
-            $result &= Db::getInstance()->execute($sql);
-            Hook::getInstance()->exec('updateGuestIndex', ['index' => $maxIndex, 'id_guest' => $guest['id_guest']]);
-            $maxIndex++;
-        }
-        $query = 'SELECT id_guest  FROM `' . _DB_PREFIX_ . 'guest` ORDER BY id_guest ASC';
-		
-        $guests = Db::getInstance()->executeS($query);
-        $i = 1;
-        foreach($guests as $guest) {
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest` SET `id_guest` = ' . $i . ' WHERE `id_guest` = ' . $guest['id_guest'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'guest_meta` SET `id_guest` = ' . $i . ' WHERE `id_guest` = ' . $guest['id_guest'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'connections` SET `id_guest` = ' . $i . ' WHERE `id_guest` = ' . $guest['id_guest'];
-            $result &= Db::getInstance()->execute($sql);
-            Hook::getInstance()->exec('updateGuestIndex', ['index' => $i, 'id_guest' => $guest['id_guest']]);
-            
-            $i++;
-        }
-               
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` CHANGE `id_guest` `id_guest` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_guest`)';
-        $result &= Db::getInstance()->execute($sql);
-        if($result) {
-            $this->context->phenyxConfig->updateValue('GUEST_MAINTENANCE', date("Y-m-d"));
-        }
-        
-        return $result;
+	public function getLegitimeMeta() {
+
+		$controllers = [];
+		$ctrls = Meta::getPages();
+
+		foreach ($ctrls as $key => $ctrl) {
+
+			foreach ($ctrl as $k => $value) {
+
+				if (str_contains($k, '/')) {
+					$ks = explode('/', $k);
+					$controllers[] = $ks[1];
+				} else {
+					$controllers[] = $k;
+				}
+
+			}
+
+		}
+
+		return $controllers;
 
 	}
-    
-    public function cleanConfiguration() {
-        
-        $query = 'SELECT id_configuration  FROM `' . _DB_PREFIX_ . 'configuration_lang` ORDER BY id_configuration ASC';
+
+	public function cleanGuest() {
+
+		$query = 'SELECT id_guest  FROM `' . _DB_PREFIX_ . 'guest` WHERE id_user = 0';
+
+		$guests = Db::getInstance()->executeS($query);
+
+		foreach ($guests as $guest) {
+			$guest = new Guest($guest['id_guest']);
+			$guest->delete();
+		}
+
+		$result = true;
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` CHANGE `id_guest` `id_guest` INT(10) UNSIGNED NOT NULL';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` DROP PRIMARY KEY';
+		$result &= Db::getInstance()->execute($sql);
+
+		$query = 'SELECT id_guest  FROM `' . _DB_PREFIX_ . 'guest` ORDER BY id_guest ASC';
+
+		$guests = Db::getInstance()->executeS($query);
+		$maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+			(new DbQuery())
+				->select('MAX(`id_guest`) + 1')
+				->from('guest')
+		);
+
+		foreach ($guests as $guest) {
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'guest` SET `id_guest` = ' . $maxIndex . ' WHERE `id_guest` = ' . $guest['id_guest'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'guest_meta` SET `id_guest` = ' . $maxIndex . ' WHERE `id_guest` = ' . $guest['id_guest'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'connections` SET `id_guest` = ' . $maxIndex . ' WHERE `id_guest` = ' . $guest['id_guest'];
+			$result &= Db::getInstance()->execute($sql);
+			Hook::getInstance()->exec('updateGuestIndex', ['index' => $maxIndex, 'id_guest' => $guest['id_guest']]);
+			$maxIndex++;
+		}
+
+		$query = 'SELECT id_guest  FROM `' . _DB_PREFIX_ . 'guest` ORDER BY id_guest ASC';
+
+		$guests = Db::getInstance()->executeS($query);
+		$i = 1;
+
+		foreach ($guests as $guest) {
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'guest` SET `id_guest` = ' . $i . ' WHERE `id_guest` = ' . $guest['id_guest'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'guest_meta` SET `id_guest` = ' . $i . ' WHERE `id_guest` = ' . $guest['id_guest'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'connections` SET `id_guest` = ' . $i . ' WHERE `id_guest` = ' . $guest['id_guest'];
+			$result &= Db::getInstance()->execute($sql);
+			Hook::getInstance()->exec('updateGuestIndex', ['index' => $i, 'id_guest' => $guest['id_guest']]);
+
+			$i++;
+		}
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'guest` CHANGE `id_guest` `id_guest` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_guest`)';
+		$result &= Db::getInstance()->execute($sql);
+
+		if ($result) {
+			$this->context->phenyxConfig->updateValue('GUEST_MAINTENANCE', date("Y-m-d"));
+		}
+
+		return $result;
+
+	}
+
+	public function cleanConfiguration() {
+
+		$query = 'SELECT id_configuration  FROM `' . _DB_PREFIX_ . 'configuration_lang` ORDER BY id_configuration ASC';
 		$configurations = Db::getInstance()->executeS($query);
-        
-        foreach($configurations as $configuration) {
-            $parent = Db::getInstance()->getValue(
+
+		foreach ($configurations as $configuration) {
+			$parent = Db::getInstance()->getValue(
 				(new DbQuery())
 					->select('`id_configuration`')
 					->from('configuration')
@@ -710,81 +729,85 @@ class PhenyxTools {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'configuration_lang` WHERE id_configuration = ' . $configuration['id_configuration'];
 				$result &= Db::getInstance()->execute($sql);
 			}
-            
-        }
-        
-        $result = true;
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'configuration` CHANGE `id_configuration` `id_configuration` INT(10) UNSIGNED NOT NULL';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'configuration` DROP PRIMARY KEY';
-        $result &= Db::getInstance()->execute($sql);
-                
-        $query = 'SELECT id_configuration  FROM `' . _DB_PREFIX_ . 'configuration` ORDER BY id_configuration ASC';
-		
-        $configurations = Db::getInstance()->executeS($query);
-        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
-            (new DbQuery())
-                ->select('MAX(`id_configuration`) + 1')
-                ->from('configuration')
-        );
-        
-        foreach($configurations as $configuration) {
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration` SET `id_configuration` = ' . $maxIndex . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration_lang` SET `id_configuration` = ' . $maxIndex . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
-            $result &= Db::getInstance()->execute($sql);
-            
-            $maxIndex++;
-        }
-        $query = 'SELECT id_configuration  FROM `' . _DB_PREFIX_ . 'configuration` ORDER BY id_configuration ASC';
-		
-        $configurations = Db::getInstance()->executeS($query);
-        $i = 1;
-        foreach($configurations as $configuration) {
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration` SET `id_configuration` = ' . $i . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration_lang` SET `id_configuration` = ' . $i . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
-            $result &= Db::getInstance()->execute($sql);
-            
-            $i++;
-        }
-               
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'configuration` CHANGE `id_configuration` `id_configuration` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_configuration`)';
-        $result &= Db::getInstance()->execute($sql);
-        if($result) {
-            $this->context->phenyxConfig->updateValue('CONFIGURATION_MAINTENANCE', date("Y-m-d"));
-        }
-        
-        return $result;
+
+		}
+
+		$result = true;
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'configuration` CHANGE `id_configuration` `id_configuration` INT(10) UNSIGNED NOT NULL';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'configuration` DROP PRIMARY KEY';
+		$result &= Db::getInstance()->execute($sql);
+
+		$query = 'SELECT id_configuration  FROM `' . _DB_PREFIX_ . 'configuration` ORDER BY id_configuration ASC';
+
+		$configurations = Db::getInstance()->executeS($query);
+		$maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+			(new DbQuery())
+				->select('MAX(`id_configuration`) + 1')
+				->from('configuration')
+		);
+
+		foreach ($configurations as $configuration) {
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration` SET `id_configuration` = ' . $maxIndex . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration_lang` SET `id_configuration` = ' . $maxIndex . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
+			$result &= Db::getInstance()->execute($sql);
+
+			$maxIndex++;
+		}
+
+		$query = 'SELECT id_configuration  FROM `' . _DB_PREFIX_ . 'configuration` ORDER BY id_configuration ASC';
+
+		$configurations = Db::getInstance()->executeS($query);
+		$i = 1;
+
+		foreach ($configurations as $configuration) {
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration` SET `id_configuration` = ' . $i . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'configuration_lang` SET `id_configuration` = ' . $i . ' WHERE `id_configuration` = ' . $configuration['id_configuration'];
+			$result &= Db::getInstance()->execute($sql);
+
+			$i++;
+		}
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'configuration` CHANGE `id_configuration` `id_configuration` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_configuration`)';
+		$result &= Db::getInstance()->execute($sql);
+
+		if ($result) {
+			$this->context->phenyxConfig->updateValue('CONFIGURATION_MAINTENANCE', date("Y-m-d"));
+		}
+
+		return $result;
 
 	}
 
 	public function cleanMetas() {
-        
-        $result = true;
-        
-        $legitimeMetas = $this->getLegitimeMeta();
-        $idLang = $this->context->language->id;
-        
-        $query = 'SELECT id_meta, page  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
-		
-        $metas = Db::getInstance()->executeS($query);
-        
-        foreach($metas as $meta) {
-            if(in_array($meta['page'], $legitimeMetas)) {
-                continue;
-            } else {
-                $meta = new Meta($meta['id_meta']);
-                $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'theme_meta` WHERE id_meta = ' . $meta->id;
-                $meta->delete();
-                
-            }
-            
-        }
-        
-        $query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_meta ASC';
+
+		$result = true;
+
+		$legitimeMetas = $this->getLegitimeMeta();
+		$idLang = $this->context->language->id;
+
+		$query = 'SELECT id_meta, page  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
+
+		$metas = Db::getInstance()->executeS($query);
+
+		foreach ($metas as $meta) {
+
+			if (in_array($meta['page'], $legitimeMetas)) {
+				continue;
+			} else {
+				$meta = new Meta($meta['id_meta']);
+				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'theme_meta` WHERE id_meta = ' . $meta->id;
+				$meta->delete();
+
+			}
+
+		}
+
+		$query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_meta ASC';
 		$themeMetas = Db::getInstance()->executeS($query);
 
 		foreach ($themeMetas as $themeMeta) {
@@ -801,8 +824,8 @@ class PhenyxTools {
 			}
 
 		}
-        
-        $query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_lang = '.$idLang.' ORDER BY id_meta ASC';
+
+		$query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta_lang` WHERE id_lang = ' . $idLang . ' ORDER BY id_meta ASC';
 		$metaLangs = Db::getInstance()->executeS($query);
 
 		foreach ($metaLangs as $metaLang) {
@@ -819,83 +842,80 @@ class PhenyxTools {
 			}
 
 		}
-        
-        $query = 'SELECT id_theme_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_theme_meta ASC';
-		
-        $theme_metas = Db::getInstance()->executeS($query);
-        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
-            (new DbQuery())
-                ->select('MAX(`id_theme_meta`) + 1')
-                ->from('theme_meta')
-        );
-        
-        foreach($theme_metas as $theme_meta) {
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET `id_theme_meta` = ' . $maxIndex . ' WHERE `id_theme_meta` = ' . $theme_meta['id_theme_meta'];
-            $result &= Db::getInstance()->execute($sql);
-            
-            $maxIndex++;
-        }
-        
-        $query = 'SELECT id_theme_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_theme_meta ASC';
-		
-        $theme_metas = Db::getInstance()->executeS($query);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` DROP INDEX `id_theme_2`';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` DROP INDEX `id_theme`';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` DROP INDEX `id_meta`';
-        $result &= Db::getInstance()->execute($sql);
-        $i = 1;
-        foreach($theme_metas as $theme_meta) {
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET `id_theme_meta` = ' . $i . ' WHERE `id_theme_meta` = ' . $theme_meta['id_theme_meta'];
-            $result &= Db::getInstance()->execute($sql);
-            
-            $i++;
-        }
-        
-        
-        
-        $query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
-		
-        $metas = Db::getInstance()->executeS($query);
-        
-        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
-            (new DbQuery())
-                ->select('MAX(`id_meta`) + 1')
-                ->from('meta')
-        );
-                
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` CHANGE `id_meta` `id_meta` INT(10) UNSIGNED NOT NULL';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` DROP PRIMARY KEY';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` DROP INDEX `page`';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` DROP PRIMARY KEY';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` DROP INDEX `id_lang`';
-        $result &= Db::getInstance()->execute($sql);
-        
-       
-        
-        foreach($metas as $meta) {
-            
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'meta` SET `id_meta` = ' . $maxIndex . ' WHERE `id_meta` = ' . $meta['id_meta'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'meta_lang` SET `id_meta` = ' . $maxIndex . ' WHERE `id_meta` = ' . $meta['id_meta'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET `id_meta` = ' . $maxIndex . ' WHERE `id_meta` = ' . $meta['id_meta'];
-            $result &= Db::getInstance()->execute($sql);
-            
-            $maxIndex++;
-            
-        }
+
+		$query = 'SELECT id_theme_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_theme_meta ASC';
+
+		$theme_metas = Db::getInstance()->executeS($query);
+		$maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+			(new DbQuery())
+				->select('MAX(`id_theme_meta`) + 1')
+				->from('theme_meta')
+		);
+
+		foreach ($theme_metas as $theme_meta) {
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET `id_theme_meta` = ' . $maxIndex . ' WHERE `id_theme_meta` = ' . $theme_meta['id_theme_meta'];
+			$result &= Db::getInstance()->execute($sql);
+
+			$maxIndex++;
+		}
+
+		$query = 'SELECT id_theme_meta  FROM `' . _DB_PREFIX_ . 'theme_meta` ORDER BY id_theme_meta ASC';
+
+		$theme_metas = Db::getInstance()->executeS($query);
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` DROP INDEX `id_theme_2`';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` DROP INDEX `id_theme`';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` DROP INDEX `id_meta`';
+		$result &= Db::getInstance()->execute($sql);
+		$i = 1;
+
+		foreach ($theme_metas as $theme_meta) {
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET `id_theme_meta` = ' . $i . ' WHERE `id_theme_meta` = ' . $theme_meta['id_theme_meta'];
+			$result &= Db::getInstance()->execute($sql);
+
+			$i++;
+		}
+
+		$query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
+
+		$metas = Db::getInstance()->executeS($query);
+
+		$maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+			(new DbQuery())
+				->select('MAX(`id_meta`) + 1')
+				->from('meta')
+		);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` CHANGE `id_meta` `id_meta` INT(10) UNSIGNED NOT NULL';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` DROP PRIMARY KEY';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` DROP INDEX `page`';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` DROP PRIMARY KEY';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` DROP INDEX `id_lang`';
+		$result &= Db::getInstance()->execute($sql);
+
+		foreach ($metas as $meta) {
+
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'meta` SET `id_meta` = ' . $maxIndex . ' WHERE `id_meta` = ' . $meta['id_meta'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'meta_lang` SET `id_meta` = ' . $maxIndex . ' WHERE `id_meta` = ' . $meta['id_meta'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET `id_meta` = ' . $maxIndex . ' WHERE `id_meta` = ' . $meta['id_meta'];
+			$result &= Db::getInstance()->execute($sql);
+
+			$maxIndex++;
+
+		}
 
 		$query = 'SELECT id_meta  FROM `' . _DB_PREFIX_ . 'meta` ORDER BY id_meta ASC';
 
@@ -910,231 +930,242 @@ class PhenyxTools {
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'meta_lang` SET id_meta = ' . $i . ' WHERE id_meta = ' . $meta['id_meta'];
 			$result &= Db::getInstance()->execute($sql);
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'theme_meta` SET id_meta = ' . $i . ' WHERE id_meta = ' . $meta['id_meta'];
-            
+
 			$result &= Db::getInstance()->execute($sql);
 			$i++;
 		}
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` CHANGE `id_meta` `id_meta` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_meta`)';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` ADD UNIQUE `page` (`page`) USING BTREE';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` ADD PRIMARY KEY (`id_meta`, `id_lang`) USING BTREE';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` ADD INDEX `id_lang` (`id_lang`) USING BTREE';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` ADD UNIQUE `id_theme_2` (`id_theme`, `id_meta`) USING BTREE';
-        $result &= Db::getInstance()->execute($sql);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` ADD INDEX `id_theme` (`id_theme`) USING BTREE';
-        $result &= Db::getInstance()->execute($sql);
-         $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` ADD INDEX `id_meta` (`id_meta`) USING BTREE';
-        $result &= Db::getInstance()->execute($sql);
-        
-        if($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
-            $this->context->cache_api->cleanByStartingKey('metaGetPages_');
-        }
-        
-        if($result) {
-            $this->context->phenyxConfig->updateValue('META_MAINTENANCE', date("Y-m-d"));
-        }
-        
-        return $result;
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` CHANGE `id_meta` `id_meta` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_meta`)';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta` ADD UNIQUE `page` (`page`) USING BTREE';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` ADD PRIMARY KEY (`id_meta`, `id_lang`) USING BTREE';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'meta_lang` ADD INDEX `id_lang` (`id_lang`) USING BTREE';
+		$result &= Db::getInstance()->execute($sql);
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` ADD UNIQUE `id_theme_2` (`id_theme`, `id_meta`) USING BTREE';
+		$result &= Db::getInstance()->execute($sql);
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` ADD INDEX `id_theme` (`id_theme`) USING BTREE';
+		$result &= Db::getInstance()->execute($sql);
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'theme_meta` ADD INDEX `id_meta` (`id_meta`) USING BTREE';
+		$result &= Db::getInstance()->execute($sql);
+
+		if ($result && $this->context->cache_enable && is_object($this->context->cache_api)) {
+			$this->context->cache_api->cleanByStartingKey('metaGetPages_');
+		}
+
+		if ($result) {
+			$this->context->phenyxConfig->updateValue('META_MAINTENANCE', date("Y-m-d"));
+		}
+
+		return $result;
 
 	}
-    
-    public function cleanPluginHook() {
-              
-        $result = true;
-        $query = 'SELECT hp.id_plugin, hp.id_hook, h.name as hookname, p.name
+
+	public function cleanPluginHook() {
+
+		$result = true;
+		$query = 'SELECT hp.id_plugin, hp.id_hook, h.name as hookname, p.name
         FROM `' . _DB_PREFIX_ . 'hook_plugin` hp
         LEFT JOIN `' . _DB_PREFIX_ . 'hook` h On h.id_hook = hp.id_hook
         LEFT JOIN `' . _DB_PREFIX_ . 'plugin` p On p.id_plugin = hp.id_plugin
         ORDER BY hp.id_plugin ASC';
 		$pluginHooks = Db::getInstance()->executeS($query);
-        foreach($pluginHooks as $pluginhook) {
-            if($pluginhook['name'] == 'revslider') {
-                continue;
-            }
-            $method = false;
-            
-            $retroHookName = $this->context->_hook->getRetroHookName($pluginhook['hookname']);
-            
-            if (file_exists(_EPH_PLUGIN_DIR_ . $pluginhook['name'] . '/' . $pluginhook['name'] . '.php')) {
+
+		foreach ($pluginHooks as $pluginhook) {
+
+			if ($pluginhook['name'] == 'revslider') {
+				continue;
+			}
+
+			$method = false;
+
+			$retroHookName = $this->context->_hook->getRetroHookName($pluginhook['hookname']);
+
+			if (file_exists(_EPH_PLUGIN_DIR_ . $pluginhook['name'] . '/' . $pluginhook['name'] . '.php')) {
 				require_once _EPH_PLUGIN_DIR_ . $pluginhook['name'] . '/' . $pluginhook['name'] . '.php';
 			} else
 
 			if (file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $pluginhook['name'] . '/' . $pluginhook['name'] . '.php')) {
 				require_once _EPH_SPECIFIC_PLUGIN_DIR_ . $pluginhook['name'] . '/' . $pluginhook['name'] . '.php';
 			}
-            if (class_exists($pluginhook['name'], false)) {
-                
-                $plugin = Plugin::getInstanceByName($pluginhook['name']);
-                if(method_exists($plugin, 'hook' . $pluginhook['hookname']) || method_exists($plugin, 'hook' . $retroHookName)) {
-                    $method = true;
-                }
-                
-                if($method) {
-                    continue;
-                }
-                $sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin` WHERE `id_hook` = ' . $pluginhook['id_hook'].' AND `id_plugin` = '. $pluginhook['id_plugin'];
-			    $result &= Db::getInstance()->execute($sql);
-            }
-            
-        }
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'hook_plugin` CHANGE `id_hook_plugin` `id_hook_plugin` INT(10) UNSIGNED NOT NULL';
-        $result &= Db::getInstance()->execute($sql);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'hook_plugin` DROP PRIMARY KEY';
-        $result &= Db::getInstance()->execute($sql);
-        $query = 'SELECT `id_hook_plugin`  FROM `' . _DB_PREFIX_ . 'hook_plugin` ORDER BY `id_hook_plugin` ASC';
+
+			if (class_exists($pluginhook['name'], false)) {
+
+				$plugin = Plugin::getInstanceByName($pluginhook['name']);
+
+				if (method_exists($plugin, 'hook' . $pluginhook['hookname']) || method_exists($plugin, 'hook' . $retroHookName)) {
+					$method = true;
+				}
+
+				if ($method) {
+					continue;
+				}
+
+				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin` WHERE `id_hook` = ' . $pluginhook['id_hook'] . ' AND `id_plugin` = ' . $pluginhook['id_plugin'];
+				$result &= Db::getInstance()->execute($sql);
+			}
+
+		}
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'hook_plugin` CHANGE `id_hook_plugin` `id_hook_plugin` INT(10) UNSIGNED NOT NULL';
+		$result &= Db::getInstance()->execute($sql);
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'hook_plugin` DROP PRIMARY KEY';
+		$result &= Db::getInstance()->execute($sql);
+		$query = 'SELECT `id_hook_plugin`  FROM `' . _DB_PREFIX_ . 'hook_plugin` ORDER BY `id_hook_plugin` ASC';
 		$hookPlugins = Db::getInstance()->executeS($query);
-        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
-            (new DbQuery())
-                ->select('MAX(`id_hook_plugin`) + 1')
-                ->from('hook_plugin')
-        );
-        foreach ($hookPlugins as $hook) {
-            
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET `id_hook_plugin` = ' . $maxIndex . ' WHERE `id_hook_plugin` = ' . $hook['id_hook_plugin'];
-            $result &= Db::getInstance()->execute($sql);
-            
-            $maxIndex++;
-            
-        }
-        
-        $query = 'SELECT `id_hook_plugin`  FROM `' . _DB_PREFIX_ . 'hook_plugin` ORDER BY `id_hook_plugin` ASC';
+		$maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+			(new DbQuery())
+				->select('MAX(`id_hook_plugin`) + 1')
+				->from('hook_plugin')
+		);
+
+		foreach ($hookPlugins as $hook) {
+
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET `id_hook_plugin` = ' . $maxIndex . ' WHERE `id_hook_plugin` = ' . $hook['id_hook_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+
+			$maxIndex++;
+
+		}
+
+		$query = 'SELECT `id_hook_plugin`  FROM `' . _DB_PREFIX_ . 'hook_plugin` ORDER BY `id_hook_plugin` ASC';
 		$hookPlugins = Db::getInstance()->executeS($query);
-        
+
 		$i = 1;
-        foreach ($hookPlugins as $hook) {
-            
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET `id_hook_plugin` = ' . $i . ' WHERE `id_hook_plugin` = ' . $hook['id_hook_plugin'];
-            $result &= Db::getInstance()->execute($sql);
-            		
+
+		foreach ($hookPlugins as $hook) {
+
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET `id_hook_plugin` = ' . $i . ' WHERE `id_hook_plugin` = ' . $hook['id_hook_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+
 			$i++;
 
 		}
-        $sql = 'ALTER TABLE`' . _DB_PREFIX_ . 'hook_plugin` CHANGE `id_hook_plugin` `id_hook_plugin` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_hook_plugin`)';
-        $result &= Db::getInstance()->execute($sql);
-        if($result) {
-            $this->context->phenyxConfig->updateValue('PLUGIN_HOOK_MAINTENANCE', date("Y-m-d"));
-        }
-        
-        return $result;
 
-        
-    }
+		$sql = 'ALTER TABLE`' . _DB_PREFIX_ . 'hook_plugin` CHANGE `id_hook_plugin` `id_hook_plugin` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_hook_plugin`)';
+		$result &= Db::getInstance()->execute($sql);
 
-	public function cleanPlugins() {
-               
-        $result = true;
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL';
-        $result &= Db::getInstance()->execute($sql);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` DROP PRIMARY KEY';
-        $result &= Db::getInstance()->execute($sql);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_access` DROP PRIMARY KEY';
-        $result &= Db::getInstance()->execute($sql);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` DROP PRIMARY KEY';
-        $result &= Db::getInstance()->execute($sql);
-        
-        $query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
-		$plugs = Db::getInstance()->executeS($query);
-        $maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
-            (new DbQuery())
-                ->select('MAX(`id_plugin`) + 1')
-                ->from('plugin')
-        );
-        foreach ($plugs as $plugin) {
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			$result &= Db::getInstance()->execute($sql);
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-            $result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-			$result &= Db::getInstance()->execute($sql);
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_group` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			$result &= Db::getInstance()->execute($sql);
-            if($this->ephenyx_shop_active) {
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_carrier` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_country` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_currency` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'payment_mode` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-            }
-			
-            $maxIndex++;
-            
-            
-            
-        }
-        
-        $query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY position ASC';
-		$plugins = Db::getInstance()->executeS($query);
-		$i = 1;
-        
-		foreach ($plugins as $plugin) {
-            
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $i . ', position = '.$i.' WHERE id_plugin = ' . $plugin['id_plugin'];
-            $result &= Db::getInstance()->execute($sql);
-            
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-			$result &= Db::getInstance()->execute($sql);
-            
-            $sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			$result &= Db::getInstance()->execute($sql);
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-            $result &= Db::getInstance()->execute($sql);
-            
-            $result &= Db::getInstance()->execute($sql);
-			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_group` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-			$result &= Db::getInstance()->execute($sql);
-			
-            if($this->ephenyx_shop_active) {
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_carrier` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_country` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_currency` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-                $sql = 'UPDATE `' . _DB_PREFIX_ . 'payment_mode` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
-                $result &= Db::getInstance()->execute($sql);
-            }
-			
-			
-					
-			$i++;
-
+		if ($result) {
+			$this->context->phenyxConfig->updateValue('PLUGIN_HOOK_MAINTENANCE', date("Y-m-d"));
 		}
-        
-        $sql = 'ALTER TABLE`' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_plugin`);';
-        $result &= Db::getInstance()->execute($sql);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_access` ADD PRIMARY KEY(`id_profile`, `id_plugin`)';
-        $result &= Db::getInstance()->execute($sql);
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` ADD PRIMARY KEY(`id_plugin`, `id_group`)';
-        $result &= Db::getInstance()->execute($sql);
-                      
-        $result &= $this->resetPlugin($result);
-        if($result) {
-            $this->context->phenyxConfig->updateValue('PLUGIN_MAINTENANCE', date("Y-m-d"));
-        }
-        return $result;
+
+		return $result;
 
 	}
-    
-    public function resetPlugin(&$result = true) {
-        
+
+	public function cleanPlugins() {
+
+		$result = true;
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL';
+		$result &= Db::getInstance()->execute($sql);
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin` DROP PRIMARY KEY';
+		$result &= Db::getInstance()->execute($sql);
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_access` DROP PRIMARY KEY';
+		$result &= Db::getInstance()->execute($sql);
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` DROP PRIMARY KEY';
+		$result &= Db::getInstance()->execute($sql);
+
+		$query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
+		$plugs = Db::getInstance()->executeS($query);
+		$maxIndex = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
+			(new DbQuery())
+				->select('MAX(`id_plugin`) + 1')
+				->from('plugin')
+		);
+
+		foreach ($plugs as $plugin) {
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_group` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+
+			if ($this->ephenyx_shop_active) {
+				$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_carrier` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+				$result &= Db::getInstance()->execute($sql);
+				$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_country` SET id_plugin = ' . $maxIndex . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+				$result &= Db::getInstance()->execute($sql);
+				$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_currency` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+				$result &= Db::getInstance()->execute($sql);
+				$sql = 'UPDATE `' . _DB_PREFIX_ . 'payment_mode` SET id_plugin = ' . $maxIndex . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+				$result &= Db::getInstance()->execute($sql);
+			}
+
+			$maxIndex++;
+
+		}
+
+		$query = 'SELECT id_plugin  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY position ASC';
+		$plugins = Db::getInstance()->executeS($query);
+		$i = 1;
+
+		foreach ($plugins as $plugin) {
+
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin` SET id_plugin = ' . $i . ', position = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_access` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+
+			$result &= Db::getInstance()->execute($sql);
+			$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_group` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+			$result &= Db::getInstance()->execute($sql);
+
+			if ($this->ephenyx_shop_active) {
+				$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_carrier` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+				$result &= Db::getInstance()->execute($sql);
+				$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_country` SET id_plugin = ' . $i . ' WHERE id_plugin = ' . $plugin['id_plugin'];
+				$result &= Db::getInstance()->execute($sql);
+				$sql = 'UPDATE `' . _DB_PREFIX_ . 'plugin_currency` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+				$result &= Db::getInstance()->execute($sql);
+				$sql = 'UPDATE `' . _DB_PREFIX_ . 'payment_mode` SET id_plugin = ' . $i . '  WHERE id_plugin = ' . $plugin['id_plugin'];
+				$result &= Db::getInstance()->execute($sql);
+			}
+
+			$i++;
+
+		}
+
+		$sql = 'ALTER TABLE`' . _DB_PREFIX_ . 'plugin` CHANGE `id_plugin` `id_plugin` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (`id_plugin`);';
+		$result &= Db::getInstance()->execute($sql);
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_access` ADD PRIMARY KEY(`id_profile`, `id_plugin`)';
+		$result &= Db::getInstance()->execute($sql);
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'plugin_group` ADD PRIMARY KEY(`id_plugin`, `id_group`)';
+		$result &= Db::getInstance()->execute($sql);
+
+		$result &= $this->resetPlugin($result);
+
+		if ($result) {
+			$this->context->phenyxConfig->updateValue('PLUGIN_MAINTENANCE', date("Y-m-d"));
+		}
+
+		return $result;
+
+	}
+
+	public function resetPlugin(&$result = true) {
+
 		$query = 'SELECT *  FROM `' . _DB_PREFIX_ . 'plugin` ORDER BY id_plugin ASC';
 		$plugins = Db::getInstance()->executeS($query);
 
 		foreach ($plugins as $plugin) {
+
 			if (file_exists(_EPH_PLUGIN_DIR_ . $plugin['name'] . '/' . $plugin['name'] . '.php')) {
 				require_once _EPH_PLUGIN_DIR_ . $plugin['name'] . '/' . $plugin['name'] . '.php';
 			} else
@@ -1144,44 +1175,45 @@ class PhenyxTools {
 			}
 
 			if (class_exists($plugin['name'], false)) {
-                
+
 				$tmpPlugin = Adapter_ServiceLocator::get($plugin['name']);
 
 				if (method_exists($tmpPlugin, 'reset')) {
-                    
-					$plugin = Plugin::getInstanceByName($plugin['name']);
-                    
-                    try {
-                        
-                        $result &= $plugin->reset();
-                        
-                    } catch (PhenyxException $e) {
-                        
-                        PhenyxLogger::addLog("Plugin reset error for :".$plugin['name']." ".$e->getMessage(), 4);
 
-                    }
-					
+					$plugin = Plugin::getInstanceByName($plugin['name']);
+
+					try {
+
+						$result &= $plugin->reset();
+
+					} catch (PhenyxException $e) {
+
+						PhenyxLogger::addLog("Plugin reset error for :" . $plugin['name'] . " " . $e->getMessage(), 4);
+
+					}
 
 				}
 
 			}
 
 		}
-        if($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $this->context->cache_api->cleanCache();
-        }
-        $this->context->_session->destroy();
-        
-        return $result;
+
+		if ($this->context->cache_enable && is_object($this->context->cache_api)) {
+			$this->context->cache_api->cleanCache();
+		}
+
+		$this->context->_session->destroy();
+
+		return $result;
 
 	}
 
 	public function cleanHook() {
-                
-        $result = true;
+
+		$result = true;
 
 		$query = 'SELECT DISTINCT(id_hook)  FROM `' . _DB_PREFIX_ . 'hook_plugin_exceptions`  ORDER BY id_hook ASC';
-        
+
 		$hooks = Db::getInstance()->executeS($query);
 
 		foreach ($hooks as $hook) {
@@ -1194,14 +1226,14 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin_exceptions` WHERE id_hook = ' . $hook['id_hook'];
-                
+
 				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
 
 		$query = 'SELECT DISTINCT(id_hook)  FROM `' . _DB_PREFIX_ . 'hook_plugin`  ORDER BY id_hook ASC';
-        
+
 		$hooks = Db::getInstance()->executeS($query);
 
 		foreach ($hooks as $hook) {
@@ -1214,45 +1246,43 @@ class PhenyxTools {
 
 			if (!$parent) {
 				$sql = 'DELETE FROM `' . _DB_PREFIX_ . 'hook_plugin` WHERE id_hook = ' . $hook['id_hook'];
-                
+
 				$result &= Db::getInstance()->execute($sql);
 			}
 
 		}
 
-
 		$query = 'SELECT *  FROM `' . _DB_PREFIX_ . 'hook` ORDER BY id_hook ASC';
-        
+
 		$hooks = Db::getInstance()->executeS($query);
 
 		$i = 1;
 
 		foreach ($hooks as $hook) {
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook` SET id_hook = ' . $i . ' WHERE id_hook = ' . $hook['id_hook'];
-            
+
 			$result &= Db::getInstance()->execute($sql);
 
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin_exceptions` SET id_hook = ' . $i . ' WHERE id_hook = ' . $hook['id_hook'];
-            
+
 			$result &= Db::getInstance()->execute($sql);
-			
+
 			$sql = 'UPDATE `' . _DB_PREFIX_ . 'hook_plugin` SET id_hook = ' . $i . ' WHERE id_hook = ' . $hook['id_hook'];
 			$result &= Db::getInstance()->execute($sql);
 			$i++;
 
 		}
-        
-        $sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'hook` MODIFY `id_hook` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT='.$i.';';
-        $result &= Db::getInstance()->execute($sql);	
-        if($result) {
-            $this->context->phenyxConfig->updateValue('HOOK_MAINTENANCE', date("Y-m-d"));
-        }
-        
-        return $result;
+
+		$sql = 'ALTER TABLE `' . _DB_PREFIX_ . 'hook` MODIFY `id_hook` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=' . $i . ';';
+		$result &= Db::getInstance()->execute($sql);
+
+		if ($result) {
+			$this->context->phenyxConfig->updateValue('HOOK_MAINTENANCE', date("Y-m-d"));
+		}
+
+		return $result;
 
 	}
-
-	
 
 	public function exportLang($iso, $theme, $plugins) {
 
@@ -1681,11 +1711,9 @@ class PhenyxTools {
 		return $plugs;
 	}
     
-    public function getIoFiles($origin, $destination) {
-        
-        $curl = new Curl();
-        $curl->download($origin, $destination);
-        
+    public function getIoFiles($content, $destination) {
+                
+        return file_put_contents(_EPH_ROOT_DIR_.$destination, $content);
     }
 
 }
