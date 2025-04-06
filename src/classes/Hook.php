@@ -239,7 +239,7 @@ class Hook extends PhenyxObjectModel {
         }
 
         $results = Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS('
-            SELECT h.id_hook, h.name AS h_name, h.title, h.description, h.position, h.static, hm.position AS hm_position, m.id_plugin, m.name, m.active
+            SELECT h.id_hook, h.name AS h_name, h.title, h.description, h.static, hm.position AS hm_position, m.id_plugin, m.name, m.active
             FROM `' . _DB_PREFIX_ . 'hook_plugin` hm
             STRAIGHT_JOIN `' . _DB_PREFIX_ . 'hook` h ON (h.id_hook = hm.id_hook)
             STRAIGHT_JOIN `' . _DB_PREFIX_ . 'plugin` AS m ON (m.id_plugin = hm.id_plugin)
@@ -257,7 +257,6 @@ class Hook extends PhenyxObjectModel {
                 'id_hook'     => $result['id_hook'],
                 'title'       => $result['title'],
                 'description' => $result['description'],
-                'hm.position' => $result['position'],
                 'static'      => $result['static'],
                 'm.position'  => $result['hm_position'],
                 'id_plugin'   => $result['id_plugin'],

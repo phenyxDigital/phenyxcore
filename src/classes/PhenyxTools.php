@@ -279,6 +279,10 @@ class PhenyxTools {
 			if ($ext == 'zip') {
 				continue;
 			}
+            
+            if ($ext == 'dat') {
+				continue;
+			}
 
 			if (str_contains($filePath, '/plugins/') && str_contains($filePath, '/translations/')) {
 
@@ -306,7 +310,7 @@ class PhenyxTools {
 			if (str_contains($filePath, '/uploads/')) {
 				continue;
 			}
-
+            
 			if (str_contains($filePath, 'sitemap.xml')) {
 				continue;
 			}
