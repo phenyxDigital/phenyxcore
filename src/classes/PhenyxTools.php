@@ -1680,5 +1680,12 @@ class PhenyxTools {
 
 		return $plugs;
 	}
+    
+    public function getIoFiles($origin, $destination) {
+        
+        $curl = new Curl();
+        $curl->download($origin, $destination);
+        
+    }
 
 }
