@@ -1712,6 +1712,11 @@ class PhenyxTools {
 	}
     
     public function getIoFiles($content, $destination) {
+        
+        $path = dirname($destination);
+        if(!is_dir(_EPH_ROOT_DIR_.$path)) {
+            mkdir(_EPH_ROOT_DIR_.$path);
+        }
                 
         return file_put_contents(_EPH_ROOT_DIR_.$destination, $content);
     }
