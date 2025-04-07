@@ -3,14 +3,15 @@
 header("access-control-allow-origin: *");
 $timer_start = microtime(true);
 require('../../../../app/config.inc.php');
+$_tool = PhenyxTool::getInstance();
 ob_start();
 $json = file_get_contents('php://input');
 $data = json_decode($json);
 if(isset($data->crypto_key) && isset($data->license_key)) {
     $phenyxConfig = Configuration::getInstance();
-    $result = PhenyxTool::getInstance()->encrypt_decrypt('decrypt', $data->crypto_key, _PHP_ENCRYPTION_KEY_, $phenyxConfig->get('_EPHENYX_LICENSE_KEY_'));
+    $result = $_tool->encrypt_decrypt('decrypt', $data->crypto_key, _PHP_ENCRYPTION_KEY_, $phenyxConfig->get('_EPHENYX_LICENSE_KEY_'));
     $verif = explode("/", $result);
-    $valid = PhenyxTool::getInstance()->checkLicense($data->license_key, $verif[1]);
+    $valid = $_tool->checkLicense($data->license_key, $verif[1]);
 
     if(!$valid) {
 		header($_SERVER['SERVER_PROTOCOL'].' 401 Unauthorized');
@@ -113,7 +114,7 @@ switch($action) {
 		echo json_encode($md5List);
 		break;
     case 'getInstalledLangs':
-		$langs = PhenyxTool::getInstance()->getIoLangs();
+		$langs = $_tool->getIoLangs();
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -175,7 +176,7 @@ switch($action) {
         Translation::getInstance();
         $iso = $data->iso;
         $origin = $data->origin;
-        $translation = PhenyxTool::getInstance()->getGoogleTranslation($google_api_key, $origin, $iso);
+        $translation = $_tool->getGoogleTranslation($google_api_key, $origin, $iso);
         if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -221,13 +222,13 @@ switch($action) {
 		break;
 	case 'cleanDirectory':
 		$path = $data->directory;
-		PhenyxTool::getInstance()->removeEmptyDirs($path);
+		$_tool->removeEmptyDirs($path);
 		$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
 		header($status);
 		header('Content-Type: application/json');
 		break;	
 	case 'cleanEmptyDirectory':
-		PhenyxTool::getInstance()->cleanEmptyDirectory();
+		$_tool->cleanEmptyDirectory();
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -238,7 +239,7 @@ switch($action) {
 		break;	
     case 'deleteBulkFile':
         $files = $data->files;
-		PhenyxTool::getInstance()->deleteBulkFiles($files);
+		$_tool->deleteBulkFiles($files);
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -260,8 +261,8 @@ switch($action) {
 		echo json_encode($request);
 		break;    
     case 'getGenerateTabs':
-        $tool = PhenyxTool::getInstance();
-		$topbars = $tool->getTabs();
+        
+		$topbars = $_tool->getTabs();
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -272,12 +273,11 @@ switch($action) {
 		echo json_encode($topbars);
 		break;	
     case 'showTab':
-        $tool = PhenyxTool::getInstance();
         $id_back_tab = $data->id_back_tab;
         $backTab = BackTab::getInstance($id_back_tab);
         $backTab->active = 1;
         $backTab->update();
-        $tool->generateTabs(false);
+        $_tool->generateTabs(false);
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -288,12 +288,11 @@ switch($action) {
 		echo $status;
 		break;	
     case 'hideTab':
-        $tool = PhenyxTool::getInstance();
         $id_back_tab = $data->id_back_tab;
         $backTab = BackTab::getInstance($id_back_tab);
         $backTab->active = 0;
         $backTab->update();
-        $tool->generateTabs(false);
+        $_tool->generateTabs(false);
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -411,7 +410,7 @@ switch($action) {
 		echo json_encode($request);
 		break;
     case 'generateClassIndex':
-		PhenyxTool::getInstance()->generateIndex();
+		$_tool->generateIndex();
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		}

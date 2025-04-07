@@ -2211,7 +2211,6 @@ FileETag none
 			'includes/classes',
 			'includes/controllers',
 			'vendor/phenyxdigitale',
-            'webephenyx',
 		];
         $iso_langs = [];
         $languages = Language::getLanguages(false);
@@ -2349,7 +2348,6 @@ FileETag none
         $iterator->append(new DirectoryIterator(_EPH_ROOT_DIR_ . '/phenyxShop/app/'));
 		$iterator->append(new DirectoryIterator(_EPH_ROOT_DIR_ . '/content/themes/'));
         $iterator->append(new DirectoryIterator(_EPH_ROOT_DIR_ . '/phenyxShop/'));
-        $iterator->append(new DirectoryIterator(_EPH_ROOT_DIR_ . '/phenyxDigital/webephenyx/'));
 
 
 
@@ -2431,7 +2429,6 @@ FileETag none
             'includes/classes',		
             'includes/controllers',	
             'vendor/phenyxdigitale',
-			'phenyxDigital/webephenyx',
 		];
         foreach($iso_langs as $lang) {
             $recursive_directory[] = 'phenyxDigital/content/translations/'.$lang;
