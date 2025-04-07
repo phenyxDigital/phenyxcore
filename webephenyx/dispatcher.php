@@ -432,10 +432,20 @@ switch($action) {
 		header('Content-Type: application/json');
 		echo $result;
 		break;
-    case 'downloadZipFile':        
-		$content = $data->content;
-        $filename = $data->filename;
-        $result = file_put_contents(_EPH_ROOT_DIR_.'/'.$filename, $content);
+    case 'downloadZipFile':  
+		$zipPath = $data->zipPath;
+        $content = file_get_contents($zipPath);
+        $file = file_put_contents(_EPH_ROOT_DIR_.'/upgrade.zip', $content);
+
+        $zip = new ZipArchive;
+        if ($zip->open(_EPH_ROOT_DIR_.'/upgrade.zip') === TRUE) {
+            $zip->extractTo(_EPH_ROOT_DIR_.'/');
+            $zip->close();
+            unlink(_EPH_ROOT_DIR_.'/upgrade.zip');
+            $result = true;
+        } else {
+            $result = false;
+        }
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		}
@@ -444,10 +454,13 @@ switch($action) {
 		header('Content-Type: application/json');
 		echo $result;
 		break;
-    case 'deleteFile':
-		$file = $data->file;
-        if(file_exists(_EPH_ROOT_DIR_.$file)) {
-            $result = unlink(_EPH_ROOT_DIR_.$file);
+    case 'deleteFiles':
+		$files = $data->files;
+        $result = true;
+        foreach($files as $file) {
+            if(file_exists(_EPH_ROOT_DIR_.$file)) {
+                $result &= unlink(_EPH_ROOT_DIR_.$file);
+            }
         }
        
 		if (ob_get_length() != 0) {
