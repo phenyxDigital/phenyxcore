@@ -8,9 +8,9 @@ $json = file_get_contents('php://input');
 $data = json_decode($json);
 if(isset($data->crypto_key) && isset($data->license_key)) {
     $phenyxConfig = Configuration::getInstance();
-    $result = Tools::encrypt_decrypt('decrypt', $data->crypto_key, _PHP_ENCRYPTION_KEY_, $phenyxConfig->get('_EPHENYX_LICENSE_KEY_'));
+    $result = PhenyxTool::getInstance()->encrypt_decrypt('decrypt', $data->crypto_key, _PHP_ENCRYPTION_KEY_, $phenyxConfig->get('_EPHENYX_LICENSE_KEY_'));
     $verif = explode("/", $result);
-    $valid = Tools::checkLicense($data->license_key, $verif[1]);
+    $valid = PhenyxTool::getInstance()->checkLicense($data->license_key, $verif[1]);
 
     if(!$valid) {
 		header($_SERVER['SERVER_PROTOCOL'].' 401 Unauthorized');
@@ -113,7 +113,7 @@ switch($action) {
 		echo json_encode($md5List);
 		break;
     case 'getInstalledLangs':
-		$langs = Tools::getIoLangs();
+		$langs = PhenyxTool::getInstance()->getIoLangs();
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -175,7 +175,7 @@ switch($action) {
         Translation::getInstance();
         $iso = $data->iso;
         $origin = $data->origin;
-        $translation = Tools::getGoogleTranslation($google_api_key, $origin, $iso);
+        $translation = PhenyxTool::getInstance()->getGoogleTranslation($google_api_key, $origin, $iso);
         if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -221,13 +221,13 @@ switch($action) {
 		break;
 	case 'cleanDirectory':
 		$path = $data->directory;
-		Tools::removeEmptyDirs($path);
+		PhenyxTool::getInstance()->removeEmptyDirs($path);
 		$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
 		header($status);
 		header('Content-Type: application/json');
 		break;	
 	case 'cleanEmptyDirectory':
-		Tools::cleanEmptyDirectory();
+		PhenyxTool::getInstance()->cleanEmptyDirectory();
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -238,7 +238,7 @@ switch($action) {
 		break;	
     case 'deleteBulkFile':
         $files = $data->files;
-		Tools::deleteBulkFiles($files);
+		PhenyxTool::getInstance()->deleteBulkFiles($files);
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		} 
@@ -411,7 +411,7 @@ switch($action) {
 		echo json_encode($request);
 		break;
     case 'generateClassIndex':
-		Tools::generateIndex();
+		PhenyxTool::getInstance()->generateIndex();
 		if (ob_get_length() != 0) {
     		header('Content-Type: application/json');
 		}
