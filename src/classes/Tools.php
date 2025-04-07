@@ -1904,11 +1904,7 @@ class Tools {
             } else {
                 // For retrocompatibility
 
-                if (preg_match('#\# http://www\.erphenyx\.com - http://www\.ephenyx\.com/forums\s*(.*)<IfModule mod_rewrite\.c>#si', $content, $m)) {
-                    $specific_before = $m[1];
-                } else {
-                    $specific_before = $content;
-                }
+                $specific_before = $content;
 
             }
 
@@ -2031,14 +2027,14 @@ class Tools {
 
                 // Webservice
                 fwrite($write_fd, 'RewriteRule ^api$ api/ [L]' . "\n\n");
-                fwrite($write_fd, 'RewriteRule ^api/(.*)$ %{ENV:REWRITEBASE}webephenyx/dispatcher.php?url=$1 [QSA,L]' . "\n\n");
+                fwrite($write_fd, 'RewriteRule ^api/(.*)$ %{ENV:REWRITEBASE}vendor/phenyxdigital/phenyxcore/webephenyx/dispatcher.php?url=$1 [QSA,L]' . "\n\n");
                 
                 if($domain == 'ephenyx.io') {
                     fwrite($write_fd, 'RewriteRule ^veille$ veille/ [L]' . "\n\n");
-                    fwrite($write_fd, 'RewriteRule ^veille/(.*)$ %{ENV:REWRITEBASE}webephenyx/veille.php?url=$1 [QSA,L]' . "\n\n");
+                    fwrite($write_fd, 'RewriteRule ^veille/(.*)$ %{ENV:REWRITEBASE}vendor/phenyxdigital/phenyxcore/webephenyx/veille.php?url=$1 [QSA,L]' . "\n\n");
         
                     fwrite($write_fd, 'RewriteRule ^css$ css/ [L]' . "\n\n");
-                    fwrite($write_fd, 'RewriteRule ^css/(.*)$ %{ENV:REWRITEBASE}webephenyx/css.php?url=$1 [QSA,L]' . "\n\n");
+                    fwrite($write_fd, 'RewriteRule ^css/(.*)$ %{ENV:REWRITEBASE}vendor/phenyxdigital/phenyxcore/webephenyx/css.php?url=$1 [QSA,L]' . "\n\n");
 
                     fwrite($write_fd, 'RewriteCond %{HTTP_HOST} ^cdn.ephenyx.io$ [NC]' . "\n\n");
                     fwrite($write_fd, 'RewriteRule ^(.*)$ https://ephenyx.io/ressource/$1 [L,NC,QSA]' . "\n\n");
