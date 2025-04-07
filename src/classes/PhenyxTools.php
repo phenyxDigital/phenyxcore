@@ -193,7 +193,6 @@ class PhenyxTools {
 			'includes/classes',
 			'includes/controllers',
 			'vendor/phenyxdigital',
-			'webephenyx',
 		];
 		$iso_langs = [];
 		$languages = Language::getLanguages(false);
