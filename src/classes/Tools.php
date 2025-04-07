@@ -2008,7 +2008,7 @@ class Tools {
         fwrite($write_fd, 'RewriteRule (.+)\.(jpe?g|png)$ $1.webp [T=image/webp]' . "\n");
 
         fwrite($write_fd, 'RewriteRule ^api$ api/ [L]' . "\n\n");
-        fwrite($write_fd, 'RewriteRule ^api/(.*)$ %{ENV:REWRITEBASE}webephenyx/dispatcher.php?url=$1 [QSA,L]' . "\n\n");
+        fwrite($write_fd, 'RewriteRule ^api/(.*)$ %{ENV:REWRITEBASE}vendor/phenyxdigital/phenyxcore/webephenyx/dispatcher.php?url=$1 [QSA,L]' . "\n\n");
         
 
         $media_domains = '';
