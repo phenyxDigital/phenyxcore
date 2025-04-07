@@ -1,6 +1,6 @@
 <?php
 	header("Access-control-allow-origin: *");
-	require('../../../app/config.inc.php');
+	require('../../../../app/config.inc.php');
 	ob_start();
 	
 	$family = explode(":", Tools::getValue('family'));

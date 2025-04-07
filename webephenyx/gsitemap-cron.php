@@ -1,7 +1,7 @@
 <?php
 
 
-require(dirname(__FILE__).'/../../../app/config.inc.php');
+require(dirname(__FILE__).'/../../../../app/config.inc.php');
 $sitemap = GsiteMap::getInstance();
 ob_start();
 try {

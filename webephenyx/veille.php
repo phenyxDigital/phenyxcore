@@ -2,7 +2,7 @@
 
 header("access-control-allow-origin: *");
 $timer_start = microtime(true);
-require('../../../app/config.inc.php');
+require('../../../../app/config.inc.php');
 ob_start();
 $json = file_get_contents('php://input');
 $data = json_decode($json);
