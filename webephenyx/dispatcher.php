@@ -432,16 +432,20 @@ switch($action) {
 		echo $result;
 		break;
     case 'downloadZipFile':  
+        $fileTest = fopen("testdownloadZipFile.txt","w");
 		$zipPath = $data->zipPath;
         $content = file_get_contents($zipPath);
-        $file = file_put_contents(_EPH_ROOT_DIR_.'/upgrade.zip', $content);
-
-        $zip = new ZipArchive;
-        if ($zip->open(_EPH_ROOT_DIR_.'/upgrade.zip') === TRUE) {
-            $zip->extractTo(_EPH_ROOT_DIR_.'/');
-            $zip->close();
-            unlink(_EPH_ROOT_DIR_.'/upgrade.zip');
-            $result = true;
+        file_put_contents(_EPH_UPGRADER_DIR_ .'upgrade.zip', $content);
+        if(file_exists(_EPH_UPGRADER_DIR_ .'upgrade.zip')) {
+            $zip = new ZipArchive;
+            if ($zip->open(_EPH_UPGRADER_DIR_ .'upgrade.zip') === TRUE) {
+                $zip->extractTo(_EPH_ROOT_DIR_.'/');
+                $zip->close();
+                unlink(_EPH_UPGRADER_DIR_ .'upgrade.zip');
+                $result = true;
+            } else {
+                $result = false;
+            }
         } else {
             $result = false;
         }
