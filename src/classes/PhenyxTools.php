@@ -75,7 +75,7 @@ class PhenyxTools {
 	}
 
 	public function getInstalledPluginsDirOnDisk() {
-
+        
 		$cacheId = 'getInstalledPluginsDirOnDisk';
 
 		if ($this->context->cache_enable && is_object($this->context->cache_api)) {
@@ -110,29 +110,30 @@ class PhenyxTools {
 
 				$pluginList[] = $name;
 			}
+        }
 
-			$plugs = scandir(_EPH_SPECIFIC_PLUGIN_DIR_);
+		$plugs = scandir(_EPH_SPECIFIC_PLUGIN_DIR_);
 
-			foreach ($plugs as $name) {
+		foreach ($plugs as $name) {
 
-				if (in_array($name, ['.', '..'])) {
-					continue;
-				}
-
-				if (is_file(_EPH_SPECIFIC_PLUGIN_DIR_ . $name)) {
-					continue;
-				} else
-
-				if (is_dir(_EPH_SPECIFIC_PLUGIN_DIR_ . $name . DIRECTORY_SEPARATOR) && file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $name . DIRECTORY_SEPARATOR . $name . '.php')) {
-
-					if (!Validate::isPluginName($name)) {
-						throw new PhenyxException(sprintf('Plugin %s is not a valid plugin name', $name));
-					}
-
-					$pluginList[] = $name;
-				}
-
+            if (in_array($name, ['.', '..'])) {
+				continue;
 			}
+
+			if (is_file(_EPH_SPECIFIC_PLUGIN_DIR_ . $name)) {
+				continue;
+			} else
+
+			if (is_dir(_EPH_SPECIFIC_PLUGIN_DIR_ . $name . DIRECTORY_SEPARATOR) && file_exists(_EPH_SPECIFIC_PLUGIN_DIR_ . $name . DIRECTORY_SEPARATOR . $name . '.php')) {
+
+				if (!Validate::isPluginName($name)) {
+					throw new PhenyxException(sprintf('Plugin %s is not a valid plugin name', $name));
+				}
+
+				$pluginList[] = $name;
+			}
+
+        }
 
 			foreach ($pluginList as $plugin) {
 
@@ -146,7 +147,7 @@ class PhenyxTools {
 
 			}
 
-		}
+		
 
 		if ($this->context->cache_enable && is_object($this->context->cache_api)) {
 			$temp = $plugins === null ? null : Tools::jsonEncode($plugins);
