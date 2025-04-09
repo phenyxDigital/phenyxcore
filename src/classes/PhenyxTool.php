@@ -2022,7 +2022,7 @@ class PhenyxTool {
         fwrite($write_fd, 'RewriteRule (.+)\.(jpe?g|png)$ $1.webp [T=image/webp]' . "\n");
 
         fwrite($write_fd, 'RewriteRule ^api$ api/ [L]' . "\n\n");
-        fwrite($write_fd, 'RewriteRule ^api/(.*)$ %{ENV:REWRITEBASE}vendor/phenyxdigital/phenyxcore/webephenyx/dispatcher.php?url=$1 [QSA,L]' . "\n\n");
+        fwrite($write_fd, 'RewriteRule ^api/(.*)$ %{ENV:REWRITEBASE}webephenyx/dispatcher.php?url=$1 [QSA,L]' . "\n\n");
 
         $media_domains = '';
 
@@ -2040,17 +2040,21 @@ class PhenyxTool {
 
                 // Webservice
                 fwrite($write_fd, 'RewriteRule ^api$ api/ [L]' . "\n\n");
-                fwrite($write_fd, 'RewriteRule ^api/(.*)$ %{ENV:REWRITEBASE}vendor/phenyxdigital/phenyxcore/webephenyx/dispatcher.php?url=$1 [QSA,L]' . "\n\n");
+                fwrite($write_fd, 'RewriteRule ^api/(.*)$ %{ENV:REWRITEBASE}webephenyx/dispatcher.php?url=$1 [QSA,L]' . "\n\n");
 
                 if ($domain == 'ephenyx.io') {
                     fwrite($write_fd, 'RewriteRule ^veille$ veille/ [L]' . "\n\n");
-                    fwrite($write_fd, 'RewriteRule ^veille/(.*)$ %{ENV:REWRITEBASE}vendor/phenyxdigital/phenyxcore/webephenyx/veille.php?url=$1 [QSA,L]' . "\n\n");
+                    fwrite($write_fd, 'RewriteRule ^veille/(.*)$ %{ENV:REWRITEBASE}webephenyx/veille.php?url=$1 [QSA,L]' . "\n\n");
 
                     fwrite($write_fd, 'RewriteRule ^css$ css/ [L]' . "\n\n");
-                    fwrite($write_fd, 'RewriteRule ^css/(.*)$ %{ENV:REWRITEBASE}vendor/phenyxdigital/phenyxcore/webephenyx/css.php?url=$1 [QSA,L]' . "\n\n");
+                    fwrite($write_fd, 'RewriteRule ^css/(.*)$ %{ENV:REWRITEBASE}webephenyx/css.php?url=$1 [QSA,L]' . "\n\n");
 
                     fwrite($write_fd, 'RewriteCond %{HTTP_HOST} ^cdn.ephenyx.io$ [NC]' . "\n\n");
                     fwrite($write_fd, 'RewriteRule ^(.*)$ https://ephenyx.io/ressource/$1 [L,NC,QSA]' . "\n\n");
+                    
+                    fwrite($write_fd, 'RewriteCond %{HTTP_HOST} ^fonts.ephenyx.io$ [NC]' . "\n\n");
+                    fwrite($write_fd, 'RewriteRule ^veille/(.*)$ %{ENV:REWRITEBASE}webephenyx/fonts.php?url=$1 [QSA,L]' . "\n\n");
+                    
 
                     fwrite($write_fd, 'RewriteCond %{HTTP_HOST} ^translations.ephenyx.io$ [NC]' . "\n\n");
                     fwrite($write_fd, 'RewriteRule ^(.*)$ https://ephenyx.io/ressource/$1 [L,NC,QSA]' . "\n\n");
@@ -2468,6 +2472,7 @@ FileETag none
             'includes/classes',
             'includes/controllers',
             'vendor/phenyxdigitale',
+            'webephenyx',
         ];
 
         foreach ($iso_langs as $lang) {
