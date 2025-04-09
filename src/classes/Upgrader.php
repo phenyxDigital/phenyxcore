@@ -2,7 +2,577 @@
 
 class Upgrader {
 
-	public static function executeSqlRequest($query, $method) {
+	public $context;
+    
+    public $phenyxTools;
+
+	public static $instance;
+
+	public function __construct() {
+
+		$this->className = get_class($this);
+		$this->context = Context::getContext();
+
+		if (!isset($this->context->phenyxConfig)) {
+			$this->context->phenyxConfig = Configuration::getInstance();
+		}
+
+		if (!isset($this->context->_hook)) {
+			$this->context->_hook = Hook::getInstance();
+		}
+        
+        if (!isset($this->context->_tools)) {
+            $this->context->_tools = PhenyxTool::getInstance();
+        }
+        
+        $this->phenyxTools = new PhenyxTools();
+
+	}
+
+	public static function getInstance() {
+
+		if (!static::$instance) {
+			static::$instance = new Upgrader();
+		}
+
+		return static::$instance;
+	}
+
+	public function executeWebService($data) {
+
+		Hook::getInstance()->exec('actionWebEphenyx', ['data' => $data]);
+		$action = $data->action;
+
+		switch ($action) {
+		case 'checkLicence':
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($license);
+			break;
+		case 'getPhenyxPlugins':
+			$installedPlugins = $data->plugins;
+			$plugins = IoPlugin::getPhenyxPluginsOnDisk($license->id, $installedPlugins);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			Context::getContext()->license = [];
+			echo json_encode($plugins);
+			break;
+		case 'getZipPlugin':
+			$plugin = $data->plugin;
+			$link = [
+				'pluginLink' => IoPlugin::generatePluginZip($plugin),
+			];
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($link);
+			break;
+		case 'getJsonFile':
+			$md5List = $this->phenyxTools->generateCurrentJson();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($md5List);
+			break;
+		case 'getOwnJsonFile':
+			$result = $this->phenyxTools->generateOwnCurrentJson();
+
+			if ($result) {
+
+				$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			} else {
+				$status = $_SERVER['SERVER_PROTOCOL'] . ' 400 Error';
+
+			}
+
+			header($status);
+			header('Content-Type: application/json');
+			echo $status;
+			break;
+		case 'getDefaultTheme':
+			$default_theme = $this->phenyxTools->default_theme;
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $default_theme;
+			break;
+		case 'getdBParam':
+			$md5List = [
+				'_DB_SERVER_' => _DB_SERVER_,
+				'_DB_NAME_'   => _DB_NAME_,
+				'_DB_USER_'   => _DB_USER_,
+				'_DB_PASSWD_' => _DB_PASSWD_,
+			];
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($md5List);
+			break;
+		case 'getInstalledLangs':
+			$langs = $this->context->_tools->getIoLangs();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($langs);
+			break;
+		case 'getPluginOnDisk':
+			$plugins = $this->phenyxTools->plugins;
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($plugins);
+			break;
+
+		case 'executeCron':
+			CronJobs::runTasksCrons();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $status;
+			break;
+		case 'indexBookAccount':
+			$account = StdAccount::getInstance();
+			$account->archiveRequest();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $status;
+			break;
+
+		case 'getOject':
+			$query = $data->query;
+			$class = $data->classe;
+			$idObject = $this->executeSqlRequest($query, 'getValue');
+			$object = new $class($idObject);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($object);
+			break;
+		case 'getTranslation':
+			$google_api_key = Configuration::get('EPH_GOOGLE_TRANSLATE_API_KEY');
+			Translation::getInstance();
+			$iso = $data->iso;
+			$origin = $data->origin;
+			$translation = $this->context->_tools->getGoogleTranslation($google_api_key, $origin, $iso);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($translation);
+			break;
+		case 'getTranslations':
+			$iso_codes = $data->iso_codes;
+			$translation = new Translation(null, $iso_codes);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($translation->translations);
+			break;
+		case 'createTranslation':
+			$object = $data->object;
+			$result = Translation::addTranslation($object);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'createNotification':
+			$object = $data->object;
+			$result = PhenyxNotification::addNotification($object);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'cleanDirectory':
+			$path = $data->directory;
+			$this->context->_tools->removeEmptyDirs($path);
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			break;
+		case 'cleanEmptyDirectory':
+			$this->context->_tools->cleanEmptyDirectory();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			break;
+		case 'deleteBulkFile':
+			$files = $data->files;
+			$this->context->_tools->deleteBulkFiles($files);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			break;
+		case 'pushSqlRequest':
+			$query = $data->query;
+			$method = $data->method;
+			$request = $this->executeSqlRequest($query, $method);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($request);
+			break;
+		case 'getGenerateTabs':
+
+			$topbars = $this->context->_tools->getTabs();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($topbars);
+			break;
+		case 'showTab':
+			$id_back_tab = $data->id_back_tab;
+			$backTab = BackTab::getInstance($id_back_tab);
+			$backTab->active = 1;
+			$backTab->update();
+			$this->context->_tools->generateTabs(false);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			echo $status;
+			break;
+		case 'hideTab':
+			$id_back_tab = $data->id_back_tab;
+			$backTab = BackTab::getInstance($id_back_tab);
+			$backTab->active = 0;
+			$backTab->update();
+			$this->context->_tools->generateTabs(false);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+
+			header($status);
+			header('Content-Type: application/json');
+			echo $status;
+			break;
+		case 'writeNewSettings':
+			$version = $data->version;
+			$result = $this->phenyxTools->writeNewSettings($version);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'cleanBckTab':
+			$result = $this->phenyxTools->cleanBackTabs();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'cleanMeta':
+			$result = $this->phenyxTools->cleanMetas();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'cleanPlugin':
+			$result = $this->phenyxTools->cleanPlugins();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'cleanHook':
+			$result = $this->phenyxTools->cleanHook();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'alterSqlTable':
+			$table = $data->table;
+			$column = $data->column;
+			$type = $data->type;
+			$after = $data->after;
+			$result = $this->phenyxTools->alterSqlTable($table, $column, $type, $after);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'mergeLanuages':
+			$result = $this->phenyxTools->mergeLanguages();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'mergeGlobalLanuages':
+			$translations = $data->translations;
+			$translation = new Translation();
+			$translation->updateGlobalTranslations($translations);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $status;
+			break;
+		case 'generatePhenyxData':
+			$request = PhenyxBackup::generatePhenyxData();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($request);
+			break;
+		case 'buidlIndexation':
+			Search::indexation();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo json_encode($request);
+			break;
+		case 'generateClassIndex':
+			$this->context->_tools->generateIndex();
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $status;
+			break;
+		case 'downloadFile':
+			$content = $data->content;
+			$destination = $data->destination;
+			$result = $this->phenyxTools->getIoFiles($content, $destination);
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'downloadZipFile':
+			$fileTest = fopen("testdownloadZipFile.txt", "w");
+			$zipPath = $data->zipPath;
+			$content = file_get_contents($zipPath);
+			file_put_contents(_EPH_UPGRADER_DIR_ . 'upgrade.zip', $content);
+
+			if (file_exists(_EPH_UPGRADER_DIR_ . 'upgrade.zip')) {
+				$zip = new ZipArchive;
+
+				if ($zip->open(_EPH_UPGRADER_DIR_ . 'upgrade.zip') === TRUE) {
+					$zip->extractTo(_EPH_ROOT_DIR_ . '/');
+					$zip->close();
+					unlink(_EPH_UPGRADER_DIR_ . 'upgrade.zip');
+					$result = true;
+				} else {
+					$result = false;
+				}
+
+			} else {
+				$result = false;
+			}
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+		case 'deleteFiles':
+			$files = $data->files;
+			$result = true;
+
+			foreach ($files as $file) {
+
+				if (file_exists(_EPH_ROOT_DIR_ . $file)) {
+					$result &= unlink(_EPH_ROOT_DIR_ . $file);
+				}
+
+			}
+
+			if (ob_get_length() != 0) {
+				header('Content-Type: application/json');
+			}
+
+			$status = $_SERVER['SERVER_PROTOCOL'] . ' 200 OK';
+			header($status);
+			header('Content-Type: application/json');
+			echo $result;
+			break;
+
+		}
+
+	}
+
+	public function executeSqlRequest($query, $method) {
 
 		switch ($method) {
 		case 'execute':
@@ -21,7 +591,7 @@ class Upgrader {
 
 	}
 
-	public static function instalTab($class_name, $name, $function = true, $plugin = null, $idParent = null, $parentName = null, $position = null, $openFunction = null, $divider = 0) {
+	public function instalTab($class_name, $name, $function = true, $plugin = null, $idParent = null, $parentName = null, $position = null, $openFunction = null, $divider = 0) {
 
 		$translator = Language::getInstance();
 
@@ -93,12 +663,12 @@ class Upgrader {
 
 			unset($lang);
 			$result = $tab->update(true, false, $position);
-			return self::deployMeta(strtolower($class_name), $name, 'admin');
+			return $this->deployMeta(strtolower($class_name), $name, 'admin');
 		}
 
 	}
 
-	public static function deployMeta($page, $name, $type = 'front') {
+	public function deployMeta($page, $name, $type = 'front') {
 
 		$result = true;
 		$idMeta = Meta::getIdMetaByPage($page);
@@ -121,105 +691,5 @@ class Upgrader {
 		return $result;
 	}
 
-	public static function generateNewVersion() {
-
-		$recursive_directory = [
-			'app/xml',
-			'content/css',
-			'content/mails',
-			'content/pdf',
-			'content/mp3',
-			'content/pdf',
-			'content/img/pdfWorker',
-			'content/fonts',
-			'content/js',
-			'content/backoffice',
-			'content/themes/phenyx-theme-default',
-			'content/translations',
-			'includes/classes',
-			'includes/controllers',
-			'includes/plugins',
-			'vendor/phenyxdigital',
-		];
-
-		$zipPath = _EPH_UPGRADER_DIR_ . _EPH_VERSION_ . '.zip';
-		$zip = new ZipArchive();
-
-		if ($zip->open($zipPath, ZipArchive::CREATE) === true) {
-			$iterator = new AppendIterator();
-
-			foreach ($recursive_directory as $key => $directory) {
-
-				if (is_dir(_EPH_ROOT_DIR_ . '/' . $directory . '/')) {
-					$iterator->append(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(_EPH_ROOT_DIR_ . '/' . $directory . '/')));
-				}
-
-			}
-
-			$iterator->append(new DirectoryIterator(_EPH_ROOT_DIR_ . '/content/themes/'));
-			$iterator->append(new DirectoryIterator(_EPH_ROOT_DIR_ . '/app/'));
-
-			foreach ($iterator as $file) {
-
-				$filePath = $file->getPathname();
-				$filePath = str_replace(_EPH_ROOT_DIR_ . '/', '', $filePath);
-				$ext = pathinfo($file->getFilename(), PATHINFO_EXTENSION);
-
-				if (is_dir($file->getPathname())) {
-					continue;
-				}
-
-				if (in_array($file->getFilename(), ['.', '..', '.htaccess', 'composer.lock', 'settings.inc.php', '.gitattributes', '.user.ini', '.php-ini', '.php-version'])) {
-					continue;
-				}
-
-				if ($ext == 'txt') {
-					continue;
-				}
-
-				if ($ext == 'csv') {
-					continue;
-				}
-
-				if ($ext == 'zip') {
-					continue;
-				}
-
-				if ($ext == 'dat') {
-					continue;
-				}
-
-				if (str_contains($filePath, 'custom_') && $ext == 'css') {
-					continue;
-				}
-
-				if (str_contains($filePath, '/.git/')) {
-					continue;
-				}
-
-				if (str_contains($filePath, '/uploads/')) {
-					continue;
-				}
-
-				if (str_contains($filePath, '/cache/')) {
-					continue;
-				}
-
-				if (str_contains($filePath, 'sitemap.xml')) {
-					continue;
-				}
-
-				if (str_contains($filePath, 'truc')) {
-					continue;
-				}
-
-				$zip->addFile($file->getPathname(), $filePath);
-
-			}
-
-			$zip->close();
-		}
-
-	}
 
 }

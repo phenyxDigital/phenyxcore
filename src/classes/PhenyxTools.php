@@ -193,7 +193,8 @@ class PhenyxTools {
 			'content/themes/phenyx-theme-default',
 			'includes/classes',
 			'includes/controllers',
-			'vendor/phenyxdigital',
+			'vendor/phenyxdigital/phenyxcore',
+            'webephenyx',
 		];
 		$iso_langs = [];
 		$languages = Language::getLanguages(false);
