@@ -63,14 +63,17 @@ class PhenyxTools {
 		}
 
 		$this->ephenyx_shop_active = $this->context->phenyxConfig->get('_EPHENYX_SHOP_ACTIVE_');
-		$this->_url = _EPH_PHENYX_API_;
-		$string = $this->context->phenyxConfig->get('_EPHENYX_LICENSE_KEY_', null, false) . '/' . $this->context->company->company_url;
-		$this->_crypto_key = Tools::encrypt_decrypt('encrypt', $string, _PHP_ENCRYPTION_KEY_, _COOKIE_KEY_);
+        if ($this->context->company->company_url !== 'ephenyx.io') {
+    
+            $this->_url = _EPH_PHENYX_API_;
+            $string = $this->context->phenyxConfig->get('_EPHENYX_LICENSE_KEY_', null, false) . '/' . $this->context->company->company_url;
+            $this->_crypto_key = Tools::encrypt_decrypt('encrypt', $string, _PHP_ENCRYPTION_KEY_, _COOKIE_KEY_);
 
-		$this->license = $this->checkLicense();
-		$this->context->license = $this->license;
+            $this->license = $this->checkLicense();
+            $this->context->license = $this->license;
 
-		$this->plugins = $this->getInstalledPluginsDirOnDisk();
+            $this->plugins = $this->getInstalledPluginsDirOnDisk();
+        }
 
 	}
 
