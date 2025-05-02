@@ -7,6 +7,16 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
     public function __construct($settings) {
 
         $this->settings = $settings;
+        
+        $this->context = Context::getContext();
+        if (!isset($this->context->phenyxConfig)) {
+            $this->context->phenyxConfig = Configuration::getInstance();
+
+        }
+        if (!isset($this->context->_composer)) {
+            $this->context->_composer = Composer::getInstance();
+
+        }
         $this->addShortCode($this->settings['base'], [$this, 'output']);
     }
 
@@ -79,7 +89,7 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
 
     protected function singleParamEditHolder($param, $param_value) {
 
-        $vc_main = ephenyx_manager();
+        $vc_main = $this->context->_composer;
         $param['vc_single_param_edit_holder_class'] = ['wpb_el_type_' . $param['type'], 'vc_shortcode-param'];
 
         if (!empty($param['param_holder_class'])) {
@@ -119,9 +129,9 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
     protected function singleParamEditForm($param, $param_value) {
 
         $param_line = '';
-
-        $vc_manager = ephenyx_manager();
-
+        $file = fopen("testsingleParamEditForm.txt","a");
+        $vc_manager = $this->context->_composer;
+       
         switch ($param['type']) {
         case 'textfield':
             $value = $param_value;
@@ -354,6 +364,7 @@ $param_line .= ob_get_clean();
             $param_line .= '<textarea name="' . $param['param_name'] . '" class="wpb_vc_param_value wpb-textarea ' . $param['param_name'] . ' ' . $param['type'] . '">' . $param_value . '</textarea>';
             break;
         case 'attach_images':
+            
             $param_value = removeNotExistingImgIDs($param_value);
             $param_line .= '<script type="text/javascript">';
             $param_line .= 'var imgpath = "composer/";';
@@ -366,9 +377,11 @@ $param_line .= ob_get_clean();
             $param_line .= '</div>';
             $param_line .= '<div class="gallery_widget_site_images">';
             $param_line .= '</div>';
-            $param_line .= '<a class="gallery_widget_add_images" href="#" title="' . $this->l('Add images') . '">' . $this->l('Add images') . '</a>';
+            $param_line .= '<a class="gallery_widget_add_images" href="javascript:void(0)" title="' . $this->l('Add images') . '">' . $this->l('Add images') . '</a>';
             break;
         case 'attach_image':
+                fwrite($file,print_r($param, true));
+            fwrite($file,"param_value".PHP_EOL.print_r($param_value, true));
             $param_value = removeNotExistingImgIDs(preg_replace('/[^\d]/', '', $param_value));
             $param_line .= '<script type="text/javascript">';
             $param_line .= 'var imgpath = "composer/";';
@@ -382,6 +395,7 @@ $param_line .= ob_get_clean();
             $param_line .= '<div class="gallery_widget_site_images">';
             $param_line .= '</div>';
             $param_line .= '<a class="gallery_widget_add_images" href="#" use-single="true" title="' . $this->l('Add image') . '">' . $this->l('Add image') . '</a>';
+            fwrite($file,$param_line.PHP_EOL);
             break;
         case 'media_dropdown':
             $css_option = get_dropdown_option($param, $param_value);
@@ -457,6 +471,26 @@ $param_line .= ob_get_clean();
             }
 
             $param_line .= '</select>';
+            break;
+        case 'colorpicker':
+            $colorPickerId = $this->generateRandomString();
+            $param_line .= '<input size="20" type="text" id="'.$colorPickerId.'" name="' . $param['param_name'] . '" data-id="new" class="wpb_vc_param_value pm_colorpicker" value="'.$param_value.'"/>';
+            $param_line .= '<div class="col-lg-4 metroiPicker"><div id="metroiPicker_new" style="height: 40px;"></div></div>';
+            $param_line .= '<script type="text/javascript">';
+            $param_line .= '$("#'.$colorPickerId.'").colorpicker({
+                select: function(event, color) {
+                    $("#metroiPicker_new").css("background-color", "#"+color.formatted);
+                },
+		        close: function(event, color) {
+                    $("#metroiPicker_new").css("background-color", "#"+color.formatted);
+                },
+                ok: function(event, color) {
+                    $("#metroiPicker_new").css("background-color", "#"+color.formatted);
+                    $(this).val("#"+color.formatted);
+                },
+            })</script>';
+           
+
             break;
         case 'extra_css':
 

@@ -138,7 +138,7 @@ class Theme extends PhenyxObjectModel {
                 $objectData['css_theme'] = $objectData['localpath'].'css'. DIRECTORY_SEPARATOR;
                 $objectData['js_theme'] = $objectData['localpath'].'js'. DIRECTORY_SEPARATOR;
                 $objectData['img_theme'] = $objectData['localpath'].'img'. DIRECTORY_SEPARATOR;
-                $objectData['>mail_theme'] = $objectData['localpath'].'mail'. DIRECTORY_SEPARATOR;
+                $objectData['mail_theme'] = $objectData['localpath'].'mail'. DIRECTORY_SEPARATOR;
                 $objectData['pdf_theme'] = $objectData['localpath'].'pdf'. DIRECTORY_SEPARATOR;
             }
             

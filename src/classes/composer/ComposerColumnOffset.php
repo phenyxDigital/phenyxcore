@@ -55,6 +55,7 @@ class ComposerColumnOffset extends Composer {
 				'data'     => $this->valueData(),
 				'sizes'    => $this->size_types,
 				'param'    => $this,
+                'vc_manager' => $this,
 				'jsDef'    => Tools::jsonEncode($jsDef),
 			]
 		);

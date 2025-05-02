@@ -6,8 +6,7 @@ define('SHORTCODE_AFTER_CUSTOMIZE_PREFIX', 'vc_theme_after_');
 define('SHORTCODE_CUSTOM_CSS_FILTER_TAG', 'vc_shortcodes_css_class');
 
 abstract class ComposerShortCode extends ComposerShortCodeAbstract {
-
-	public $context;
+	
 	protected $shortcode;
 	protected $html_template;
 	protected $atts, $settings;
@@ -21,6 +20,15 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 		$this->settings = $settings;
 		$this->shortcode = $this->settings('base');
+        $this->context = Context::getContext();
+        if (!isset($this->context->phenyxConfig)) {
+            $this->context->phenyxConfig = Configuration::getInstance();
+
+        }
+        if (!isset($this->context->_composer)) {
+            $this->context->_composer = Composer::getInstance();
+
+        }
 
 	}
 

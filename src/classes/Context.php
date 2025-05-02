@@ -90,6 +90,8 @@ class Context {
     
     public $phenyxgrid;
     
+    public $_composer;
+    
     public $translations;
     
     public $media;
