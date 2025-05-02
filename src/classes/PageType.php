@@ -5,7 +5,7 @@
  *
  * @since 1.9.1.0
  */
-class Page extends PhenyxObjectModel {
+class PageType extends PhenyxObjectModel {
 
     public $require_context = false;
     // @codingStandardsIgnoreStart
