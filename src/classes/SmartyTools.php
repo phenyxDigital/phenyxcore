@@ -43,6 +43,15 @@ class SmartyTools {
 
         return $str;
     }
+    
+    public static function arraySlice($array, $offset, $lenght = null, $preserve_keys = false) {
+        
+        if(is_array($array)) {
+            return array_slice($array, $offset, $lenght, $preserve_keys);
+        }
+        
+        return $array;
+    }
 
     public static function formatBytes($size, $precision = 2) {
 
