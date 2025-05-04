@@ -52,6 +52,15 @@ class SmartyTools {
         
         return $array;
     }
+    
+    public static function arrayKeys($array) {
+        
+        if(is_array($array)) {
+            return array_keys($array);
+        }
+        
+        return $array;
+    }
 
     public static function formatBytes($size, $precision = 2) {
 
