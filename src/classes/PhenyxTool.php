@@ -110,6 +110,25 @@ class PhenyxTool {
 
         return $result;
     }
+    
+    public function getCmsFullPath($cms) {
+        
+        if (!is_object($cms)) {
+            $cms = new CMS($cms, $this->context->language->id);
+        }
+        $tag = null;
+        if($cms->id_parent > 0) {
+            $parent = new CMS($cms->id_parent, $this->context->language->id);
+        } else {
+            return '<span class="navigation_cms">'.$cms->meta_title.'</span>';
+        }
+        $pipe = $context->phenyxConfig->get('EPH_NAVIGATION_PIPE');
+        if (empty($pipe)) {
+            $pipe = '>';
+        }
+        return '<span class="navigation-pipe"><a href="'.$this->context->context->_link->getCMSLink($cms).'"  title="'.htmlentities($cms->meta_title, ENT_NOQUOTES, 'UTF-8').'">'.$parent->meta_title.'</a></span><span class="navigation-pipe">'.$pipe.'</span><span class="navigation_cms">'.$cms->meta_title.'</span>';
+
+    }
 
     public function getBytes($length) {
 
