@@ -117,7 +117,7 @@ class PhenyxTool {
             $cms = new CMS($cms, $this->context->language->id);
         }
         $tag = null;
-        if($cms->id_parent > 0) {
+        if($cms->id_parent > 1) {
             $parent = new CMS($cms->id_parent, $this->context->language->id);
         } else {
             return '<span class="navigation_cms">'.$cms->meta_title.'</span>';
