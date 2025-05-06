@@ -122,11 +122,17 @@ class PhenyxTool {
         } else {
             return '<span class="navigation_cms">'.$cms->meta_title.'</span>';
         }
-        $pipe = $context->phenyxConfig->get('EPH_NAVIGATION_PIPE');
+        $ajax_mode = $this->context->phenyxConfig->get('EPH_FRONT_AJAX') ? 1 : 0;
+        
+        $cms_ajax_mode = $this->context->phenyxConfig->get('EPH_CMS_AJAX') ? 1 : 0;
+        $pipe = $this->context->phenyxConfig->get('EPH_NAVIGATION_PIPE');
         if (empty($pipe)) {
             $pipe = '>';
         }
-        return '<span class="navigation-pipe"><a href="'.$this->context->context->_link->getCMSLink($cms).'"  title="'.htmlentities($cms->meta_title, ENT_NOQUOTES, 'UTF-8').'">'.$parent->meta_title.'</a></span><span class="navigation-pipe">'.$pipe.'</span><span class="navigation_cms">'.$cms->meta_title.'</span>';
+        if($ajax_mode && $cms_ajax_mode) {
+            return '<span class="navigation-pipe"><a href="javascript:void(0)"  onClick="openAjaxCms('.$parent->id.')" title="'.htmlentities($cms->meta_title, ENT_NOQUOTES, 'UTF-8').'" title="'.htmlentities($cms->meta_title, ENT_NOQUOTES, 'UTF-8').'">'.$parent->meta_title.'</a></span><span class="navigation-pipe">'.$pipe.'</span><span class="navigation_cms">'.$cms->meta_title.'</span>';
+        }
+        return '<span class="navigation-pipe"><a href="'.$this->context->_link->getCMSLink($parent).'"  title="'.htmlentities($cms->meta_title, ENT_NOQUOTES, 'UTF-8').'">'.$parent->meta_title.'</a></span><span class="navigation-pipe">'.$pipe.'</span><span class="navigation_cms">'.$cms->meta_title.'</span>';
 
     }
 
