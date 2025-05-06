@@ -823,7 +823,8 @@ class ImageManager {
         static $supported = null;
 
         if ($supported === null) {
-            $config = Context::getContext()->theme->getConfiguration();
+            $theme = new Theme($this->context->theme->id);
+            $config = $theme->getConfiguration();
 
             try {
                 $supported = Context::getContext()->phenyxConfig->get('EPH_USE_WEBP')
