@@ -1364,6 +1364,7 @@ class Composer {
                 'editor'         => ephenyx_manager(),
                 'target'         => $target,
                 'language'       => $language,
+                'languages'      => Language::getLanguages(false),
                 'autolaunch'     => $autolaunch,
                 'controller'     => $controller,
                 'id_lang'        => $id_lang,
