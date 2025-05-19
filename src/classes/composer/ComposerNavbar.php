@@ -10,15 +10,17 @@ class ComposerNavbar {
 		'templates',
 		'custom_css',
 	];
-	protected $brand_url = 'http://ephenyx.shop';
+	protected $brand_url = 'http://ephenyx.com';
 	protected $css_class = 'vc_navbar';
 	protected $controls_filter_name = 'vc_nav_controls';
-	protected $post = false;
+	public $post = false;
+	public $idLang = null;
 	public $context;
 
-	public function __construct($post = '') {
+	public function __construct($post = '', $idLang = null) {
 
 		$this->post = $post;
+		$this->idLang = $idLang;
 		global $smarty;
 		$this->context = Context::getContext();
 	}
@@ -71,7 +73,8 @@ class ComposerNavbar {
 				'css_class' => $this->css_class,
 				'controls'  => $this->getControls(),
 				'nav_bar'   => $this,
-				'post'      => '',
+				'post'      => $this->post,
+				'idLang'      => $this->idLang,
 			]
 		);
 
@@ -81,33 +84,43 @@ class ComposerNavbar {
 
 	public function getLogo() {
 		$composer = Composer::getInstance();
-		$output = '<a id="vc_logo" class="vc_navbar-brand" title="' . $composer->esc_attr('Visual Composer')
+		$output = '<a id="vc_logo" class="vc_navbar-brand" title="' . $this->l('Visual Composer')
 		. '" href="' . $composer->esc_attr($this->brand_url) . '" target="_blank">'
-		. $composer->l('Visual Composer') . '</a>';
+		. $this->l('Visual Composer') . '</a>';
 		return $output;
 	}
 
 	public function getControlCustomCss() {
-		$composer = Composer::getInstance();
+		
 		return '<li class="vc_pull-right"><a id="vc_post-settings-button" class="vc_icon-btn vc_post-settings" title="'
-		. $composer->esc_attr('Page settings') . '">'
-		. '<span id="vc_post-css-badge" class="vc_badge vc_badge-custom-css" style="display: none;">' . $composer->l('CSS') . '</span></a>'
+		. $this->l('Page settings') . '">'
+		. '<span id="vc_post-css-badge" class="vc_badge vc_badge-custom-css" style="display: none;">' . $this->l('CSS') . '</span></a>'
 			. '</li>';
 	}
 
 	public function getControlAddElement() {
-		$composer = Composer::getInstance();
 		return '<li class="vc_show-mobile">'
 		. '	<a href="javascript:;" class="vc_icon-btn vc_element-button" data-model-id="vc_element" id="vc_add-new-element" title="'
-		. '' . $composer->l('Add new element') . '">'
+		. '' . $this->l('Add new element') . '">'
 			. '	</a>'
 			. '</li>';
 	}
 
 	public function getControlTemplates() {
-		$composer = Composer::getInstance();
 		return '<li><a href="javascript:;" class="vc_icon-btn vc_templates-button vc_navbar-border-right"  id="vc_templates-editor-button" title="'
-		. $composer->l('Templates') . '"></a></li>';
+		. $this->l('Templates') . '"></a></li>';
 	}
+	
+	public function l($string, $idLang = null, $context = null) {
+
+        $class = 'ComposerNavbar';
+
+        if(isset($this->context->translations)) {
+            return $this->context->translations->getClassTranslation($string, $class);
+        }
+        return $string;
+
+        
+    }
 
 }
