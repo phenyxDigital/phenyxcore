@@ -39,7 +39,7 @@ class Translate {
         
         if(!isset($this->context->company)) {
             if(is_null($company)) {
-                $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+                $this->context->company = Company::initialize();
             } else {
                 $this->context->company = $company;
             }

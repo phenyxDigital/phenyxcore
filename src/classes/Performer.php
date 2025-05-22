@@ -108,7 +108,7 @@ class Performer {
 
     protected $front_controller = self::FC_FRONT;
 
-    protected function __construct() {
+    public function __construct() {
 
         if (!defined('TIME_START')) {
             define('TIME_START', microtime(true));
@@ -118,6 +118,9 @@ class Performer {
 
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
+        }
+		if (!isset($this->context->company)) {
+            $this->context->company = Company::initialize();
         }
 
         if (!isset($this->context->_tools)) {
@@ -449,7 +452,7 @@ class Performer {
             $this->context->cache_api = CacheApi::getInstance();
 
         }
-
+		
         if (isset($_SERVER['REQUEST_URI'])) {
             $this->request_uri = $_SERVER['REQUEST_URI'];
         } else
@@ -473,8 +476,9 @@ class Performer {
 
         }
 
-        if (defined('_BACK_MODE_') && _BACK_MODE_) {
-            $this->front_controller = static::FC_ADMIN;
+        if ($this->context->company->mode == 'full_back') {
+            
+			$this->front_controller = static::FC_ADMIN;
 
             if (is_null($this->controller)) {
 
@@ -492,8 +496,36 @@ class Performer {
                 }
 
             }
+			
+			
+			
 
-        } else {
+        } else if ($this->context->company->mode == 'full_front') {
+            $this->front_controller = static::FC_FRONT;
+
+            if (is_null($this->controller)) {
+
+                if (isset($this->routes[$this->context->language->id])) {
+
+                    foreach ($this->routes[$this->context->language->id] as $route) {
+
+                        if (isset($route['rule']) && $route['rule'] == $request_uri_clean) {
+                            $this->controller = $route['controller'];
+                            break;
+                        }
+
+                    }
+
+                }
+
+            }
+			
+			if ($this->request_uri == '/' || str_starts_with($this->request_uri, '/?')) {
+            	$this->front_controller = static::FC_FRONT;
+            	$this->controller = 'index';
+        	}
+
+        } else  {
 
             if (str_contains($this->request_uri, 'backend/') || str_contains($this->request_uri, 'admin')) {
 
@@ -535,12 +567,17 @@ class Performer {
                     }
 
                 }
+				
+				if ($this->request_uri == '/' || str_starts_with($this->request_uri, '/?')) {
+            		$this->front_controller = static::FC_FRONT;
+            		$this->controller = 'index';
+        		}
 
             }
 
         }
 
-        $id_lang = $this->context->language->id;
+       
 
         if (!is_null($this->controller) && $this->context->cache_enable && is_object($this->context->cache_api)) {
 
@@ -557,10 +594,7 @@ class Performer {
             $this->request_uri = preg_replace('#^' . preg_quote(Context::getContext()->company->getBaseURI(), '#') . '#i', '/', $this->request_uri);
         }
 
-        if ($this->request_uri == '/' || str_starts_with($this->request_uri, '/?')) {
-            $this->front_controller = static::FC_FRONT;
-            $this->controller = 'index';
-        }
+        
 
         $request_uri = $this->context->_hook->exec('setRequestUri', ['request_uri' => $this->request_uri, 'routes' => $this->routes], null, true, false);
 
@@ -861,11 +895,11 @@ class Performer {
 
                     if (Validate::isLoadedObject($tab) && $tab->id_parent == 0 && ($tabs = BackTab::getTabs(Context::getContext()->language->id, $tab->id)) && isset($tabs[0])) {
 
-                        $this->context->_tools->redirectAdmin(Context::getContext()->link->getAdminLink($tabs[0]['class_name']));
+                        $this->context->_tools->redirectAdmin(Context::getContext()->_link->getAdminLink($tabs[0]['class_name']));
                     }
 
                     $this->controller = 'admindashboard';
-                    $this->context->_tools->redirectAdmin(Context::getContext()->link->getAdminLink('admindashboard'));
+                    $this->context->_tools->redirectAdmin(Context::getContext()->_link->getAdminLink('admindashboard'));
                 }
 
                 $controllerClass = $controllers[strtolower($this->controller)];
@@ -910,7 +944,7 @@ class Performer {
             $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
 
-        if (isset($this->context->employee->id) && $this->context->employee->id) {
+        if (isset($this->context->employee->id) && $this->context->employee->id && ($this->context->company->mode == 'conventionnel' || $this->context->company->mode == 'full_front' )) {
 
             if ($this->request_uri == '/' || str_starts_with($this->request_uri, '/?')) {
                 $this->front_controller = static::FC_FRONT;

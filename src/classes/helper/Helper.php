@@ -60,6 +60,8 @@ class Helper {
     public $form_included = false;
 
     public $js_def = [];
+	
+	 public $ephenyx_shop_active;
     
     
     // @codingStandardsIgnoreEnd
@@ -74,10 +76,17 @@ class Helper {
 
         $this->context = Context::getContext();
 
+		
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
 
         }
+		$this->ephenyx_shop_active = $this->context->phenyxConfig->get('_EPHENYX_SHOP_ACTIVE_');
+		if($this->ephenyx_shop_active) {
+			if(!isset($this->context->currency)) {
+            	$this->context->currency = new Currency($this->context->phenyxConfig->get('EPH_CURRENCY_DEFAULT'));
+        	}
+		}
 
         if (isset($this->controller_name) && !is_null($this->controller_name)) {
             $this->override_folder = $this->context->_tools->toUnderscoreCase(substr($this->controller_name, 5)) . '/';

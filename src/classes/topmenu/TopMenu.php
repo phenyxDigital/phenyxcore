@@ -61,7 +61,7 @@ class TopMenu extends PhenyxObjectModel {
         'multilang' => true,
         'fields'    => [
             'type'                                  => ['type' => self::TYPE_INT],
-            'id_cms'                                => ['type' => self::TYPE_INT],
+			'id_cms'                                => ['type' => self::TYPE_INT],
             'id_pfg'                                => ['type' => self::TYPE_INT],
             'id_specific_page'                      => ['type' => self::TYPE_INT],
             'custom_hook'                           => ['type' => self::TYPE_STRING],

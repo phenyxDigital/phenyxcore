@@ -4544,7 +4544,7 @@ FileETag none
             }
 
             if (!isset($this->context->company)) {
-                $this->context->company = Company::getInstance($phenyxConfig->get('EPH_COMPANY_ID'));
+                $this->context->company = Company::initialize();
 
             }
 

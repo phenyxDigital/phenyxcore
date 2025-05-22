@@ -397,7 +397,7 @@ abstract class PhenyxObjectModel implements Core_Foundation_Database_EntityInter
         
         
         if (!isset($this->context->company)) {
-            $this->context->company = Company::getInstance($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+            $this->context->company = Company::initialize();
         }
                 
 
