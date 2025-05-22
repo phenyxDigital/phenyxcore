@@ -412,8 +412,6 @@ class Translate {
             return $string;
         }
 
-        static $langCache = [];
-
         $name = $plugin instanceof Plugin ? $plugin->name : $plugin;
         
         if (!isset($this->context->theme)) {
@@ -461,113 +459,84 @@ class Translate {
 
         $string = preg_replace("/\\\*'/", "\'", $string);
         $key = md5($string);
-        
-        $cacheKey = $name . '|' . $string . '|' . $source . '|' . (int) $js;
+                
         $ret = null;
+      
+        if ($_PLUGINS == null) {
+             if ($sprintf !== null) {
+                 $string = $this->checkAndReplaceArgs($string, $sprintf);
+             }
 
+             return str_replace('"', '&quot;', $string);
+        }
+
+        $currentKey = trim(strtolower('<{' . $name . '}' . $theme . '>' . $source) . '_' . $key);
+        $defaultKey = trim(strtolower('<{' . $name . '}ephenyx>' . $source) . '_' . $key);
+        $PhenyxShopKey = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) . '_' . $key);   
+        $PhenyxShopKey2 = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) .  $key); 
         
+        if ('controller' == substr($source, -10, 10)) {
+            $file = substr($source, 0, -10);
+            $currentKeyFile = strtolower('<{' . $name . '}' . $theme . '>' . $file) . '_' . $key;
+            $defaultKeyFile = strtolower('<{' . $name . '}ephenyx>' . $file) . '_' . $key;
+            $PhenyxShopKeyFile = strtolower('<{' . $name . '}phenyxshop>' . $file) . '_' . $key;
+        }
 
-            if ($_PLUGINS == null) {
-                if ($sprintf !== null) {
-                    $string = $this->checkAndReplaceArgs($string, $sprintf);
-                }
-
-                return str_replace('"', '&quot;', $string);
+        if (isset($currentKeyFile) && !empty($_PLUGINS[$currentKeyFile])) {
+            $ret = stripslashes($_PLUGINS[$currentKeyFile]);
+        } else if (isset($defaultKeyFile) && !empty($_PLUGINS[$defaultKeyFile])) {
+            $ret = stripslashes($_PLUGINS[$defaultKeyFile]);
+        } else if (isset($PhenyxShopKeyFile) && !empty($_PLUGINS[$PhenyxShopKeyFile])) {
+            $ret = stripslashes($_PLUGINS[$PhenyxShopKeyFile]);
+        } else if (!empty($_PLUGINS[$currentKey])) {
+            $ret = stripslashes($_PLUGINS[$currentKey]);
+            if ($sprintf !== null) {
+               $ret = $this->checkAndReplaceArgs($ret, $sprintf);
             }
-
-            $currentKey = trim(strtolower('<{' . $name . '}' . $theme . '>' . $source) . '_' . $key);
-            $defaultKey = trim(strtolower('<{' . $name . '}ephenyx>' . $source) . '_' . $key);
-            $PhenyxShopKey = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) . '_' . $key);   
-            $PhenyxShopKey2 = trim(strtolower('<{' . $name . '}phenyxshop>' . $source) .  $key); 
-        
-            if ('controller' == substr($source, -10, 10)) {
-                $file = substr($source, 0, -10);
-                $currentKeyFile = strtolower('<{' . $name . '}' . $theme . '>' . $file) . '_' . $key;
-                $defaultKeyFile = strtolower('<{' . $name . '}ephenyx>' . $file) . '_' . $key;
-                $PhenyxShopKeyFile = strtolower('<{' . $name . '}phenyxshop>' . $file) . '_' . $key;
-            }
-
-            if (isset($currentKeyFile) && !empty($_PLUGINS[$currentKeyFile])) {
-                $ret = stripslashes($_PLUGINS[$currentKeyFile]);
-            } else
-
-            if (isset($defaultKeyFile) && !empty($_PLUGINS[$defaultKeyFile])) {
-                $ret = stripslashes($_PLUGINS[$defaultKeyFile]);
-            } else
-
-            if (isset($PhenyxShopKeyFile) && !empty($_PLUGINS[$PhenyxShopKeyFile])) {
-                $ret = stripslashes($_PLUGINS[$PhenyxShopKeyFile]);
-            } else
-
-            if (!empty($_PLUGINS[$currentKey])) {
-                $ret = stripslashes($_PLUGINS[$currentKey]);
-                if ($sprintf !== null) {
-                    $ret = $this->checkAndReplaceArgs($ret, $sprintf);
-                }
-                return $ret;
-            } else
-
-            if (!empty($_PLUGINS[$defaultKey])) {
-                $ret = stripslashes($_PLUGINS[$defaultKey]);
-                if ($sprintf !== null) {
-                    $ret = $this->checkAndReplaceArgs($ret, $sprintf);
-                }
-                return $ret;
-            } else
-
-            if (!empty($_PLUGINS[$PhenyxShopKey])) {
-                $ret = stripslashes($_PLUGINS[$PhenyxShopKey]);
-                if ($sprintf !== null) {
-                    $ret = $this->checkAndReplaceArgs($ret, $sprintf);
-                }
-                return $ret;
-            } else
-
-            if (!empty($_PLUGINS[$PhenyxShopKey2])) {
-                $ret = stripslashes($_PLUGINS[$PhenyxShopKey2]);
-                if ($sprintf !== null) {
-                    $ret = $this->checkAndReplaceArgs($ret, $sprintf);
-                }
-                return $ret;
-            } else
-
-            if (!empty($_PLUGINS)) {
-
-                foreach ($_PLUGINS as $k => $value) {
-
-                    if (str_ends_with($k, $key) && !empty($value)) {
-                        $ret = stripslashes($value);
-                    }
-
-                }
-
-            } else
-
-            if (!empty($_LANGADM)) {
-                $ret = stripslashes($this->getGenericAdminTranslation($string, $_LANGADM, $key));
-            } else
-
-            if (is_null($ret)) {
-                $ret = stripslashes($string);
-            }
-
+            return $ret;
+        } else if (!empty($_PLUGINS[$defaultKey])) {
+            $ret = stripslashes($_PLUGINS[$defaultKey]);
             if ($sprintf !== null) {
                 $ret = $this->checkAndReplaceArgs($ret, $sprintf);
             }
+            return $ret;
+        } else if (!empty($_PLUGINS[$PhenyxShopKey])) {
+            $ret = stripslashes($_PLUGINS[$PhenyxShopKey]);
+            if ($sprintf !== null) {
+               $ret = $this->checkAndReplaceArgs($ret, $sprintf);
+            }
+            return $ret;
+        } else if (!empty($_PLUGINS[$PhenyxShopKey2])) {
+			$ret = stripslashes($_PLUGINS[$PhenyxShopKey2]);
+            if ($sprintf !== null) {
+                $ret = $this->checkAndReplaceArgs($ret, $sprintf);
+            }
+            return $ret;
+        } else if (!empty($_PLUGINS)) {
 
-            if ($js && !is_null($ret)) {
-                $ret = addslashes($ret);
-            } else
-
-            if (!is_null($ret)) {
-                $ret = htmlspecialchars($ret, ENT_COMPAT, 'UTF-8');
+			foreach ($_PLUGINS as $k => $value) {
+                if (str_ends_with($k, $key) && !empty($value)) {
+                    $ret = stripslashes($value);
+                }
             }
 
-            if ($sprintf === null) {
-                $langCache[$cacheKey] = $ret;
-            } else {
-                return $ret;
-            }
+        } else if (!empty($_LANGADM)) {
+			$ret = stripslashes($this->getGenericAdminTranslation($string, $_LANGADM, $key));
+        } else if (is_null($ret)) {
+			$ret = stripslashes($string);
+        }
+
+        if ($sprintf !== null) {
+            $ret = $this->checkAndReplaceArgs($ret, $sprintf);
+        }
+
+        if ($js && !is_null($ret)) {
+            $ret = addslashes($ret);
+        } else if (!is_null($ret)) {
+			$ret = htmlspecialchars($ret, ENT_COMPAT, 'UTF-8');
+        }
+
+        return $ret;
 
         
     }
