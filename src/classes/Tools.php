@@ -4518,7 +4518,7 @@ FileETag none
             
             }
             if (!isset($context->company)) {
-                $context->company = Company::getInstance($phenyxConfig->get('EPH_COMPANY_ID'));
+                $context->company = Company::initialize();
             
             }
             if(!isset($context->theme)) {

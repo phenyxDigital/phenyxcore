@@ -235,7 +235,7 @@ class SmartyTools {
             
         }
         if (!isset($context->company)) {
-            $context->company = Company::getInstance($context->phenyxConfig->get('EPH_COMPANY_ID'));
+            $context->company = Company::initialize();
             
         }
         if (!isset($context->language)) {

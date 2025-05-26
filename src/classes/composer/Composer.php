@@ -1011,6 +1011,26 @@ class Composer {
 
         return preg_replace("/\[(\/*)?vc_(.*?)\]/", "", $string);
     }
+	
+	public function doShortcode($content, $hook_name = '') {
+
+        if (is_null($content)) {
+
+            return $content;
+        }
+
+        $shortcode_tags = self::$static_shortcode_tags;
+
+        if (empty($shortcode_tags) || !is_array($shortcode_tags)) {
+            return $content;
+        }
+
+        $pattern = $this->get_shortcode_regex();
+        self::$sds_current_hook = $hook_name;
+
+        return preg_replace_callback("/$pattern/s", [__CLASS__, 'do_shortcode_tag'], $content);
+    }
+
 
     public static function do_shortcode($content, $hook_name = '') {
 
@@ -1353,7 +1373,7 @@ class Composer {
 
         $css_custom_out = (isset($post_custom_css[$id_lang]) && !empty($post_custom_css[$id_lang])) ? $post_custom_css[$id_lang] : '';
 
-        $navBar = new ComposerNavbar();
+        $navBar = new ComposerNavbar($target, $language);
         ob_start();
         $data = $context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'editors/backend_editor.tpl');
         $data->assign(
@@ -1364,6 +1384,7 @@ class Composer {
                 'editor'         => ephenyx_manager(),
                 'target'         => $target,
                 'language'       => $language,
+                'languages'      => Language::getLanguages(false),
                 'autolaunch'     => $autolaunch,
                 'controller'     => $controller,
                 'id_lang'        => $id_lang,
@@ -1705,7 +1726,7 @@ class Composer {
 
         if (!isset($this->context->company)) {
 
-            $this->context->company = new Company($this->context->phenyxConfig->get('EPH_COMPANY_ID'));
+            $this->context->company = Company::initialize();
         }
 
         if (!isset($this->context->language)) {

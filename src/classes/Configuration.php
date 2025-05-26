@@ -283,13 +283,16 @@ class Configuration extends PhenyxObjectModel {
         if (defined('_EPH_DO_NOT_LOAD_CONFIGURATION_') && _EPH_DO_NOT_LOAD_CONFIGURATION_) {
             return false;
         }
-        
-        if($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $temp = $this->context->cache_api->getData('cnfig_'.$key);
-            if(!empty($temp)) {
-                return $temp;
-            }
+		if(!is_object($this->context->_session)) {
+            $this->context->_session = PhenyxSession::getInstance();
         }
+		
+		
+        $result = $this->context->_session->get('cnfig_'.$key.'-'.$idLang);
+        if(!empty($result)) {
+            return $result;
+        }
+        
 
         $this->validateKey($key);
 		
@@ -309,9 +312,8 @@ class Configuration extends PhenyxObjectModel {
         if ($this->hasKey($key, $idLang) && isset(static::$_cache['configuration'][$idLang]['global'][$key])) {
 			
             $result = purifyFetch(static::$_cache['configuration'][$idLang]['global'][$key]);
-            if($this->context->cache_enable && is_object($this->context->cache_api)) {
-                $this->context->cache_api->putData('cnfig_'.$key, $result);
-            }
+			$this->context->_session->set('cnfig_'.$key.'-'.$idLang, $result);
+           
 			
             return $result;
         } else {
@@ -321,9 +323,7 @@ class Configuration extends PhenyxObjectModel {
                     ->from('configuration')
                     ->where('`name` LIKE \'' . $key . '\'')
             );
-            if($this->context->cache_enable && is_object($this->context->cache_api)) {
-                $this->context->cache_api->putData('cnfig_'.$key, $value);
-            }
+            $this->context->_session->set('cnfig_'.$key.'-'.$idLang, $result);
             static::$_cache['configuration'][$idLang]['global'][$key] = $value;
             return $value;
         }
@@ -387,13 +387,14 @@ class Configuration extends PhenyxObjectModel {
     public function hasKey($key, $idLang = null) {
         
         if (class_exists('Context')) {
-            if($this->context->cache_enable && is_object($this->context->cache_api)) {
-                $value = $this->context->cache_api->getData('hasKey_'.$key, 864000);
-                $temp = empty($value) ? null : $value;
-                if(!empty($temp)) {
-                    return $temp;
-                }
-            }
+			if(!is_object($this->context->_session)) {
+            	$this->context->_session = PhenyxSession::getInstance();
+        	}
+			$result = $this->context->_session->get('hasKey_'.$key.'-'.$idLang);
+        	if(!empty($result) && is_array($result)) {
+            	return $result;
+        	}
+            
         }
         $sql = new DbQuery();
         $sql->select('c.`id_configuration`');
@@ -404,10 +405,12 @@ class Configuration extends PhenyxObjectModel {
         $sql->where('c.`name` = \''.$key.'\'');
 
         $result = (bool) Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue($sql);
-        if(class_exists('Context') && $this->context->cache_enable && is_object($this->context->cache_api)) {
-            $temp = $result === null ? null : $result;
-            $this->context->cache_api->putData('hasKey_'.$key, $temp);
-        }	
+		if (class_exists('Context')) {
+			$this->context->_session->set('hasKey_'.$key.'-'.$idLang, $result);
+			
+            
+        }
+        	
         return $result;
     }
 
@@ -452,6 +455,9 @@ class Configuration extends PhenyxObjectModel {
     
     public function updateValue($key, $values, $html = false, $script = false) {
 
+		if(!is_object($this->context->_session)) {
+            $this->context->_session = PhenyxSession::getInstance();
+        }
         $this->validateKey($key);
 
         if (!is_array($values)) {
@@ -495,6 +501,7 @@ class Configuration extends PhenyxObjectModel {
 				} catch (Exception $e) {
 				    
 				}
+				$this->context->_session->set('cnfig_'.$key.'-'.$lang, $value);
 
                 
             } else {
@@ -512,17 +519,16 @@ class Configuration extends PhenyxObjectModel {
 				} catch (Exception $e) {
 				    
 				}
+				$this->context->_session->set('cnfig_'.$key.'-'.$lang, $value);
                 
                 
 
             }
 
         }
-        if($this->context->cache_enable && is_object($this->context->cache_api)) {
-            $temp = $value === null ? null : $value;
-            $this->context->cache_api->putData('cnfig_'.$key, $temp);
-        }	
-
+		
+		
+        
         $this->set($key, $values);
 
         return $result;

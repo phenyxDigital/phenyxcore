@@ -61,7 +61,7 @@ class TopMenu extends PhenyxObjectModel {
         'multilang' => true,
         'fields'    => [
             'type'                                  => ['type' => self::TYPE_INT],
-            'id_cms'                                => ['type' => self::TYPE_INT],
+			'id_cms'                                => ['type' => self::TYPE_INT],
             'id_pfg'                                => ['type' => self::TYPE_INT],
             'id_specific_page'                      => ['type' => self::TYPE_INT],
             'custom_hook'                           => ['type' => self::TYPE_STRING],
@@ -1441,7 +1441,7 @@ class TopMenu extends PhenyxObjectModel {
         $columnWraps->orderBy('position');
 
         foreach ($columnWraps as $wrap) {
-            $columnWrap[] = new TopMenuColumnWrap($wrap->id);
+            $columnWrap[] = TopMenuColumnWrap::buildObject($wrap->id, $context->language->id);
         }
 
         if ($context->cache_enable && is_object($context->cache_api)) {

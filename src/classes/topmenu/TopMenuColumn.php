@@ -766,6 +766,7 @@ class TopMenuColumn extends PhenyxObjectModel {
     public static function getStaticOutpuName($objectData) {
 
         $context = Context::getContext();
+		$name = null;
 
         switch ($objectData['type']) {
 
@@ -839,10 +840,11 @@ class TopMenuColumn extends PhenyxObjectModel {
         $hookname = $context->_hook->exec('displayTopMenuColumnOutPutName', ['type' => $objectData['type'], 'menu' => Tools::jsonDecode(Tools::jsonEncode($objectData))], null, true);
 
         if (is_array($hookname)) {
-            $hookname = array_shift($hookname);
-
-            if (!empty($hookname)) {
-                $name = $hookname;
+            foreach ($hookname as $plugin => $value) {
+				if(!empty($value)) {
+					$name = $value;
+				}
+                
             }
 
         }
@@ -1319,13 +1321,15 @@ class TopMenuColumn extends PhenyxObjectModel {
         if (!empty($objectData['custom_class']) && !empty($objectData['img_value_over'])) {
             $return .= '</div>';
         }
-
+		
         $hookname = $context->_hook->exec('displayTopMenuColumnFrontOutputValue', ['type' => $objectData['type'], 'menu' => Tools::jsonDecode(Tools::jsonEncode($objectData))], null, true);
 
         if (is_array($hookname)) {
-
             foreach ($hookname as $plugin => $value) {
-                $return = $value;
+				if(!empty($value)) {
+					$return = $value;
+				}
+                
             }
 
         }
