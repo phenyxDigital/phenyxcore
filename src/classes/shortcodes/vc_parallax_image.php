@@ -19,11 +19,11 @@ $animation = $this->getCSSAnimation($css_animation);
 
 
 
-$output .= "\n\t" . '<div class="jarallax_'.$img_id.'"><div class="' . $css_class . '">';
+$output .= "\n\t" . '<div class="jarallax jarallax_'.$img_id.'"><div class="' . $css_class . '">';
 $output .= "\n\t\t" . '<div class="wpb_wrapper" style="color:'.$text_color.'">';
-$output .= "\n\t" . '<div class="parallax-conteneur '.$animation.'"><div class="elementor-background-overlay" style="background-color: '.$color.';"></div>';
+$output .= "\n\t" . '<div class="parallax-conteneur '.$animation.'"><div class="elementor-background-overlay" style="background-color: '.$color.';"></div><div class="elementor-content">';
 $output .= "\n\t\t\t" . js_remove_wpautop($content, true);
-$output .= "\n\t\t" . '</div></div> ' . $this->endBlockComment('.wpb_wrapper');
+$output .= "\n\t\t" . '</div></div></div> ' . $this->endBlockComment('.wpb_wrapper');
 $output .= "\n\t" . $img['thumbnail'].'</div>  <script type="text/javascript">$(".jarallax_'.$img_id.'").jarallax({
   speed: 0.2,
 });</script></div>';

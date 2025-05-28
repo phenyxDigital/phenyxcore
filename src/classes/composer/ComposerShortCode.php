@@ -101,6 +101,14 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 		}
 
 		$file_name = $this->getFilename() . '.php';
+        $override_template = $this->context->_hook->exec('actionOverrideComposerTemplate', ['file_name' => $file_name]);
+
+		if (is_file($override_template)) {
+
+            $result = $this->setTemplate($override_template);
+			return $this->html_template;
+        }
+
 		// Check template in theme directory
 		$user_template = DIGITAL_CORE_DIR . '/src/classes/shortcodes/' . $file_name;
 
@@ -110,14 +118,7 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 			return $this->html_template;
 		} else {
-			$override_template = $this->context->_hook->exec('actionOverrideComposerTemplate', ['file_name' => $file_name]);
-
-			if (is_file($override_template)) {
-
-				$result = $this->setTemplate($override_template);
-				return $this->html_template;
-			}
-
+			
 			$this->html_template = false;
 		}
 

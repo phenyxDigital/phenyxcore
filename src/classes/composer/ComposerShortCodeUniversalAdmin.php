@@ -526,9 +526,11 @@ $param_line .= ob_get_clean();
             } else {
                 $param_line .= do_shortcode_param_settings_field($param['type'], $param, $param_value);
             }
+            break;
+
 
         }
-
+        
         return $param_line;
     }
 
