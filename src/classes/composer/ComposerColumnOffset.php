@@ -38,8 +38,7 @@ class ComposerColumnOffset extends Composer {
 	}
 
 	public function render() {
-
-		global $smarty;
+		
 		$context = Context::getContext();
 
 		$jsDef = [
@@ -47,7 +46,7 @@ class ComposerColumnOffset extends Composer {
 			'inherit_default' => $this->l('Inherit from default'),
 		];
 
-		$data = $context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'column_offset/template.tpl');
+		$data = $this->context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'column_offset/template.tpl');
 		$data->assign(
 			[
 				'settings' => $this->settings,

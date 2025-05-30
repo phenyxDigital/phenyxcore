@@ -20,7 +20,7 @@ $position = ($position != '') ? ' ' . $position : '';
 $css_class = 'vc_btn ' . $position;
 $css_class .= $this->getCSSAnimation($css_animation);
 $button = '<span class="vc_btn ' . $color . $size . '">' . $title . '</span>';
-$button = 'a class="wpb_' . $size . ' ' . $class . '" href="'.Context::getContext()->link->getCMSLink($id).'">' . $button . '</a>';
+$button = '<a class="wpb_' . $size . ' ' . $class . '" href="'.Context::getContext()->link->getCMSLink($id).'">' . $button . '</a>';
 $output = '<div class="' . $css_class . ' col-lg-12">';
 $output .= $button;
 $output .= '</div> ' . $this->endBlockComment('button') . "\n";

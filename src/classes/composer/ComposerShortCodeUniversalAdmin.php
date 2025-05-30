@@ -514,6 +514,20 @@ $param_line .= ob_get_clean();
             }
 
             break;
+        case 'css_editor':
+
+            $css_editor = ComposerCssEditor::getInstance();
+	        $css_editor->settings($param);
+	        $css_editor->value($param_value);
+	        $param_line .= $css_editor->render();
+
+            break;
+        case 'column_offset':
+
+            $column_offset = new ComposerColumnOffset($param, $param_value);
+	        $param_line .= $column_offset->render();
+
+            break;
         default:
             $extraType = Context::getContext()->_hook->exec('actionSingleParamEditForm', ['param' => $param, 'param_value' => $param_value], null, true);
 

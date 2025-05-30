@@ -55,15 +55,15 @@ class ComposerCssEditor extends Composer {
 		$output = '<div class="vc_css-editor vc_row" data-css-editor="true">';
 		$output .= $this->onionLayout();
 		$output .= '<div class="vc_col-xs-5 vc_settings">'
-		. '    <label>' . $vc_manager->l('Border') . '</label> '
+		. '    <label>' . $this->l('Border') . '</label> '
 		. '    <div class="color-group"><input type="text" name="border_color" value="" class="vc_color-control"></div>'
 		. '    <div class="vc_border-style"><select name="border_style" class="vc_border-style">' . $this->getBorderStyleOptions() . '</select></div>'
-		. '    <label>' . $vc_manager->l('Background') . '</label>'
+		. '    <label>' . $this->l('Background') . '</label>'
 		. '    <div class="color-group"><input type="text" name="background_color" value="" class="vc_color-control"></div>'
 		. '    <div class="vc_background-image wpb_el_type_attach_image">' . $this->getBackgroundImageControl() . '<div class="vc_clearfix"></div></div>'
 		. '    <div class="vc_background-style"><select name="background_style" class="vc_background-style">' . $this->getBackgroundStyleOptions() . '</select></div>'
-		. '    <label>' . $vc_manager->l('Box controls') . '</label>'
-		. '    <label class="vc_checkbox"><input type="checkbox" name="simply" class="vc_simplify" value=""> ' . $vc_manager->l('Simplify controls') . '</label>'
+		. '    <label>' . $this->l('Box controls') . '</label>'
+		. '    <label class="vc_checkbox"><input type="checkbox" name="simply" class="vc_simplify" value=""> ' . $this->l('Simplify controls') . '</label>'
 			. '</div>';
 		$output .= '<input name="' . $this->setting('param_name') . '" class="wpb_vc_param_value  ' . $this->setting('param_name') . ' ' . $this->setting('type') . '_field" type="hidden" value="' . $this->esc_attr($this->value()) . '"/>';
 		$output .= '</div><div class="vc_clearfix"></div>';
@@ -93,7 +93,7 @@ class ComposerCssEditor extends Composer {
 
 	public function getBorderStyleOptions() {
 		$vc_manager = ephenyx_manager();
-		$output = '<option value="">' . $vc_manager->l('Theme defaults') . '</option>';
+		$output = '<option value="">' . $this->l('Theme defaults') . '</option>';
 		$styles = ['solid', 'dotted', 'dashed', 'none', 'hidden', 'double', 'groove', 'ridge', 'inset', 'outset', 'initial', 'inherit'];
 
 		foreach ($styles as $style) {
@@ -105,12 +105,12 @@ class ComposerCssEditor extends Composer {
 
 	public function getBackgroundStyleOptions() {
 		$vc_manager = ephenyx_manager();
-		$output = '<option value="">' . $vc_manager->l('Theme defaults') . '</option>';
+		$output = '<option value="">' . $this->l('Theme defaults') . '</option>';
 		$styles = [
-			$vc_manager->l("Cover")     => 'cover',
-			$vc_manager->l('Contain')   => 'contain',
-			$vc_manager->l('No Repeat') => 'no-repeat',
-			$vc_manager->l('Repeat')    => 'repeat',
+			$this->l("Cover")     => 'cover',
+			$this->l('Contain')   => 'contain',
+			$this->l('No Repeat') => 'no-repeat',
+			$this->l('Repeat')    => 'repeat',
 		];
 
 		foreach ($styles as $name => $style) {

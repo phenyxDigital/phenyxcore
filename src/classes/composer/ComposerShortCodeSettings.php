@@ -98,7 +98,7 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 				$output .= $groups_content['_general'];
 			}
 
-			$output .= '</div>'; //close wpb_edit_form_elements
+                $output .= '</div>'; //close wpb_edit_form_elements
 
 			if (!ComposerShortcodeParams::isEnqueue()) {
 
@@ -116,7 +116,7 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 	public function loadDefaultParams() {
 
 		global $vc_params_list;
-		$vc_params_list = ['textarea_html', 'colorpicker', 'loop', 'vc_link', 'options', 'sorted_list', 'css_editor', 'font_container', 'google_fonts', 'autocomplete', 'tab_id', 'href', 'el_id'];
+		$vc_params_list = ['textarea_html', 'colorpicker', 'loop', 'vc_link', 'options', 'sorted_list', 'css_editor', 'font_container', 'google_fonts', 'autocomplete', 'tab_id', 'href', 'el_id', 'column_offset'];
 
 		if (empty($vc_params_list)) {
 			return false;
@@ -127,8 +127,6 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 		foreach ($vc_params_list as $param) {
 			add_shortcode_param($param, 'vc_' . $param . '_form_field', $script_url);
 		}
-
-		load_column_offset_param();
 	}
 
 }
