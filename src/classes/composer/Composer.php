@@ -1327,7 +1327,7 @@ class Composer {
 
         $context = Context::getContext();
         $controller = Tools::getValue('controller');
-        $autolaunch = false;
+        $autolaunch = 0;
         $target = $params['target'];
         $autolaunch = $params['autolaunch'];
         $language = $params['language'];
