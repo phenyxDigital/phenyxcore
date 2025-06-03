@@ -227,7 +227,7 @@ class Configuration extends PhenyxObjectModel {
             if(!is_object($this->context->_session)) {
                 $this->context->_session = PhenyxSession::getInstance();
             }
-            $result = $this->context->_session->get('cnfig_'.$key);
+            $result = $this->context->_session->get('cnfig_'.$key.'_'.$idLang);
             if(!empty($result)) {
                 return $result;
             }
@@ -249,12 +249,12 @@ class Configuration extends PhenyxObjectModel {
         }
 
         
-        if ($this->hasKey($key, $idLang) && isset(static::$_cache['configuration'][$idLang]['global'][$key])) {
+        if ($this->hasKey($key, $idLang, $use_cache) && isset(static::$_cache['configuration'][$idLang]['global'][$key])) {
 			
             $result = purifyFetch(static::$_cache['configuration'][$idLang]['global'][$key]);
             
-            if($use_cache && class_exists('Context')) {
-                 $this->context->_session->set('cnfig_'.$key, $result);
+            if(class_exists('Context')) {
+                 $this->context->_session->set('cnfig_'.$key.'_'.$idLang, $result);
             }		
            
             return $result;
@@ -267,8 +267,8 @@ class Configuration extends PhenyxObjectModel {
                     ->where('`name` LIKE \'' . $key . '\'')
             );
             
-            if($use_cache && class_exists('Context')) {
-                 $this->context->_session->set('cnfig_'.$key, $result);
+            if(class_exists('Context')) {
+                 $this->context->_session->set('cnfig_'.$key.'_'.$idLang, $value);
             }	
             
             static::$_cache['configuration'][$idLang]['global'][$key] = $value;
@@ -384,9 +384,9 @@ class Configuration extends PhenyxObjectModel {
     }
 
     
-    public function hasKey($key, $idLang = null) {
+    public function hasKey($key, $idLang = null, $use_cache = true) {
         
-        if (class_exists('Context')) {
+        if ($use_cache && class_exists('Context')) {
 			if(!is_object($this->context->_session)) {
             	$this->context->_session = PhenyxSession::getInstance();
         	}
