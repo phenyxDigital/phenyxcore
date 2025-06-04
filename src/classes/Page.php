@@ -80,8 +80,8 @@ class Page extends PhenyxObjectModel {
     }
 
     public static function getPageTypeByName($name) {
-        
-        if(empty($name)) {
+
+        if (empty($name)) {
             return;
         }
 
@@ -93,6 +93,7 @@ class Page extends PhenyxObjectModel {
         )) {
             return $value;
         }
+
         $type = new PageType();
         $type->name = $name;
         return $type->add();

@@ -13,7 +13,7 @@ class CronJobs extends PhenyxObjectModel {
     public static $definition = [
         'table'   => 'cronjobs',
         'primary' => 'id_cronjobs',
-        'fields'  => [            
+        'fields'  => [
             'description' => ['type' => self::TYPE_STRING, 'validate' => 'isString'],
             'class_name'  => ['type' => self::TYPE_STRING, 'validate' => 'isString'],
             'task'        => ['type' => self::TYPE_STRING, 'validate' => 'isString'],
@@ -30,7 +30,7 @@ class CronJobs extends PhenyxObjectModel {
 
         ],
     ];
-   
+
     // @codingStandardsIgnoreEnd
     public $description;
     public $class_name;
@@ -43,7 +43,6 @@ class CronJobs extends PhenyxObjectModel {
     public $args;
     public $updated_at;
     public $active;
-
 
     /**
      * GenderCore constructor.
@@ -59,12 +58,11 @@ class CronJobs extends PhenyxObjectModel {
 
         parent::__construct($id, $idLang, $idShop);
 
-
     }
 
     public static function runTasksCrons() {
 
-        $file = fopen("testrunTasksCrons.txt","a");
+        $file = fopen("testrunTasksCrons.txt", "a");
         $date = new DateTime("now", new DateTimeZone('America/New_York'));
         $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'cronjobs WHERE `active` = 1';
         $crons = Db::getInstance()->executeS($query);
@@ -72,32 +70,41 @@ class CronJobs extends PhenyxObjectModel {
         if (is_array($crons) && (count($crons) > 0)) {
 
             foreach ($crons as &$cron) {
-                fwrite($file,"we test ".$cron['id_cronjobs'].PHP_EOL);
+                fwrite($file, "we test " . $cron['id_cronjobs'] . PHP_EOL);
+
                 if (CronJobs::shouldBeExecuted($cron) == true) {
-                    fwrite($file,"go cow ".$cron['description'].PHP_EOL.PHP_EOL);
+                    fwrite($file, "go cow " . $cron['description'] . PHP_EOL . PHP_EOL);
                     $class_name = $cron['class_name'];
-                    if(class_exists($class_name)) {
-                       
+
+                    if (class_exists($class_name)) {
+
                         $instance = new $class_name();
                         $task = $cron['task'];
+
                         if (method_exists($instance, $task)) {
                             $args = !empty($cron['arg']) ? $cron['arg'] : null;
                             try {
-                                $result = $instance->{$task}($args);
-                                $query = 'UPDATE ' . _DB_PREFIX_ . 'cronjobs 
-                                SET `updated_at` = NOW() 
+                                $result = $instance->{$task}
+
+                                ($args);
+                                $query = 'UPDATE ' . _DB_PREFIX_ . 'cronjobs
+                                SET `updated_at` = NOW()
                                 WHERE `id_cronjobs` = ' . (int) $cron['id_cronjobs'];
                                 Db::getInstance()->execute($query);
                             } catch (PhenyxException $e) {
                                 fwrite($file, 'Error ' . $e->getMessage() . PHP_EOL);
                             }
+
                         } else {
-                            fwrite($file,"method ".$task.' has not been found'.PHP_EOL.PHP_EOL);
+                            fwrite($file, "method " . $task . ' has not been found' . PHP_EOL . PHP_EOL);
                         }
+
                     } else {
-                        fwrite($file,"class ".$class_name.' has not been found'.PHP_EOL.PHP_EOL);
+                        fwrite($file, "class " . $class_name . ' has not been found' . PHP_EOL . PHP_EOL);
                     }
+
                 }
+
             }
 
         }

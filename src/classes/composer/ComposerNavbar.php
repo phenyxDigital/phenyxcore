@@ -16,7 +16,7 @@ class ComposerNavbar {
 	public $post = false;
 	public $idLang = null;
 	public $context;
-    public $composer;
+	public $composer;
 
 	public function __construct($post = '', $idLang = null) {
 
@@ -24,7 +24,7 @@ class ComposerNavbar {
 		$this->idLang = $idLang;
 		global $smarty;
 		$this->context = Context::getContext();
-        $this->composer = Composer::getInstance();
+		$this->composer = Composer::getInstance();
 	}
 
 	/**
@@ -72,7 +72,7 @@ class ComposerNavbar {
 		$data->assign(
 			[
 				'languages' => Language::getLanguages(false),
-                'css_class' => $this->css_class,
+				'css_class' => $this->css_class,
 				'controls'  => $this->getControls(),
 				'nav_bar'   => $this,
 				'post'      => $this->post,
@@ -84,7 +84,7 @@ class ComposerNavbar {
 
 	}
 
-	public function getLogo() {        
+	public function getLogo() {
 		$output = '<a id="vc_logo" class="vc_navbar-brand" title="' . $this->l('Visual Composer')
 		. '" href="javascript:void(0)">'
 		. $this->l('Visual Composer') . '</a>';
@@ -92,7 +92,7 @@ class ComposerNavbar {
 	}
 
 	public function getControlCustomCss() {
-		
+
 		return '<li class="vc_pull-right"><a id="vc_post-settings-button" class="vc_icon-btn vc_post-settings" title="'
 		. $this->l('Page settings') . '">'
 		. '<span id="vc_post-css-badge" class="vc_badge vc_badge-custom-css" style="display: none;">' . $this->l('CSS') . '</span></a>'
@@ -111,17 +111,17 @@ class ComposerNavbar {
 		return '<li><a href="javascript:;" class="vc_icon-btn vc_templates-button vc_navbar-border-right"  id="vc_templates-editor-button" title="'
 		. $this->l('Templates') . '"></a></li>';
 	}
-	
+
 	public function l($string, $idLang = null, $context = null) {
 
-        $class = 'ComposerNavbar';
+		$class = 'ComposerNavbar';
 
-        if(isset($this->context->translations)) {
-            return $this->context->translations->getClassTranslation($string, $class);
-        }
-        return $string;
+		if (isset($this->context->translations)) {
+			return $this->context->translations->getClassTranslation($string, $class);
+		}
 
-        
-    }
+		return $string;
+
+	}
 
 }

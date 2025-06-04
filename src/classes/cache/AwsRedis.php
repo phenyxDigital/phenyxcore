@@ -37,12 +37,10 @@ class AwsRedis extends CacheApi implements CacheApiInterface {
         parent::__construct();
         $this->connect();
 
-
     }
 
     public function connect() {
 
-       
         $this->is_connected = false;
         $this->_servers = static::getRedisServers();
 
@@ -50,40 +48,38 @@ class AwsRedis extends CacheApi implements CacheApiInterface {
             return;
         } else {
 
-         
-           $this->redis = new Redis();
+            $this->redis = new Redis();
 
-           if ($this->redis->pconnect($this->_servers['ip'], $this->_servers['port'])) {
-               
-               $this->redis->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
+            if ($this->redis->pconnect($this->_servers['ip'], $this->_servers['port'])) {
 
-                    if (!empty($this->_servers['auth'])) {
+                $this->redis->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
 
-                        if (!($this->redis->auth($this->_servers['auth']))) {
-                            return;
-                        } else {
-                            $this->is_connected = true;
-                        }
+                if (!empty($this->_servers['auth'])) {
 
+                    if (!($this->redis->auth($this->_servers['auth']))) {
+                        return;
                     } else {
-                        try {
-                             $ping = $this->redis->ping();
-                            $this->redis->select($this->_servers['rdb']);
-                            $ping = $this->redis->ping();
-                            if ($ping) {
-                                $this->is_connected = true;
+                        $this->is_connected = true;
+                    }
 
-                            }
+                } else {
+                    try {
+                        $ping = $this->redis->ping();
+                        $this->redis->select($this->_servers['rdb']);
+                        $ping = $this->redis->ping();
 
-                        } catch (Exception $e) {
-                            $this->is_connected = false;
+                        if ($ping) {
+                            $this->is_connected = true;
+
                         }
 
+                    } catch (Exception $e) {
+                        $this->is_connected = false;
                     }
 
                 }
 
-            
+            }
 
         }
 
@@ -104,18 +100,17 @@ class AwsRedis extends CacheApi implements CacheApiInterface {
 
         return $server;
     }
-	
-	public static function getLastRedisServer() {
+
+    public static function getLastRedisServer() {
 
         $server = [];
         // bypass the memory fatal error caused functions nesting on PS 1.5
         $sql = new DbQuery();
         $sql->select('`id_redis_serveur`');
         $sql->from('redis_servers');
-		$sql->orderBy('`id_redis_serveur` DESC');
+        $sql->orderBy('`id_redis_serveur` DESC');
         return Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue($sql);
 
-        
     }
 
     public static function addServer($ip, $port, $auth, $db) {
@@ -142,14 +137,12 @@ class AwsRedis extends CacheApi implements CacheApiInterface {
                 'ip'   => pSQL($ip),
                 'port' => (int) $port,
                 'auth' => pSQL($auth),
-                'rdb'   => (int) $db,
+                'rdb'  => (int) $db,
             ],
             false,
             false
         );
     }
-    
-    
 
     public static function getRedisServers() {
 
@@ -160,7 +153,7 @@ class AwsRedis extends CacheApi implements CacheApiInterface {
 
         return Db::getInstance(_EPH_USE_SQL_SLAVE_)->getRow($sql, true, false);
     }
-    
+
     public static function deleteServer($idServer) {
 
         return Db::getInstance()->delete(
@@ -185,9 +178,9 @@ class AwsRedis extends CacheApi implements CacheApiInterface {
         // Don't close the connection, needs to be persistent across PHP-sessions
         return true;
     }
-    
+
     public function cleanCache($type = '') {
-        
+
         return (bool) $this->redis->flushDB();
     }
 
@@ -195,103 +188,109 @@ class AwsRedis extends CacheApi implements CacheApiInterface {
 
         return (bool) $this->redis->flushDB();
     }
-    
+
     public function getDbNum() {
-        
+
         return $this->redis->getDbNum();
     }
-        
+
     public function getKeys($prefix = null) {
-        
-        return $this->redis->keys($prefix.'*');
+
+        return $this->redis->keys($prefix . '*');
     }
-    
+
     public function getRedisValues() {
         ini_set('memory_limit', '-1');
         $result = [];
         $values = $this->redis->keys('*');
-        if(is_array($values)) {
-            foreach($values as $value) {
+
+        if (is_array($values)) {
+
+            foreach ($values as $value) {
                 $val = $this->redis->get($value);
-                if(!is_null($val) && !is_object($val)) {
-                    $result[$value] = !is_array($val) ? Tools::jsonDecode($val, true): $val;
+
+                if (!is_null($val) && !is_object($val)) {
+                    $result[$value] = !is_array($val) ? Tools::jsonDecode($val, true) : $val;
                 }
+
             }
+
         }
+
         ksort($result);
         return $result;
     }
-    
+
     public function cleanByStartingKey($key) {
         ini_set('memory_limit', '-1');
         $result = true;
-        $values = $this->redis->keys($key.'*');
-        if(is_array($values)) {
-            foreach($values as $value) {
+        $values = $this->redis->keys($key . '*');
+
+        if (is_array($values)) {
+
+            foreach ($values as $value) {
                 $result = $this->_delete($value);
             }
+
         }
-        
+
         return $result;
     }
-    
+
     public function putData($key, $value, $ttl = 3600) {
-        
+
         $this->keys[$key] = ($ttl == 0) ? 0 : time() + $ttl;
 
-		return $this->_set($key, $value, $ttl);
+        return $this->_set($key, $value, $ttl);
 
-	}
+    }
 
     protected function _set($key, $value, $ttl = 0) {
 
         return $this->redis->set($key, $value, $ttl);
     }
-    
+
     public function keyExist($key) {
 
-		return $this->_get($key);
+        return $this->_get($key);
 
-	}
-    
+    }
 
     protected function _exists($key) {
 
         return (bool) $this->_get($key);
     }
-    
+
     public function getData($key, $ttl = null) {
 
-		return $this->redis->get($key);
-	}
+        return $this->redis->get($key);
+    }
 
     protected function _get($key) {
 
         return $this->redis->get($key);
     }
-    
+
     public function removeData($key) {
 
-		return $this->_delete($key);
-	}
-    
-    public function getnbKeys() {
-        
-        return $this->redis->dbSize();
-    }
-    
-    public function getRedisInfo() {
-        
-        return $this->redis->info();
+        return $this->_delete($key);
     }
 
+    public function getnbKeys() {
+
+        return $this->redis->dbSize();
+    }
+
+    public function getRedisInfo() {
+
+        return $this->redis->info();
+    }
 
     protected function _delete($key) {
 
         return $this->redis->del($key);
     }
-    
-    
+
     protected function _writeKeys() {
 
         if (!$this->is_connected) {

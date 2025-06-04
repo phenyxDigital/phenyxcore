@@ -2,21 +2,21 @@
 
 class ComposerCssEditor extends Composer {
 
-    protected static $css_instance;
+	protected static $css_instance;
 	protected $js_script_appended = false;
 	protected $settings = [];
 	protected $value = '';
 	protected $layers = ['margin', 'border', 'padding', 'content'];
 	protected $positions = ['top', 'right', 'bottom', 'left'];
-    
-    public static function getInstance() {
 
-        if (!ComposerCssEditor::$css_instance) {
-            ComposerCssEditor::$css_instance = new ComposerCssEditor();
-        }
+	public static function getInstance() {
 
-        return ComposerCssEditor::$css_instance;
-    }
+		if (!ComposerCssEditor::$css_instance) {
+			ComposerCssEditor::$css_instance = new ComposerCssEditor();
+		}
+
+		return ComposerCssEditor::$css_instance;
+	}
 
 	public function settings($settings = null) {
 

@@ -76,7 +76,6 @@ class Connection extends PhenyxObjectModel {
             $idPage = Page::getCurrentId();
         }
 
-
         if (!$this->context->phenyxConfig->get('EPH_STATSDATA_CUSTOMER_PAGESVIEWS')) {
             return ['id_page' => $idPage];
         }

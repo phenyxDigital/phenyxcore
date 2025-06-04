@@ -6,7 +6,7 @@ define('SHORTCODE_AFTER_CUSTOMIZE_PREFIX', 'vc_theme_after_');
 define('SHORTCODE_CUSTOM_CSS_FILTER_TAG', 'vc_shortcodes_css_class');
 
 abstract class ComposerShortCode extends ComposerShortCodeAbstract {
-	
+
 	protected $shortcode;
 	protected $html_template;
 	protected $atts, $settings;
@@ -20,15 +20,17 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 		$this->settings = $settings;
 		$this->shortcode = $this->settings('base');
-        $this->context = Context::getContext();
-        if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = Configuration::getInstance();
+		$this->context = Context::getContext();
 
-        }
-        if (!isset($this->context->_composer)) {
-            $this->context->_composer = Composer::getInstance();
+		if (!isset($this->context->phenyxConfig)) {
+			$this->context->phenyxConfig = Configuration::getInstance();
 
-        }
+		}
+
+		if (!isset($this->context->_composer)) {
+			$this->context->_composer = Composer::getInstance();
+
+		}
 
 	}
 
@@ -101,13 +103,13 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 		}
 
 		$file_name = $this->getFilename() . '.php';
-        $override_template = $this->context->_hook->exec('actionOverrideComposerTemplate', ['file_name' => $file_name]);
+		$override_template = $this->context->_hook->exec('actionOverrideComposerTemplate', ['file_name' => $file_name]);
 
 		if (is_file($override_template)) {
 
-            $result = $this->setTemplate($override_template);
+			$result = $this->setTemplate($override_template);
 			return $this->html_template;
-        }
+		}
 
 		// Check template in theme directory
 		$user_template = DIGITAL_CORE_DIR . '/src/classes/shortcodes/' . $file_name;
@@ -118,7 +120,7 @@ abstract class ComposerShortCode extends ComposerShortCodeAbstract {
 
 			return $this->html_template;
 		} else {
-			
+
 			$this->html_template = false;
 		}
 

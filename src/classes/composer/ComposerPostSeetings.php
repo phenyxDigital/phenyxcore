@@ -3,11 +3,11 @@
 class ComposerPostSeetings {
 
 	protected $editor;
-    public $context;
+	public $context;
 
 	public function __construct($editor) {
-        global $smarty;
-        $this->context = Context::getContext();
+		global $smarty;
+		$this->context = Context::getContext();
 		$this->editor = $editor;
 	}
 
@@ -17,13 +17,13 @@ class ComposerPostSeetings {
 	}
 
 	public function render() {
-        $data = $this->context->smarty->createTemplate(_EPH_COMPOSER_DIR_  . 'editors/popups/panel_post_settings.tpl');
-        $data->assign(
+		$data = $this->context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'editors/popups/panel_post_settings.tpl');
+		$data->assign(
 			[
 				'box' => $this,
 			]
 		);
 		return $data->fetch();
-		
+
 	}
 }

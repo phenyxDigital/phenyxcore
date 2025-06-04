@@ -828,7 +828,7 @@ abstract class Plugin {
 
             $item = [];
             $tmpPlugin = Adapter_ServiceLocator::get($plugin);
-            
+
             $item = [
                 'id'                     => is_null($tmpPlugin->id) ? 0 : $tmpPlugin->id,
                 'specific'               => $specific,
@@ -2724,21 +2724,19 @@ abstract class Plugin {
     }
 
     public function l($string, $specific = false) {
-        
+
         if (!isset($this->context)) {
             $this->context = Context::getContext();
         }
-        
+
         if (!isset($this->context->language)) {
             $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
 
         }
+
         $_translate = Translation::getInstance();
-        
-        return $_translate->getExistingTranslation($this->context->language->iso_code, $string);  
 
-
-        
+        return $_translate->getExistingTranslation($this->context->language->iso_code, $string);
 
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
@@ -2759,14 +2757,13 @@ abstract class Plugin {
 
             $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
         }
-        
+
         try {
             return $this->context->translations->getPluginTranslation($this, $string, ($specific) ? $specific : $this->name);
-                
-        } catch (PhenyxException $e) {
-            PhenyxLogger::addLog($this->name.' :'.$e->getMessage(), 2);
-        }
 
+        } catch (PhenyxException $e) {
+            PhenyxLogger::addLog($this->name . ' :' . $e->getMessage(), 2);
+        }
 
         return $this->context->translations->getPluginTranslation($this, $string, ($specific) ? $specific : $this->name);
     }
@@ -2784,12 +2781,12 @@ abstract class Plugin {
         foreach ($hookNames as $hookName) {
 
             if (!Validate::isHookName($hookName)) {
-                PhenyxLogger::addLog("Bad hook name: ".$hookName);
+                PhenyxLogger::addLog("Bad hook name: " . $hookName);
                 return false;
             }
 
             if (!isset($this->id) || !is_numeric($this->id)) {
-                
+
                 return false;
             }
 

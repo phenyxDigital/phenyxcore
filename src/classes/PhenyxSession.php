@@ -92,16 +92,19 @@ class PhenyxSession extends PhenyxServices {
         $result = [];
 
         foreach ($_SESSION[self::SESSION_NAMESPACE] as $key => $value) {
-            
-            if(is_array($value)) {
+
+            if (is_array($value)) {
                 $result[$key] = $value;
-            } else if(Validate::isJSON($value)) {
+            } else
+
+            if (Validate::isJSON($value)) {
                 $result[$key] = Tools::jsonDecode($value, true);
             } else {
                 $result[$key] = $value;
             }
-            
+
         }
+
         ksort($result);
         return $result;
     }

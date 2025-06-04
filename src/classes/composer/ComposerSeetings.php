@@ -10,7 +10,7 @@ class ComposerSeetings {
 	protected $composer;
 	protected $google_fonts_subsets_default = ['latin'];
 	protected $google_fonts_subsets = ['latin', 'vietnamese', 'cyrillic', 'latin-ext', 'greek', 'cyrillic-ext', 'greek-ext'];
-	
+
 	public static function get($option_name) {
 
 		return $this->context->phenyxConfig->get(self::$field_prefix . $option_name);
@@ -21,9 +21,6 @@ class ComposerSeetings {
 		return $this->context->phenyxConfig->updateValue(self::$field_prefix . $option_name, $value);
 	}
 
-
-
 }
-
 
 ?>

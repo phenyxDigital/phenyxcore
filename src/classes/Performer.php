@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class >Performer
+ * Class Performer
  *
  * @since 1.9.1.0
  */
@@ -119,7 +119,8 @@ class Performer {
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
         }
-		if (!isset($this->context->company)) {
+
+        if (!isset($this->context->company)) {
             $this->context->company = Company::initialize();
         }
 
@@ -452,7 +453,7 @@ class Performer {
             $this->context->cache_api = CacheApi::getInstance();
 
         }
-		
+
         if (isset($_SERVER['REQUEST_URI'])) {
             $this->request_uri = $_SERVER['REQUEST_URI'];
         } else
@@ -477,8 +478,8 @@ class Performer {
         }
 
         if ($this->context->company->mode == 'full_back') {
-            
-			$this->front_controller = static::FC_ADMIN;
+
+            $this->front_controller = static::FC_ADMIN;
 
             if (is_null($this->controller)) {
 
@@ -496,11 +497,10 @@ class Performer {
                 }
 
             }
-			
-			
-			
 
-        } else if ($this->context->company->mode == 'full_front') {
+        } else
+
+        if ($this->context->company->mode == 'full_front') {
             $this->front_controller = static::FC_FRONT;
 
             if (is_null($this->controller)) {
@@ -519,13 +519,13 @@ class Performer {
                 }
 
             }
-			
-			if ($this->request_uri == '/' || str_starts_with($this->request_uri, '/?')) {
-            	$this->front_controller = static::FC_FRONT;
-            	$this->controller = 'index';
-        	}
 
-        } else  {
+            if ($this->request_uri == '/' || str_starts_with($this->request_uri, '/?')) {
+                $this->front_controller = static::FC_FRONT;
+                $this->controller = 'index';
+            }
+
+        } else {
 
             if (str_contains($this->request_uri, 'backend/') || str_contains($this->request_uri, 'admin')) {
 
@@ -567,17 +567,15 @@ class Performer {
                     }
 
                 }
-				
-				if ($this->request_uri == '/' || str_starts_with($this->request_uri, '/?')) {
-            		$this->front_controller = static::FC_FRONT;
-            		$this->controller = 'index';
-        		}
+
+                if ($this->request_uri == '/' || str_starts_with($this->request_uri, '/?')) {
+                    $this->front_controller = static::FC_FRONT;
+                    $this->controller = 'index';
+                }
 
             }
 
         }
-
-       
 
         if (!is_null($this->controller) && $this->context->cache_enable && is_object($this->context->cache_api)) {
 
@@ -593,8 +591,6 @@ class Performer {
         if (isset(Context::getContext()->company) && is_object(Context::getContext()->company)) {
             $this->request_uri = preg_replace('#^' . preg_quote(Context::getContext()->company->getBaseURI(), '#') . '#i', '/', $this->request_uri);
         }
-
-        
 
         $request_uri = $this->context->_hook->exec('setRequestUri', ['request_uri' => $this->request_uri, 'routes' => $this->routes], null, true, false);
 
@@ -944,7 +940,7 @@ class Performer {
             $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
 
-        if (isset($this->context->employee->id) && $this->context->employee->id && ($this->context->company->mode == 'conventionnel' || $this->context->company->mode == 'full_front' )) {
+        if (isset($this->context->employee->id) && $this->context->employee->id && ($this->context->company->mode == 'conventionnel' || $this->context->company->mode == 'full_front')) {
 
             if ($this->request_uri == '/' || str_starts_with($this->request_uri, '/?')) {
                 $this->front_controller = static::FC_FRONT;

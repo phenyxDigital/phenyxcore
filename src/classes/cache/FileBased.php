@@ -109,10 +109,10 @@ class FileBased extends CacheApi implements CacheApiInterface {
 
 		return $this->_get($key);
 	}
-    
-    protected function _get($key) {
 
-        $file = sprintf('%s/data_%s.cache',
+	protected function _get($key) {
+
+		$file = sprintf('%s/data_%s.cache',
 			$this->cachedir,
 			$this->prefix . strtr($key, ':/', '-_')
 		);
@@ -130,31 +130,31 @@ class FileBased extends CacheApi implements CacheApiInterface {
 		}
 
 		return null;
-    }
-    
-    protected function _exists($key) {
-        
-        $file = sprintf('%s/data_%s.cache',
+	}
+
+	protected function _exists($key) {
+
+		$file = sprintf('%s/data_%s.cache',
 			$this->cachedir,
 			$this->prefix . strtr($key, ':/', '-_')
 		);
 
-        return (bool) file_exists($file);
-    }
-    
-    public function removeData($key) {
+		return (bool) file_exists($file);
+	}
+
+	public function removeData($key) {
 
 		return $this->_delete($key);
 	}
-    
-    public function flush() {
 
-        return true;
-    }
-    
-    protected function _delete($key) {
+	public function flush() {
 
-        $file = sprintf('%s/data_%s.cache',
+		return true;
+	}
+
+	protected function _delete($key) {
+
+		$file = sprintf('%s/data_%s.cache',
 			$this->cachedir,
 			$this->prefix . strtr($key, ':/', '-_')
 		);
@@ -168,30 +168,32 @@ class FileBased extends CacheApi implements CacheApiInterface {
 		}
 
 		return null;
-    }
-    
-    public function getFilesValues() {
-        ini_set('memory_limit', '-1');
-        $result = [];
-        $iterator = new AppendIterator();
-        $iterator->append(new DirectoryIterator($this->cachedir));
-        foreach ($iterator as $file) {
-			
-            if (in_array($file->getFilename(), ['.', '..',  'index.php'])) {
+	}
+
+	public function getFilesValues() {
+		ini_set('memory_limit', '-1');
+		$result = [];
+		$iterator = new AppendIterator();
+		$iterator->append(new DirectoryIterator($this->cachedir));
+
+		foreach ($iterator as $file) {
+
+			if (in_array($file->getFilename(), ['.', '..', 'index.php'])) {
 				continue;
 			}
-            
-            $fileKey = str_replace(["data_".$this->prefix, '.cache'], ['', ''], $file->getFilename());
-            $val = $this->getData($fileKey);
-            if(!is_null($val) && !is_object($val)) {
-                $result[$fileKey] = !is_array($val) ? Tools::jsonDecode($val, true): $val;
-            }
 
-        }
-        
-        ksort($result);
-        return $result;
-    }
+			$fileKey = str_replace(["data_" . $this->prefix, '.cache'], ['', ''], $file->getFilename());
+			$val = $this->getData($fileKey);
+
+			if (!is_null($val) && !is_object($val)) {
+				$result[$fileKey] = !is_array($val) ? Tools::jsonDecode($val, true) : $val;
+			}
+
+		}
+
+		ksort($result);
+		return $result;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -200,10 +202,10 @@ class FileBased extends CacheApi implements CacheApiInterface {
 
 		return $this->_set($key, $value, $ttl);
 	}
-    
-    protected function _set($key, $value, $ttl = 0) {
 
-        $file = sprintf('%s/data_%s.cache',
+	protected function _set($key, $value, $ttl = 0) {
+
+		$file = sprintf('%s/data_%s.cache',
 			$this->cachedir,
 			$this->prefix . strtr($key, ':/', '-_')
 		);
@@ -231,7 +233,8 @@ class FileBased extends CacheApi implements CacheApiInterface {
 			}
 
 		}
-    }
+
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -310,7 +313,7 @@ class FileBased extends CacheApi implements CacheApiInterface {
 		// If its invalid, use EPH's.
 
 		if (is_null($dir) || !is_writable($dir)) {
-			$this->cachedir = _EPH_CACHE_DIR_.'cacheapi/';
+			$this->cachedir = _EPH_CACHE_DIR_ . 'cacheapi/';
 		} else {
 			$this->cachedir = $dir;
 		}
@@ -335,12 +338,11 @@ class FileBased extends CacheApi implements CacheApiInterface {
 
 		return _EPH_VERSION_;
 	}
-    
-    protected function _writeKeys() {
 
-        return true;
-    }
+	protected function _writeKeys() {
 
+		return true;
+	}
 
 }
 

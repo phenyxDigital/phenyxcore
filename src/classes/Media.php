@@ -19,16 +19,16 @@ class Media {
     /** @since 1.0.2 Browsers update so fast, we have added this one for Android Chrome during a PATCH version */
     const FAVICON_192 = 7;
     const FAVICON_STORE_ICON = 6;
-    
+
     public $context;
 
     // @codingStandardsIgnoreStart
     public static $jquery_ui_dependencies = [
         'ui.core'           => ['fileName' => 'jquery.ui.core.min.js', 'dependencies' => [], 'theme' => true],
         'ui.widget'         => ['fileName' => 'jquery.ui.widget.min.js', 'dependencies' => [], 'theme' => false],
-        'ui.mouse'          => ['fileName' => 'jquery.ui.mouse.min.js', 'dependencies' => ['ui.core' ], 'theme' => false],
+        'ui.mouse'          => ['fileName' => 'jquery.ui.mouse.min.js', 'dependencies' => ['ui.core'], 'theme' => false],
         'ui.position'       => ['fileName' => 'jquery.ui.position.min.js', 'dependencies' => [], 'theme' => false],
-        'ui.draggable'      => ['fileName' => 'jquery.ui.draggable.min.js', 'dependencies' => ['ui.core',  'ui.mouse'], 'theme' => false],
+        'ui.draggable'      => ['fileName' => 'jquery.ui.draggable.min.js', 'dependencies' => ['ui.core', 'ui.mouse'], 'theme' => false],
         'ui.droppable'      => ['fileName' => 'jquery.ui.droppable.min.js', 'dependencies' => ['ui.core', 'ui.mouse', 'ui.draggable'], 'theme' => false],
         'ui.resizable'      => ['fileName' => 'jquery.ui.resizable.min.js', 'dependencies' => ['ui.core', 'ui.mouse'], 'theme' => true],
         'ui.selectable'     => ['fileName' => 'jquery.ui.selectable.min.js', 'dependencies' => ['ui.core', 'ui.mouse'], 'theme' => true],
@@ -85,31 +85,32 @@ class Media {
     protected static $current_css_file;
     protected static $pattern_keepinline = 'data-keepinline';
     // @codingStandardsIgnoreEnd
-    
+
     public function __construct() {
 
         $this->context = Context::getContext();
-        if(!isset($this->context->phenyxConfig)) {
+
+        if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
         }
+
         $this->context->media = $this;
-        
 
     }
-    
+
     public static function getInstance() {
-       
-		if (!isset(static::$instance)) {
-			static::$instance = new Media();
-		}
-        
-		return static::$instance;
-	}
+
+        if (!isset(static::$instance)) {
+            static::$instance = new Media();
+        }
+
+        return static::$instance;
+    }
 
     public function minifyHTML($htmlContent) {
 
         if (strlen($htmlContent) > 0) {
-            
+
             $htmlContent = str_replace(chr(194) . chr(160), '&nbsp;', $htmlContent);
 
             if (trim($minifiedContent = Minify_HTML::minify($htmlContent, ['cssMinifier', 'jsMinifier'])) != '') {
@@ -178,6 +179,7 @@ class Media {
     public function getBackTrackLimit() {
 
         static $limit = null;
+
         if ($limit === null) {
             $limit = @ini_get('pcre.backtrack_limit');
 
@@ -206,6 +208,7 @@ class Media {
     }
 
     public function packJS($jsContent) {
+
         if (!empty($jsContent)) {
             try {
                 $jsContent = JSMin::minify($jsContent);
@@ -225,7 +228,7 @@ class Media {
 
         return ';' . trim($jsContent, ';') . ';';
     }
-   
+
     public function replaceByAbsoluteURL($matches) {
 
         if (array_key_exists(1, $matches) && array_key_exists(2, $matches)) {
@@ -258,6 +261,7 @@ class Media {
 
         //set default version
         else
+
         if (preg_match('/^([0-9\.]+)$/Ui', $version)) {
             $addNoConflict = true;
         } else {
@@ -298,7 +302,7 @@ class Media {
         return $return;
     }
 
-    public  function getJSPath($jsUri) {
+    public function getJSPath($jsUri) {
 
         return $this->getMediaPath($jsUri);
     }
@@ -383,9 +387,8 @@ class Media {
 
         if (isset(Media::$jquery_ui_dependencies[$component]) && Media::$jquery_ui_dependencies[$component]['theme'] && $checkDependencies) {
             // @codingStandardsIgnoreEnd
-           
-            $compCss = $this->getCSSPath($folder . _EPH_THEMES_DIR_ . $theme . '/jquery.' . $component . '.css');
 
+            $compCss = $this->getCSSPath($folder . _EPH_THEMES_DIR_ . $theme . '/jquery.' . $component . '.css');
 
             if (!empty($compCss) || $compCss) {
                 $uiPath['css'] = array_merge($uiPath['css'], $compCss);
@@ -486,6 +489,7 @@ class Media {
         if (@file_exists($fileUri . $file)) {
             $pluginPath['js'] = $this->getJSPath($folder . $file);
         } else
+
         if (@file_exists($fileUri . $name . '/' . $file)) {
             $pluginPath['js'] = $this->getJSPath($folder . $name . '/' . $file);
         } else {
@@ -511,6 +515,7 @@ class Media {
         if (@file_exists($fileUri . $file)) {
             return $this->getCSSPath($folder . $file);
         } else
+
         if (@file_exists($fileUri . $name . '/' . $file)) {
             return $this->getCSSPath($folder . $name . '/' . $file);
         } else {
@@ -792,12 +797,12 @@ class Media {
         if (strlen($cssContent) > 0) {
             $limit = $this->getBackTrackLimit();
             $cssContent = preg_replace('#/\*.*?\*/#s', '', $cssContent, $limit);
-            
-            
+
             if (!is_null($cssContent)) {
-                 $cssContent = preg_replace_callback(Media::$pattern_callback, [$this, 'replaceByAbsoluteURL'], $cssContent, $limit);
+                $cssContent = preg_replace_callback(Media::$pattern_callback, [$this, 'replaceByAbsoluteURL'], $cssContent, $limit);
                 $cssContent = preg_replace_callback('#(AlphaImageLoader\(src=\')([^\']*\',)#s', [$this, 'replaceByAbsoluteURL'], $cssContent);
                 preg_match_all('#@(import|charset) .*?;#i', $cssContent, $m);
+
                 for ($i = 0, $total = count($m[0]); $i < $total; $i++) {
 
                     if (isset($m[1][$i]) && $m[1][$i] == 'import') {
@@ -806,9 +811,9 @@ class Media {
 
                     $cssContent = str_replace($m[0][$i], '', $cssContent);
                 }
-               
+
                 return trim($obj->run($cssContent));
-                
+
             }
 
             return $cssContent;
@@ -817,7 +822,6 @@ class Media {
         return false;
     }
 
-  
     public function cccJS($jsFiles) {
 
         //inits
@@ -1101,6 +1105,7 @@ class Media {
             }
 
         } else
+
         if ($jsDef) {
             // @codingStandardsIgnoreStart
             Media::$js_def[] = $jsDef;
@@ -1111,8 +1116,7 @@ class Media {
 
     public function addJsDefL($params, $content, $smarty = null, &$repeat = false) {
 
-        
-        if (!$repeat && isset($params) && !is_null($content) &&  mb_strlen($content)) {
+        if (!$repeat && isset($params) && !is_null($content) && mb_strlen($content)) {
 
             if (!is_array($params)) {
                 $params = (array) $params;
@@ -1151,15 +1155,18 @@ class Media {
         libxml_use_internal_errors(false);
         $tag = $dom->getElementById($tag);
         $html = '';
-        if(isset($tag->childNodes)) {
+
+        if (isset($tag->childNodes)) {
+
             foreach ($tag->childNodes as $node) {
                 $html .= $dom->saveXML($node, LIBXML_NOEMPTYTAG);
             }
+
         }
 
         return $html;
     }
-  
+
     public function deferInlineScripts($output) {
 
         /* Try to enqueue in js_files inline scripts with src but without conditionnal comments */

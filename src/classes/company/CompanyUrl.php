@@ -7,29 +7,28 @@
  */
 class CompanyUrl extends PhenyxObjectModel {
 
-   
     public $require_context = false;
-    
+
     public $id_company;
-    
+
     public $domain;
-    
+
     public $domain_ssl;
 
     public $admin_ssl;
-	
-	public $target_domain;
-    
+
+    public $target_domain;
+
     public $physical_uri;
-    
+
     public $virtual_uri;
-    
+
     public $main;
-    
+
     public $active;
-    
+
     protected static $main_domain = [];
-    
+
     protected static $main_domain_ssl = [];
 
     /**
@@ -42,8 +41,8 @@ class CompanyUrl extends PhenyxObjectModel {
             'active'        => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
             'main'          => ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
             'domain'        => ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'required' => true, 'size' => 255],
-            'domain_ssl'   	=> ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'size' => 255],
-			'target_domain' => ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'size' => 255],
+            'domain_ssl'    => ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'size' => 255],
+            'target_domain' => ['type' => self::TYPE_STRING, 'validate' => 'isCleanHtml', 'size' => 255],
             'id_company'    => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true],
             'physical_uri'  => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 64],
             'virtual_uri'   => ['type' => self::TYPE_STRING, 'validate' => 'isString', 'size' => 64],

@@ -11,14 +11,14 @@ class PhenyxRedis extends PhenyxObjectModel {
      * @see PhenyxObjectModel::$definition
      */
     public static $definition = [
-        'table'     => 'redis_servers',
-        'primary'   => 'id_redis_servers',
-        'fields'    => [
+        'table'   => 'redis_servers',
+        'primary' => 'id_redis_servers',
+        'fields'  => [
             'ip'   => ['type' => self::TYPE_STRING, 'copy_post' => false],
             'port' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'copy_post' => false],
             'auth' => ['type' => self::TYPE_STRING, 'copy_post' => false],
-            'rdb'   => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'copy_post' => false],
-            'main'   => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'copy_post' => false],
+            'rdb'  => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'copy_post' => false],
+            'main' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'copy_post' => false],
 
         ],
     ];
@@ -42,20 +42,18 @@ class PhenyxRedis extends PhenyxObjectModel {
 
         parent::__construct($id);
     }
-    
+
     public static function getSeverbyId($idServer) {
-        
+
         $sql = new DbQuery();
-		$sql->select('*');
-		$sql->from(bqSQL(static::$definition['table']));
-		$sql->where('`id_redis_servers` = ' . $idServer);
-        
+        $sql->select('*');
+        $sql->from(bqSQL(static::$definition['table']));
+        $sql->where('`id_redis_servers` = ' . $idServer);
+
         $server = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getRow($sql);
 
-		return Tools::jsonDecode(Tools::jsonEncode($server));
-        
-    }
+        return Tools::jsonDecode(Tools::jsonEncode($server));
 
-    
+    }
 
 }

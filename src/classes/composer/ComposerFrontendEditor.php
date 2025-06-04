@@ -30,7 +30,9 @@ class ComposerFrontendEditor {
 
 		if (vc_is_frontend_editor()) {
 			ephenyx_frontend_editor()->hookLoadEdit();
-		} else if (vc_mode() === 'page_editable') {
+		} else
+
+		if (vc_mode() === 'page_editable') {
 			/**
 			 * if page loaded inside frontend editor iframe it has page_editable mode.
 			 * It required to some some js/css elements and add few helpers for editor to be used.
@@ -47,14 +49,14 @@ class ComposerFrontendEditor {
 
 	public function addHooks() {
 
-		JsComposer::$sds_action_hooks['vc_load_shortcode'] = [&$this, 'loadShortcodes'];
+		JsComposer::$sds_action_hooks['vc_load_shortcode'] = [ & $this, 'loadShortcodes'];
 		JsComposer::add_shortcode('vc_container_anchor', 'vc_container_anchor');
 	}
 
 	public function hookLoadEdit() {
 
 //		add_action( 'current_screen', array( &$this, 'adminInit' ) );
-		JsComposer::$front_editor_actions['current_screen'] = [&$this, 'adminInit'];
+		JsComposer::$front_editor_actions['current_screen'] = [ & $this, 'adminInit'];
 	}
 
 	public function adminInit() {
@@ -178,12 +180,12 @@ class ComposerFrontendEditor {
 	public function buildEditablePage() {
 
 		!defined('CONCATENATE_SCRIPTS') && define('CONCATENATE_SCRIPTS', false);
-		JsComposer::$front_editor_actions['vc_content'] = [&$this, 'addContentAnchor'];
+		JsComposer::$front_editor_actions['vc_content'] = [ & $this, 'addContentAnchor'];
 	}
 
 	public function buildPage() {
 
-		JsComposer::$front_editor_actions['admin_bar_menu'] = [&$this, "adminBarEditLink"];
+		JsComposer::$front_editor_actions['admin_bar_menu'] = [ & $this, "adminBarEditLink"];
 
 	}
 
@@ -191,7 +193,9 @@ class ComposerFrontendEditor {
 
 		if (Tools::getValue('action') == 'vc_load_shortcode') {
 			self::$enabled_inline = true;
-		} else if (!in_array(Tools::getValue('controller'), ['AdminCmsContent', 'VC_frontend', 'cms'])) {
+		} else
+
+		if (!in_array(Tools::getValue('controller'), ['AdminCmsContent', 'VC_frontend', 'cms'])) {
 			self::disableInline();
 		}
 
@@ -414,7 +418,7 @@ class ComposerFrontendEditor {
 
 	function renderEditor() {
 
-		$this->post_url = JsComposer::getVccontentanywhereLink((int)(Tools::getValue('id_vccontentanywhere')), null, null, vc_get_cms_lang_id(), null);
+		$this->post_url = JsComposer::getVccontentanywhereLink((int) (Tools::getValue('id_vccontentanywhere')), null, null, vc_get_cms_lang_id(), null);
 
 		if (!$this->inlineEnabled()) {
 			header('Location: ' . $this->post_url);

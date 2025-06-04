@@ -1,7 +1,7 @@
 <?php
 
-use Detection\Exception\DeviceDetectException;
 use Detection\DeviceDetect;
+
 #[AllowDynamicProperties]
 
 /**
@@ -30,23 +30,23 @@ class Context {
 	protected static $instance;
 	/** @var Company */
 	public $company;
-    
-    public $phenyxConfig;
-    
-    public $license;
-	
+
+	public $phenyxConfig;
+
+	public $license;
+
 	/** @var Customer */
 	public $user;
-    
-    public $guest;
+
+	public $guest;
 	/** @var Cookie */
 	public $cookie;
-    
-    public $_hook;
-    
-    public $_session;
-    
-    public $hook_args;
+
+	public $_hook;
+
+	public $_session;
+
+	public $hook_args;
 	/** @var Link */
 	public $_link;
 	/** @var Country */
@@ -55,58 +55,58 @@ class Context {
 	public $employee;
 	/** @var AdminController|FrontController */
 	public $controller;
-    
-    public $tabs_controllers;
+
+	public $tabs_controllers;
 	/** @var string */
 	public $override_controller_name_for_translations;
 	/** @var Language */
 	public $language;
-    
-    public $img_manager;
-    
-    public $webp;
+
+	public $img_manager;
+
+	public $webp;
 	/** @var AdminTab */
 	public $tab;
 	/** @var Theme */
 	public $theme;
-    /** @var Front Theme */
-    public $front_theme;
+	/** @var Front Theme */
+	public $front_theme;
 	/** @var Smarty */
 	public $smarty;
 	/** @var Mobile_Detect */
 	public $mobile_detect;
 	/** @var int */
 	public $mode;
-    
-    public $front_controller;
-    
-    public $cache_enable;
-    
-    public $cache_api;
-    
-    public $phenyxtool;
-    
-    public $_tools;
-    
-    public $phenyxgrid;
-    
-    public $_composer;
-    
-    public $translations;
-    
-    public $media;
-        
-    public $cart;
-    
-    public $currency;
-    
-    public $studentEducation;
-    
-    public $cart_education;
-    
-    public $agent;
-    
-    public $tabscript = [];
+
+	public $front_controller;
+
+	public $cache_enable;
+
+	public $cache_api;
+
+	public $phenyxtool;
+
+	public $_tools;
+
+	public $phenyxgrid;
+
+	public $_composer;
+
+	public $translations;
+
+	public $media;
+
+	public $cart;
+
+	public $currency;
+
+	public $studentEducation;
+
+	public $cart_education;
+
+	public $agent;
+
+	public $tabscript = [];
 	/**
 	 * Mobile device of the customer
 	 *
@@ -118,7 +118,7 @@ class Context {
 	/** @var bool|null */
 	protected $is_tablet = null;
 	// @codingStandardsIgnoreEnd
-    
+
 	/**
 	 * @param Context $testInstance Unit testing purpose only
 	 *
@@ -153,11 +153,12 @@ class Context {
 			$this->mobile_device = false;
 
 			if ($this->checkMobileContext()) {
-                $phenyxConfig = Configuration::getInstance();
+				$phenyxConfig = Configuration::getInstance();
+
 				if (isset(Context::getContext()->cookie->no_mobile) && Context::getContext()->cookie->no_mobile == false && (int) $phenyxConfig->get('EPH_ALLOW_MOBILE_DEVICE') != 0) {
 					$this->mobile_device = true;
 				} else {
-                    
+
 					switch ((int) $phenyxConfig->get('EPH_ALLOW_MOBILE_DEVICE')) {
 					case 1: // Only for mobile device
 
@@ -199,22 +200,26 @@ class Context {
 	 * @since 2.1.0.0
 	 */
 	public static function getContext() {
-       
+
 		if (!isset(static::$instance)) {
 			static::$instance = new Context();
 		}
-        
+
 		return static::$instance;
 	}
-    
-    public static function setContext($public, $value) {
-       
+
+	public static function setContext($public, $value) {
+
 		if (!isset(static::$instance)) {
 			static::$instance = new Context();
 		}
-        if(property_exists(static::$instance, $public)) {
-            static::$instance->{$public} = $value;
-        }
+
+		if (property_exists(static::$instance, $public)) {
+			static::$instance->{$public}
+
+			= $value;
+		}
+
 		return static::$instance;
 	}
 
@@ -267,30 +272,30 @@ class Context {
 
 		return $this->is_tablet;
 	}
-    
-    public function isMobileDevice() {
-        
-        if (isset($_SERVER["HTTP_USER_AGENT"])) {
-            return !$this->isTabletDevice() && preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
-        }
 
-    }
-    
-    public function isTabletDevice() {
+	public function isMobileDevice() {
 
-        if (isset($_SERVER["HTTP_USER_AGENT"])) {
-            return preg_match("/(iPad|tablet)/i", $_SERVER["HTTP_USER_AGENT"]);
-        }
+		if (isset($_SERVER["HTTP_USER_AGENT"])) {
+			return !$this->isTabletDevice() && preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
+		}
 
-    }
-    
-    public function isAppleDevice() {
-        
-        if (isset($_SERVER["HTTP_USER_AGENT"])) {
-            return preg_match("/(iPod|iPhone|iPad)/i", $_SERVER["HTTP_USER_AGENT"]);
-        }
+	}
 
-    }
+	public function isTabletDevice() {
+
+		if (isset($_SERVER["HTTP_USER_AGENT"])) {
+			return preg_match("/(iPad|tablet)/i", $_SERVER["HTTP_USER_AGENT"]);
+		}
+
+	}
+
+	public function isAppleDevice() {
+
+		if (isset($_SERVER["HTTP_USER_AGENT"])) {
+			return preg_match("/(iPod|iPhone|iPad)/i", $_SERVER["HTTP_USER_AGENT"]);
+		}
+
+	}
 
 	/**
 	 * Returns mobile device type
@@ -343,7 +348,7 @@ class Context {
 	protected function checkMobileContext() {
 
 		// Check mobile context
-        $phenyxConfig = Configuration::getInstance();
+		$phenyxConfig = Configuration::getInstance();
 
 		if (Tools::isSubmit('no_mobile_theme')) {
 			Context::getContext()->cookie->no_mobile = true;

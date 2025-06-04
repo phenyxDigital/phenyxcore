@@ -7,7 +7,7 @@
  */
 class CacheMemcache extends CacheApi implements CacheApiInterface {
 
-    const CLASS_KEY = 'cache_memcached';
+	const CLASS_KEY = 'cache_memcached';
 
 	/**
 	 * @var Memcache The memcache instance.
@@ -81,28 +81,28 @@ class CacheMemcache extends CacheApi implements CacheApiInterface {
 
 		return $connected;
 	}
-    
-    public static function getMemcachedServers() {
 
-        return Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS('SELECT * FROM ' . _DB_PREFIX_ . 'memcached_servers', true, false);
-    }
+	public static function getMemcachedServers() {
+
+		return Db::getInstance(_EPH_USE_SQL_SLAVE_)->executeS('SELECT * FROM ' . _DB_PREFIX_ . 'memcached_servers', true, false);
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function getData($key, $ttl = null) {
-		
+
 		return $this->_get($key);
 	}
-    
-    protected function _exists($key) {
 
-        return (bool) $this->_get($key);
-    }
-    
-    protected function _get($key) {
+	protected function _exists($key) {
 
-        $key = $this->prefix . strtr($key, ':/', '-_');
+		return (bool) $this->_get($key);
+	}
+
+	protected function _get($key) {
+
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		$value = $this->memcache->get($key);
 
@@ -113,7 +113,7 @@ class CacheMemcache extends CacheApi implements CacheApiInterface {
 		}
 
 		return $value;
-    }
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -122,31 +122,31 @@ class CacheMemcache extends CacheApi implements CacheApiInterface {
 
 		return $this->_set($key, $value, $ttl);
 	}
-    
-    protected function _set($key, $value, $ttl = 0) {
 
-        $key = $this->prefix . strtr($key, ':/', '-_');
+	protected function _set($key, $value, $ttl = 0) {
+
+		$key = $this->prefix . strtr($key, ':/', '-_');
 
 		return $this->memcache->set($key, $value, 0, $ttl !== null ? $ttl : $this->ttl);
-    }
-    
-    protected function _delete($key) {
+	}
 
-        if (!$this->is_connected) {
-            return false;
-        }
+	protected function _delete($key) {
 
-        return $this->memcache->delete($key);
-    }
-    
-    protected function _writeKeys() {
+		if (!$this->is_connected) {
+			return false;
+		}
 
-        if (!$this->is_connected) {
-            return false;
-        }
+		return $this->memcache->delete($key);
+	}
 
-        return true;
-    }
+	protected function _writeKeys() {
+
+		if (!$this->is_connected) {
+			return false;
+		}
+
+		return true;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -165,11 +165,11 @@ class CacheMemcache extends CacheApi implements CacheApiInterface {
 
 		return $this->memcache->flush();
 	}
-    
-    public function flush() {
 
-        return $this->memcache->flush();
-    }
+	public function flush() {
+
+		return $this->memcache->flush();
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -221,4 +221,5 @@ class CacheMemcache extends CacheApi implements CacheApiInterface {
 
 		return false;
 	}
+
 }

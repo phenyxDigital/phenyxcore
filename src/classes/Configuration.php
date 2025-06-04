@@ -10,7 +10,7 @@ class Configuration extends PhenyxObjectModel {
     // Default configuration consts
     // @since 1.0.1
     protected static $instance;
-       
+
     const ONE_PHONE_AT_LEAST = 'EPH_ONE_PHONE_AT_LEAST';
     const GROUP_FEATURE_ACTIVE = 'EPH_GROUP_FEATURE_ACTIVE';
     const COUNTRY_DEFAULT = 'EPH_COUNTRY_DEFAULT';
@@ -56,7 +56,7 @@ class Configuration extends PhenyxObjectModel {
     const STORES_CENTER_LONG = 'EPH_STORES_CENTER_LONG';
     const CANONICAL_REDIRECT = 'EPH_CANONICAL_REDIRECT';
     const IMG_UPDATE_TIME = 'EPH_IMG_UPDATE_TIME';
-    const BACKUP_DROP_TABLE = 'EPH_BACKUP_DROP_TABLE';   
+    const BACKUP_DROP_TABLE = 'EPH_BACKUP_DROP_TABLE';
     const IMAGE_QUALITY = 'EPH_IMAGE_QUALITY';
     const PNG_QUALITY = 'EPH_PNG_QUALITY';
     const JPEG_QUALITY = 'EPH_JPEG_QUALITY';
@@ -116,7 +116,7 @@ class Configuration extends PhenyxObjectModel {
     const CUSTOMCODE_JS = 'EPH_CUSTOMCODE_JS';
     const STORE_REGISTERED = 'EPH_STORE_REGISTERED';
     const EPHENYX_LICENSE_KEY = '_EPHENYX_LICENSE_KEY_';
-    
+
     public $cachedConfigurations = [
         'EPH_PAGE_CACHE_ENABLED',
         'EPH_CACHE_ENABLED',
@@ -124,7 +124,7 @@ class Configuration extends PhenyxObjectModel {
         'EPH_PROFIT_DEFAULT_ACCOUNT',
         'EPH_PURCHASE_DEFAULT_ACCOUNT',
         'EPH_LANG_DEFAULT',
-        'EPH_PAGE_CACHE_HOOKS'
+        'EPH_PAGE_CACHE_HOOKS',
     ];
     // @codingStandardsIgnoreStart
     /**
@@ -135,12 +135,12 @@ class Configuration extends PhenyxObjectModel {
         'primary'   => 'id_configuration',
         'multilang' => true,
         'fields'    => [
-            'name'          => ['type' => self::TYPE_STRING, 'validate' => 'isConfigName', 'required' => true, 'size' => 254],
-            'value'         => ['type' => self::TYPE_NOTHING],
-            'date_add'      => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
-            'date_upd'      => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
-            'generated'                 => ['type' => self::TYPE_BOOL, 'lang' => true],
-            'value_lang'         => ['type' => self::TYPE_NOTHING, 'lang' => true],
+            'name'       => ['type' => self::TYPE_STRING, 'validate' => 'isConfigName', 'required' => true, 'size' => 254],
+            'value'      => ['type' => self::TYPE_NOTHING],
+            'date_add'   => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
+            'date_upd'   => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
+            'generated'  => ['type' => self::TYPE_BOOL, 'lang' => true],
+            'value_lang' => ['type' => self::TYPE_NOTHING, 'lang' => true],
             //'date_upd'      => ['type' => self::TYPE_DATE, 'lang' => true, 'validate' => 'isDate'],
         ],
     ];
@@ -153,52 +153,56 @@ class Configuration extends PhenyxObjectModel {
     /** @var string Value */
     public $value;
     public $generated;
-    
+
     public $value_lang;
     /** @var string Object creation date */
     public $date_add;
     /** @var string Object last modification date */
     public $date_upd;
-    
+
     public function __construct($id = null, $idLang = null) {
-        
+
         $this->className = get_class($this);
         $this->context = Context::getContext();
         $this->context->cache_enable = $this->get('EPH_PAGE_CACHE_ENABLED');
+
         if ($this->context->cache_enable && !is_object($this->context->cache_api)) {
             $this->context->cache_api = CacheApi::getInstance();
         }
-       
+
         if (!isset(PhenyxObjectModel::$loaded_classes[$this->className])) {
-            $this->def = PhenyxObjectModel::getDefinition($this->className);            
+            $this->def = PhenyxObjectModel::getDefinition($this->className);
             PhenyxObjectModel::$loaded_classes[$this->className] = get_object_vars($this);
-            
+
         } else {
+
             foreach (PhenyxObjectModel::$loaded_classes[$this->className] as $key => $value) {
-                $this->{$key}  = $value;
+                $this->{$key}
+
+                = $value;
             }
 
-        }   
-        
-        if($id) {
+        }
+
+        if ($id) {
             $this->id = $id;
             $entityMapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
             $entityMapper->load($id, $idLang, $this, $this->def, static::$cache_objects);
         }
+
         $this->_session = PhenyxSession::getInstance();
-       
-        
+
     }
-    
+
     public static function getInstance($id = null, $idLang = null) {
-       
-		if (!isset(static::$instance)) {
-			static::$instance = new Configuration($id, $idLang);
-		}
-        
-		return static::$instance;
-	}
-    
+
+        if (!isset(static::$instance)) {
+            static::$instance = new Configuration($id, $idLang);
+        }
+
+        return static::$instance;
+    }
+
     public function configurationIsLoaded() {
 
         return isset(static::$_cache['configuration'])
@@ -215,27 +219,30 @@ class Configuration extends PhenyxObjectModel {
 
         return $this->get($key, $idLang);
     }
-    
+
     public function get($key, $idLang = null, $use_cache = true) {
 
         if (defined('_EPH_DO_NOT_LOAD_CONFIGURATION_') && _EPH_DO_NOT_LOAD_CONFIGURATION_) {
             return false;
         }
-        
+
         $context = null;
+
         if ($use_cache && class_exists('Context')) {
-            if(!is_object($this->context->_session)) {
+
+            if (!is_object($this->context->_session)) {
                 $this->context->_session = PhenyxSession::getInstance();
             }
-            $result = $this->context->_session->get('cnfig_'.$key.'_'.$idLang);
-            if(!empty($result)) {
+
+            $result = $this->context->_session->get('cnfig_' . $key . '_' . $idLang);
+
+            if (!empty($result)) {
                 return $result;
             }
-            
+
         }
-        
+
         $this->validateKey($key);
-		
 
         if (!$this->configurationIsLoaded()) {
             $this->loadConfiguration($context);
@@ -244,98 +251,111 @@ class Configuration extends PhenyxObjectModel {
         $idLang = (int) $idLang;
 
         $sql = new DbQuery();
-        if($idLang > 0) {
+
+        if ($idLang > 0) {
             $sql->select('cl.`value_lang`');
         } else {
             $sql->select('c.`value`');
         }
+
         $sql->from('configuration', 'c');
-        if($idLang > 0) {
-            $sql->leftJoin('configuration_lang', 'cl', 'cl.id_configuration = c.id_configuration AND cl.id_lang = '.$idLang);
+
+        if ($idLang > 0) {
+            $sql->leftJoin('configuration_lang', 'cl', 'cl.id_configuration = c.id_configuration AND cl.id_lang = ' . $idLang);
         }
-        $sql->where('c.`name` = \''.$key.'\'');
+
+        $sql->where('c.`name` = \'' . $key . '\'');
         $value = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue($sql);
-            
-        if(class_exists('Context')) {
-             $this->context->_session->set('cnfig_'.$key.'_'.$idLang, $value);
-        }	
-            
+
+        if (class_exists('Context')) {
+            $this->context->_session->set('cnfig_' . $key . '_' . $idLang, $value);
+        }
+
         return $value;
-    }    
-       
+    }
+
     public function getKey($key, $idLang = null, $use_cache = true) {
 
         if (defined('_EPH_DO_NOT_LOAD_CONFIGURATION_') && _EPH_DO_NOT_LOAD_CONFIGURATION_) {
             return false;
         }
+
         if ($use_cache) {
-            if(!is_object($this->context->_session)) {
+
+            if (!is_object($this->context->_session)) {
                 $this->context->_session = PhenyxSession::getInstance();
             }
-        
-            $result = $this->context->_session->get('cnfig_'.$key.'-'.$idLang);
-            if(!empty($result)) {
+
+            $result = $this->context->_session->get('cnfig_' . $key . '-' . $idLang);
+
+            if (!empty($result)) {
                 return $result;
             }
+
         }
+
         $this->validateKey($key);
-		
 
         if (!$this->configurationIsLoaded()) {
             $this->loadConfiguration();
         }
 
         $idLang = (int) $idLang;
-        
+
         $sql = new DbQuery();
-        if($idLang > 0) {
+
+        if ($idLang > 0) {
             $sql->select('cl.`value_lang`');
         } else {
             $sql->select('c.`value`');
         }
+
         $sql->from('configuration', 'c');
-        if($idLang > 0) {
-            $sql->leftJoin('configuration_lang', 'cl', 'cl.id_configuration = c.id_configuration AND cl.id_lang = '.$idLang);
+
+        if ($idLang > 0) {
+            $sql->leftJoin('configuration_lang', 'cl', 'cl.id_configuration = c.id_configuration AND cl.id_lang = ' . $idLang);
         }
-        $sql->where('c.`name` = \''.$key.'\'');
+
+        $sql->where('c.`name` = \'' . $key . '\'');
         $value = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue($sql);
-        $this->context->_session->set('cnfig_'.$key.'-'.$idLang, $result);
+        $this->context->_session->set('cnfig_' . $key . '-' . $idLang, $result);
         return $value;
     }
-    
+
     public function loadConfiguration() {
-        
+
         return $this->loadConfigurationFromDB();
     }
-    
+
     public function loadConfigurationFromDB() {
-        
-        if(!is_object($this->context->_session)) {
+
+        if (!is_object($this->context->_session)) {
             $this->context->_session = PhenyxSession::getInstance();
         }
-        
-        $rows = null;  
+
+        $rows = null;
         $result = $this->context->_session->get('loadConfigurationFromDB');
-        if(!empty($result) && is_array($result)) {
+
+        if (!empty($result) && is_array($result)) {
             $rows = $result;
         }
-        
+
         static::$_cache['configuration'] = [];
-           
-        if(is_null($rows)) {
+
+        if (is_null($rows)) {
             $rows = Db::getInstance()->executeS(
                 (new DbQuery())
-                ->select('c.`name`, cl.`id_lang`, IFNULL(cl.`value_lang`, c.`value`) AS `value`')
-                ->from('configuration', 'c')
-                ->leftJoin('configuration_lang', 'cl', 'c.`id_configuration` = cl.`id_configuration`')
-            );            
+                    ->select('c.`name`, cl.`id_lang`, IFNULL(cl.`value_lang`, c.`value`) AS `value`')
+                    ->from('configuration', 'c')
+                    ->leftJoin('configuration_lang', 'cl', 'c.`id_configuration` = cl.`id_configuration`')
+            );
         }
 
         if (!is_array($rows)) {
             return;
         }
+
         $this->context->_session->set('loadConfigurationFromDB', $rows);
-        
 
         foreach ($rows as $row) {
             $lang = ($row['id_lang']) ? $row['id_lang'] : 0;
@@ -350,39 +370,42 @@ class Configuration extends PhenyxObjectModel {
             static::$_cache['configuration'][$lang]['global'][$row['name']] = $row['value'];
 
         }
-        
-        
 
     }
 
-    
     public function hasKey($key, $idLang = null, $use_cache = true) {
-        
+
         if ($use_cache && class_exists('Context')) {
-			if(!is_object($this->context->_session)) {
-            	$this->context->_session = PhenyxSession::getInstance();
-        	}
-			$result = $this->context->_session->get('hasKey_'.$key.'-'.$idLang);
-        	if(!empty($result) && is_array($result)) {
-            	return $result;
-        	}
-            
+
+            if (!is_object($this->context->_session)) {
+                $this->context->_session = PhenyxSession::getInstance();
+            }
+
+            $result = $this->context->_session->get('hasKey_' . $key . '-' . $idLang);
+
+            if (!empty($result) && is_array($result)) {
+                return $result;
+            }
+
         }
+
         $sql = new DbQuery();
         $sql->select('c.`id_configuration`');
         $sql->from('configuration', 'c');
-        if(!is_null($idLang)) {
-            $sql->leftJoin('configuration_lang', 'cl', 'cl.id_configuration = c.id_configuration AND cl.id_lang = '.$idLang);
+
+        if (!is_null($idLang)) {
+            $sql->leftJoin('configuration_lang', 'cl', 'cl.id_configuration = c.id_configuration AND cl.id_lang = ' . $idLang);
         }
-        $sql->where('c.`name` = \''.$key.'\'');
+
+        $sql->where('c.`name` = \'' . $key . '\'');
 
         $result = (bool) Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue($sql);
-		if (class_exists('Context')) {
-			$this->context->_session->set('hasKey_'.$key.'-'.$idLang, $result);
-			
-            
+
+        if (class_exists('Context')) {
+            $this->context->_session->set('hasKey_' . $key . '-' . $idLang, $result);
+
         }
-        	
+
         return $result;
     }
 
@@ -397,7 +420,7 @@ class Configuration extends PhenyxObjectModel {
         return $resultsArray;
     }
 
-    public function getMultiShopValues($key, $idLang = null) {        
+    public function getMultiShopValues($key, $idLang = null) {
 
         return $this->get($key, $idLang, null);
     }
@@ -410,7 +433,6 @@ class Configuration extends PhenyxObjectModel {
 
         $idLang = (int) $idLang;
 
-       
         $results = [];
 
         foreach ($keys as $key) {
@@ -424,18 +446,19 @@ class Configuration extends PhenyxObjectModel {
 
         return $this->updateValue($key, $values, $html, 0, 0);
     }
-    
+
     public function updateValue($key, $values, $html = false, $script = false) {
 
-		if(!is_object($this->context->_session)) {
+        if (!is_object($this->context->_session)) {
             $this->context->_session = PhenyxSession::getInstance();
         }
+
         $this->validateKey($key);
 
         if (!is_array($values)) {
             $values = [$values];
         }
-        
+
         if ($html) {
 
             foreach ($values as &$value) {
@@ -445,10 +468,12 @@ class Configuration extends PhenyxObjectModel {
             unset($value);
         }
 
-        if(!$script) {
+        if (!$script) {
+
             foreach ($values as &$value) {
                 $value = pSQL($value, $html);
             }
+
         }
 
         $result = true;
@@ -458,59 +483,55 @@ class Configuration extends PhenyxObjectModel {
         foreach ($values as $lang => $value) {
 
             if ($this->hasKey($key, $lang)) {
+
                 if (!$lang) {
                     $configuration->value = $value;
-                    
-                   
+
                 } else {
                     $configuration->value = null;
                     $configuration->value_lang[$lang] = $value;
-                   
-                    
-                }
-                try {
-				    $configuration->update(true);
-				} catch (Exception $e) {
-				    
-				}
-				$this->context->_session->set('cnfig_'.$key.'-'.$lang, $value);
 
-                
+                }
+
+                try {
+                    $configuration->update(true);
+                } catch (Exception $e) {
+
+                }
+
+                $this->context->_session->set('cnfig_' . $key . '-' . $lang, $value);
+
             } else {
-               
+
                 $configuration->name = $key;
                 $configuration->value = $lang ? null : $value;
                 $configuration->date_add = date('Y-m-d H:i:s');
                 $configuration->date_upd = date('Y-m-d H:i:s');
+
                 if ($lang) {
                     $configuration->value_lang[$lang] = $value;
                 }
-                
+
                 try {
-				    $configuration->add();
-				} catch (Exception $e) {
-				    
-				}
-				$this->context->_session->set('cnfig_'.$key.'-'.$lang, $value);
-                
-                
+                    $configuration->add();
+                } catch (Exception $e) {
+
+                }
+
+                $this->context->_session->set('cnfig_' . $key . '-' . $lang, $value);
 
             }
 
         }
-		
-		
-        
+
         $this->set($key, $values);
 
         return $result;
     }
-   
+
     public function getIdByName($key) {
 
         $this->validateKey($key);
-
-        
 
         $sql = 'SELECT `id_configuration`
                 FROM `' . _DB_PREFIX_ . 'configuration`
@@ -522,8 +543,6 @@ class Configuration extends PhenyxObjectModel {
     public function set($key, $values) {
 
         $this->validateKey($key);
-
-        
 
         if (!is_array($values)) {
             $values = [$values];
@@ -560,7 +579,6 @@ class Configuration extends PhenyxObjectModel {
 
     public function deleteFromContext($key) {
 
-
         $id = $this->getIdByName($key);
         Db::getInstance()->delete(
             'configuration',
@@ -581,11 +599,9 @@ class Configuration extends PhenyxObjectModel {
         return (isset(static::$types[$key]) && static::$types[$key] == 'lang') ? true : false;
     }
 
-    
-
     protected function validateKey($key) {
-        
-        if(is_null($key)) {
+
+        if (is_null($key)) {
             return false;
         }
 
@@ -598,5 +614,5 @@ class Configuration extends PhenyxObjectModel {
         }
 
     }
-    
+
 }

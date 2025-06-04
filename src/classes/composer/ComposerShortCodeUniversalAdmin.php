@@ -7,16 +7,19 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
     public function __construct($settings) {
 
         $this->settings = $settings;
-        
+
         $this->context = Context::getContext();
+
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
 
         }
+
         if (!isset($this->context->_composer)) {
             $this->context->_composer = Composer::getInstance();
 
         }
+
         $this->addShortCode($this->settings['base'], [$this, 'output']);
     }
 
@@ -129,9 +132,9 @@ abstract class ComposerShortCodeUniversalAdmin extends ComposerShortCode {
     protected function singleParamEditForm($param, $param_value) {
 
         $param_line = '';
-        $file = fopen("testsingleParamEditForm.txt","a");
+        $file = fopen("testsingleParamEditForm.txt", "a");
         $vc_manager = $this->context->_composer;
-       
+
         switch ($param['type']) {
         case 'textfield':
             $value = $param_value;
@@ -364,7 +367,7 @@ $param_line .= ob_get_clean();
             $param_line .= '<textarea name="' . $param['param_name'] . '" class="wpb_vc_param_value wpb-textarea ' . $param['param_name'] . ' ' . $param['type'] . '">' . $param_value . '</textarea>';
             break;
         case 'attach_images':
-            
+
             $param_value = removeNotExistingImgIDs($param_value);
             $param_line .= '<script type="text/javascript">';
             $param_line .= 'var imgpath = "composer/";';
@@ -380,8 +383,8 @@ $param_line .= ob_get_clean();
             $param_line .= '<a class="gallery_widget_add_images" href="javascript:void(0)" title="' . $this->l('Add images') . '">' . $this->l('Add images') . '</a>';
             break;
         case 'attach_image':
-                fwrite($file,print_r($param, true));
-            fwrite($file,"param_value".PHP_EOL.print_r($param_value, true));
+            fwrite($file, print_r($param, true));
+            fwrite($file, "param_value" . PHP_EOL . print_r($param_value, true));
             $param_value = removeNotExistingImgIDs(preg_replace('/[^\d]/', '', $param_value));
             $param_line .= '<script type="text/javascript">';
             $param_line .= 'var imgpath = "composer/";';
@@ -395,7 +398,7 @@ $param_line .= ob_get_clean();
             $param_line .= '<div class="gallery_widget_site_images">';
             $param_line .= '</div>';
             $param_line .= '<a class="gallery_widget_add_images" href="#" use-single="true" title="' . $this->l('Add image') . '">' . $this->l('Add image') . '</a>';
-            fwrite($file,$param_line.PHP_EOL);
+            fwrite($file, $param_line . PHP_EOL);
             break;
         case 'media_dropdown':
             $css_option = get_dropdown_option($param, $param_value);
@@ -474,14 +477,14 @@ $param_line .= ob_get_clean();
             break;
         case 'colorpicker':
             $colorPickerId = $this->generateRandomString();
-            $param_line .= '<input size="20" type="text" id="'.$colorPickerId.'" name="' . $param['param_name'] . '" data-id="new" class="wpb_vc_param_value pm_colorpicker" value="'.$param_value.'"/>';
+            $param_line .= '<input size="20" type="text" id="' . $colorPickerId . '" name="' . $param['param_name'] . '" data-id="new" class="wpb_vc_param_value pm_colorpicker" value="' . $param_value . '"/>';
             $param_line .= '<div class="col-lg-4 metroiPicker"><div id="metroiPicker_new" style="height: 40px;"></div></div>';
             $param_line .= '<script type="text/javascript">';
-            $param_line .= '$("#'.$colorPickerId.'").colorpicker({
+            $param_line .= '$("#' . $colorPickerId . '").colorpicker({
                 select: function(event, color) {
                     $("#metroiPicker_new").css("background-color", "#"+color.formatted);
                 },
-		        close: function(event, color) {
+                close: function(event, color) {
                     $("#metroiPicker_new").css("background-color", "#"+color.formatted);
                 },
                 ok: function(event, color) {
@@ -489,18 +492,17 @@ $param_line .= ob_get_clean();
                     $(this).val("#"+color.formatted);
                 },
             })</script>';
-           
 
             break;
         case 'tab_id':
 
             $dependency = generate_dependencies_attributes($param);
-	        $param_line .='<div class="my_param_block">';
-		    $param_line .='<input name="' . $param['param_name'];
-            $param_line .='" class="wpb_vc_param_value wpb-textinput ';
-		    $param_line .= $param['param_name'] . ' ' . $param['type'] . '_field" type="hidden" value="'.$param_value . '" ' . $dependency . ' />';
-		    $param_line .= '<label>' . $param_value . '</label>';
-		    $param_line .= '</div>';
+            $param_line .= '<div class="my_param_block">';
+            $param_line .= '<input name="' . $param['param_name'];
+            $param_line .= '" class="wpb_vc_param_value wpb-textinput ';
+            $param_line .= $param['param_name'] . ' ' . $param['type'] . '_field" type="hidden" value="' . $param_value . '" ' . $dependency . ' />';
+            $param_line .= '<label>' . $param_value . '</label>';
+            $param_line .= '</div>';
 
             break;
         case 'extra_css':
@@ -528,15 +530,15 @@ $param_line .= ob_get_clean();
         case 'css_editor':
 
             $css_editor = ComposerCssEditor::getInstance();
-	        $css_editor->settings($param);
-	        $css_editor->value($param_value);
-	        $param_line .= $css_editor->render();
+            $css_editor->settings($param);
+            $css_editor->value($param_value);
+            $param_line .= $css_editor->render();
 
             break;
         case 'column_offset':
 
             $column_offset = new ComposerColumnOffset($param, $param_value);
-	        $param_line .= $column_offset->render();
+            $param_line .= $column_offset->render();
 
             break;
         default:
@@ -551,11 +553,11 @@ $param_line .= ob_get_clean();
             } else {
                 $param_line .= do_shortcode_param_settings_field($param['type'], $param, $param_value);
             }
+
             break;
 
-
         }
-        
+
         return $param_line;
     }
 

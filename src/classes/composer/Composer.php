@@ -1008,8 +1008,8 @@ class Composer {
 
         return preg_replace("/\[(\/*)?vc_(.*?)\]/", "", $string);
     }
-	
-	public function doShortcode($content, $hook_name = '') {
+
+    public function doShortcode($content, $hook_name = '') {
 
         if (is_null($content)) {
 
@@ -1027,7 +1027,6 @@ class Composer {
 
         return preg_replace_callback("/$pattern/s", [__CLASS__, 'do_shortcode_tag'], $content);
     }
-
 
     public static function do_shortcode($content, $hook_name = '') {
 
@@ -1701,20 +1700,19 @@ class Composer {
     public function l($string, $idLang = null, $context = null) {
 
         $class = 'Composer';
+
         if (!isset($this->context)) {
             $this->context = Context::getContext();
         }
-        
+
         if (!isset($this->context->language)) {
             $this->context->language = Tools::jsonDecode(Tools::jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
 
         }
+
         $_translate = Translation::getInstance();
-        
-        return $_translate->getExistingTranslation($this->context->language->iso_code, $string);  
 
-
-        
+        return $_translate->getExistingTranslation($this->context->language->iso_code, $string);
 
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
@@ -1735,15 +1733,13 @@ class Composer {
 
             $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
         }
-        
+
         try {
             return $this->context->translations->getPluginTranslation($this, $string, ($specific) ? $specific : $this->name);
-                
+
         } catch (PhenyxException $e) {
-            PhenyxLogger::addLog($this->name.' :'.$e->getMessage(), 2);
+            PhenyxLogger::addLog($this->name . ' :' . $e->getMessage(), 2);
         }
-
-
 
         return $this->context->translations->getClassTranslation($string, $class);
     }

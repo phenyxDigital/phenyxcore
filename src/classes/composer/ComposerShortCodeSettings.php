@@ -98,7 +98,7 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 				$output .= $groups_content['_general'];
 			}
 
-                $output .= '</div>'; //close wpb_edit_form_elements
+			$output .= '</div>'; //close wpb_edit_form_elements
 
 			if (!ComposerShortcodeParams::isEnqueue()) {
 
@@ -127,6 +127,7 @@ class ComposerShortCodeSettings extends ComposerShortCodeUniversalAdmin {
 		foreach ($vc_params_list as $param) {
 			add_shortcode_param($param, 'vc_' . $param . '_form_field', $script_url);
 		}
+
 	}
 
 }

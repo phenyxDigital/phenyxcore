@@ -163,7 +163,7 @@ abstract class PhenyxController {
     public $bootstrap = false;
 
     public $lang = false;
-    
+
     public $updateableFields;
 
     protected $fields_form;
@@ -183,7 +183,7 @@ abstract class PhenyxController {
     protected $submit_action;
 
     public $base_tpl_form = null;
-    
+
     public $base_folder_form = null;
 
     public $base_tpl_view = null;
@@ -193,13 +193,13 @@ abstract class PhenyxController {
     public $page_description;
 
     public $ajax_li;
-    
+
     public $dialog_title;
 
     public $ajax_content;
 
     public $form_included = false;
-    
+
     public $paramClassName;
 
     public $paramController_name;
@@ -207,36 +207,35 @@ abstract class PhenyxController {
     public $paramTable;
 
     public $paramIdentifier;
-    
+
     public $ajax_layout;
-    
+
     public $_defer;
-    
+
     public $_domAvailable;
-    
+
     public $_compress;
-    
+
     public $_front_css_cache;
-    
+
     public $_front_jss_cache;
-    
+
     public $_back_css_cache;
-    
+
     public $_back_js_cache;
-    
+
     public $_session;
-    
+
     public $memoryStart;
-    
-     public $configurationField;
-    
+
+    public $configurationField;
 
     public function __construct() {
 
         if (!defined('TIME_START')) {
-	       define('TIME_START', microtime(true));
+            define('TIME_START', microtime(true));
         }
-               
+
         if (_EPH_DEBUG_PROFILING_ || _EPH_ADMIN_DEBUG_PROFILING_) {
             $this->profiler[] = $this->stamp('config');
             $this->memoryStart = memory_get_usage(true);
@@ -253,14 +252,12 @@ abstract class PhenyxController {
         if (is_null($this->display_footer)) {
             $this->display_footer = true;
         }
-        
+
         $this->context = Context::getContext();
-       
+
         $this->buildContext();
-       
-        
+
         $this->context->controller = $this;
-       
 
         if ($this->context->cache_enable && !isset($this->context->cache_api)) {
             $this->context->cache_api = CacheApi::getInstance();
@@ -277,7 +274,7 @@ abstract class PhenyxController {
             'smarty_year' => date("Y"),
             'smarty_tag'  => date("i-s"),
         ]);
-                
+
         $this->ajax = $this->context->_tools->getValue('ajax') || $this->context->_tools->isSubmit('ajax');
 
         if (!headers_sent()
@@ -292,7 +289,6 @@ abstract class PhenyxController {
             $this->profiler[] = $this->stamp('__construct');
         }
 
-
         if (empty(static::$_plugins)) {
             static::$_plugins = $this->getPlugins();
         }
@@ -306,54 +302,55 @@ abstract class PhenyxController {
         $this->context->phenyxgrid->create = 'function (evt, ui) {
             buildHeadingAction(\'' . 'grid_' . $this->controller_name . '\', \'' . $this->controller_name . '\');
         }';
-        
+
         $this->ajax_layout = $this->getAjaxLayout();
-        
-        
+
         $this->_domAvailable = extension_loaded('dom') ? true : false;
-        
-        
-        if($this->controller_type == 'front') {
+
+        if ($this->controller_type == 'front') {
             $this->_compress = (bool) $this->context->phenyxConfig->get('EPH_JS_HTML_THEME_COMPRESSION');
-            if($this->_compress) {
+
+            if ($this->_compress) {
                 $this->context->smarty->registerFilter('output', 'smartyPackJSinHTML');
             }
+
             $this->_defer = (bool) $this->context->phenyxConfig->get('EPH_JS_DEFER');
-            
+
             $this->_front_css_cache = $this->context->phenyxConfig->get('EPH_CSS_THEME_CACHE', null, false);
             $this->_front_js_cache = $this->context->phenyxConfig->get('EPH_JS_THEME_CACHE', null, false);
-            
+
         }
-        if($this->controller_type == 'admin') {
+
+        if ($this->controller_type == 'admin') {
             $this->_compress = (bool) $this->context->phenyxConfig->get('EPH_JS_HTML_BACKOFFICE_COMPRESSION');
-            if($this->_compress) {
+
+            if ($this->_compress) {
                 $this->context->smarty->registerFilter('output', 'smartyPackJSinHTML');
             }
-            
+
             $this->_defer = (bool) $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_DEFER');
-            
+
             $this->_back_css_cache = $this->context->phenyxConfig->get('EPH_CSS_BACKOFFICE_CACHE', null, false);
             $this->_back_js_cache = $this->context->phenyxConfig->get('EPH_JS_BACKOFFICE_CACHE', null, false);
-            
-        }        
-        
-        if(!is_object($this->_session)) {
+
+        }
+
+        if (!is_object($this->_session)) {
             $this->_session = $this->context->_session;
         }
-        
 
     }
-    
+
     public function buildContext() {
-                
+
         if (!isset($this->context->phenyxConfig)) {
             $this->context->phenyxConfig = Configuration::getInstance();
-            
+
         }
+
         if (!isset($this->context->company)) {
             $this->context->company = Company::initialize();
         }
-                
 
         if (!isset($this->context->_hook)) {
             $this->context->_hook = Hook::getInstance();
@@ -366,20 +363,23 @@ abstract class PhenyxController {
         if (!isset($this->context->media)) {
             $this->context->media = Media::getInstance();
         }
-        
+
         if (!isset($this->context->_session)) {
             $this->context->_session = new PhenyxSession();
         }
-        
+
         if (!isset($this->context->_link)) {
             $this->context->_link = Link::getInstance();
         }
+
         if (!isset($this->context->_tools)) {
             $this->context->_tools = PhenyxTool::getInstance();
         }
-        if(!isset($this->context->img_manager)) {
+
+        if (!isset($this->context->img_manager)) {
             $this->context->img_manager = ImageManager::getInstance();
         }
+
         if (!isset($this->context->language)) {
             $this->context->language = $this->context->_tools->jsonDecode($this->context->_tools->jsonEncode(Language::buildObject($this->context->phenyxConfig->get('EPH_LANG_DEFAULT'))));
         }
@@ -387,17 +387,15 @@ abstract class PhenyxController {
         if (!isset($this->context->translations)) {
             $this->context->translations = new Translate($this->context->language->iso_code, $this->context->company);
         }
-        
+
         if (!isset($this->context->cache_enable)) {
             $this->context->cache_enable = $this->context->phenyxConfig->get('EPH_PAGE_CACHE_ENABLED');
-        } 
-        
-        if(!isset($this->context->phenyxgrid)) {            
+        }
+
+        if (!isset($this->context->phenyxgrid)) {
             $this->context->phenyxgrid = new ParamGrid();
         }
-        
-        
-       
+
     }
 
     public function mergeLanguages($iso) {
@@ -666,7 +664,7 @@ abstract class PhenyxController {
             if (file_exists(_EPH_PLUGIN_DIR_ . $plugin . DIRECTORY_SEPARATOR . 'translations/' . $iso . '/pdf.php')) {
 
                 @include _EPH_PLUGIN_DIR_ . $plugin . DIRECTORY_SEPARATOR . 'translations/' . $iso . '/pdf.php';
-               
+
                 if (is_array($_LANGPDF)) {
                     $_LANGPD = array_merge(
                         $_LANGPD,
@@ -709,7 +707,9 @@ abstract class PhenyxController {
 
                 if (is_dir(_EPH_PLUGIN_DIR_ . $plugin . '/translations/' . $this->context->language->iso_code)) {
                     $plugs[] = $plugin;
-                } else if(is_dir(_EPH_SPECIFIC_PLUGIN_DIR_. $plugin . '/translations/' . $this->context->language->iso_code)) {
+                } else
+
+                if (is_dir(_EPH_SPECIFIC_PLUGIN_DIR_ . $plugin . '/translations/' . $this->context->language->iso_code)) {
                     $plugs[] = $plugin;
                 }
 
@@ -777,33 +777,37 @@ abstract class PhenyxController {
     }
 
     public function processClearCache() {
-        
+
         $result = $this->context->cache_api->cleanCache();
         $result = [
-            'success' => true
+            'success' => true,
         ];
 
         die($this->context->_tools->jsonEncode($result));
     }
 
     public function generateParaGridToolBar() {
-        
+
         $paramToolBarItems = null;
-        if ($this->context->cache_enable && is_object($this->context->cache_api)) {            
+
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {
             $value = $this->context->cache_api->getData('get' . $this->controller_name . 'ParaGridToolBar');
             $temp = empty($value) ? null : Tools::jsonDecode($value, true);
 
             if (!empty($temp) && is_array($temp) && count($temp)) {
-                $paramToolBarItems =  $temp;
+                $paramToolBarItems = $temp;
             }
 
-        } 
-        if(is_null($paramToolBarItems)) {
+        }
+
+        if (is_null($paramToolBarItems)) {
             $paramToolBarItems = $this->context->_hook->exec('action' . $this->controller_name . 'generateParaGridToolBar', [], null, true);
+
             if ($this->context->cache_enable && is_object($this->context->cache_api)) {
                 $temp = $paramToolBarItems === null ? null : Tools::jsonEncode($paramToolBarItems);
                 $this->context->cache_api->putData('get' . $this->controller_name . 'ParaGridToolBar', $temp);
             }
+
         }
 
         if (is_array($paramToolBarItems)) {
@@ -833,21 +837,25 @@ abstract class PhenyxController {
         $menuItem = [];
         $contextMenu = new ParamContextMenu($this->className, $this->controller_name);
         $contextMenuItems = null;
-        if ($this->context->cache_enable && is_object($this->context->cache_api)) {            
+
+        if ($this->context->cache_enable && is_object($this->context->cache_api)) {
             $value = $this->context->cache_api->getData('get' . $this->controller_name . 'ParaGridContextMenu');
             $temp = empty($value) ? null : Tools::jsonDecode($value, true);
 
             if (!empty($temp) && is_array($temp) && count($temp)) {
-                $contextMenuItems =  $temp;
+                $contextMenuItems = $temp;
             }
 
-        } 
-        if(is_null($contextMenuItems)) {
+        }
+
+        if (is_null($contextMenuItems)) {
             $contextMenuItems = $this->context->_hook->exec('action' . $this->controller_name . 'generateParaGridContextMenu', ['class' => $this->className, 'contextMenuItems' => $this->contextMenuItems], null, true);
+
             if ($this->context->cache_enable && is_object($this->context->cache_api)) {
                 $temp = $contextMenuItems === null ? null : Tools::jsonEncode($contextMenuItems);
                 $this->context->cache_api->putData('get' . $this->controller_name . 'ParaGridContextMenu', $temp);
             }
+
         }
 
         if (!empty($contextMenuItems) && is_array($contextMenuItems)) {
@@ -893,13 +901,13 @@ abstract class PhenyxController {
             }
 
         }
+
         $this->context->phenyxgrid->paramClass = !empty($this->paramClassName) ? $this->paramClassName : $this->className;
         $this->context->phenyxgrid->paramController = !empty($this->paramController_name) ? $this->paramController_name : $this->controller_name;
         $this->context->phenyxgrid->paramTable = !empty($this->paramTable) ? $this->paramTable : $this->table;
         $this->context->phenyxgrid->paramIdentifier = !empty($this->paramIdentifier) ? $this->paramIdentifier : $this->identifier;
-        
-        $extraVars = $this->context->_hook->exec('action' . $this->controller_name . 'ParaGridScript', ['controller_name' => $this->controller_name, 'phenyxgrid' => $this->context->phenyxgrid]);        
 
+        $extraVars = $this->context->_hook->exec('action' . $this->controller_name . 'ParaGridScript', ['controller_name' => $this->controller_name, 'phenyxgrid' => $this->context->phenyxgrid]);
 
         $option = $this->context->phenyxgrid->generateParaGridOption();
 
@@ -1159,7 +1167,6 @@ abstract class PhenyxController {
 
         if (!empty($html)) {
 
-            
             if ($this->_defer && $this->_domAvailable) {
                 $html = $this->context->media->deferInlineScripts($html);
             }
@@ -1175,7 +1182,7 @@ abstract class PhenyxController {
                 ]
             );
             $javascript = $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl');
-            
+
             if ($this->_defer && (!isset($this->ajax) || !$this->ajax)) {
                 echo $html . $javascript;
             } else
@@ -1218,7 +1225,7 @@ abstract class PhenyxController {
         $html = trim(str_replace(['</body>', '</html>'], '', $html)) . "\n";
         $this->ajax_head = str_replace(['<head>', '</head>'], '', $this->context->media->deferTagOutput('head', $html));
         $page = $this->context->media->deferIdOutput('page', $html);
-        
+
         $this->context->smarty->assign(
             [
                 $jsTag      => $this->context->media->getJsDef(),
@@ -1747,12 +1754,11 @@ abstract class PhenyxController {
 
         }
 
-
         return $return;
     }
-    
+
     public function openTargetController($active) {
-        
+
         $this->paragridScript = $this->generateParaGridScript();
         $data = $this->createTemplate($this->table . '.tpl');
         $extraVars = $this->context->_hook->exec('action' . $this->controller_name . 'TargetGetExtraVars', ['controller_type' => $this->controller_type], null, true);
@@ -1780,38 +1786,39 @@ abstract class PhenyxController {
             }
 
         }
+
         if (method_exists($this, 'get' . $this->className . 'Fields')) {
-            $configurationField = $this->{'get' . $this->className . 'Fields'}();
+            $configurationField = $this->{'get' . $this->className . 'Fields'}
+
+            ();
             $data->assign([
                 'manageHeaderFields' => $this->manageHeaderFields,
                 'customHeaderFields' => $this->manageFieldsVisibility($configurationField),
             ]);
-        } 
+        }
 
         $this->addJsDef([
-                'AjaxLink' . $this->controller_name => Link::getInstance()->getAdminLink($this->controller_name),
-            ]);
-
+            'AjaxLink' . $this->controller_name => Link::getInstance()->getAdminLink($this->controller_name),
+        ]);
 
         $data->assign([
-            'paragridScript'     => $this->paragridScript,
-            'controller'         => $this->controller_name,
-            'tableName'          => $this->table,
-            'className'          => $this->className,
-            'link'               => Link::getInstance(),
-            'id_lang_default'    => $this->default_language,
-            'languages'          => Language::getLanguages(false),
-            'tabs'               => $this->ajaxOptions,
-            'bo_imgdir'          => __EPH_BASE_URI__ . 'content/backoffice/' . $this->bo_theme . '/img/',
+            'paragridScript'  => $this->paragridScript,
+            'controller'      => $this->controller_name,
+            'tableName'       => $this->table,
+            'className'       => $this->className,
+            'link'            => Link::getInstance(),
+            'id_lang_default' => $this->default_language,
+            'languages'       => Language::getLanguages(false),
+            'tabs'            => $this->ajaxOptions,
+            'bo_imgdir'       => __EPH_BASE_URI__ . 'content/backoffice/' . $this->bo_theme . '/img/',
         ]);
-        
-        $this->tab_content = '<div id="content' . $this->controller_name . '" class="panel wpb_text_column  wpb_slideInUp slideInUp wpb_start_animation animated col-lg-12" style="display: content;">' .$data->fetch() . '</div>';
-        
+
+        $this->tab_content = '<div id="content' . $this->controller_name . '" class="panel wpb_text_column  wpb_slideInUp slideInUp wpb_start_animation animated col-lg-12" style="display: content;">' . $data->fetch() . '</div>';
+
         $this->context->tabs_controllers[] = [
-            $this->builderTabController($active) => $this->tabDisplay()
-        ];        
-       
-        
+            $this->builderTabController($active) => $this->tabDisplay(),
+        ];
+
     }
 
     public function ajaxProcessRefreshTargetController() {
@@ -1847,30 +1854,31 @@ abstract class PhenyxController {
         }
 
         if (method_exists($this, 'get' . $this->className . 'Fields')) {
-            $this->configurationField = $this->{'get' . $this->className . 'Fields'}();
+            $this->configurationField = $this->{'get' . $this->className . 'Fields'}
+
+            ();
             $data->assign([
                 'manageHeaderFields' => $this->manageHeaderFields,
                 'customHeaderFields' => $this->manageFieldsVisibility($This->configurationField),
             ]);
-            
 
-        } 
-        
+        }
+
         $this->addJsDef([
             'AjaxLink' . $this->controller_name => Link::getInstance()->getAdminLink($this->controller_name),
         ]);
 
         $data->assign([
-            'paragridScript'     => $this->paragridScript,
-            'controller'         => $this->controller_name,
-            'tableName'          => $this->table,
-            'className'          => $this->className,
-            'link'               => $this->context->_link,
-            'id_lang_default'    => $this->default_language,
-            'languages'          => Language::getLanguages(false),
-            'tabs'               => $this->ajaxOptions,
-            'allow_acc_char'     => $this->context->phenyxConfig->get('EPH_ALLOW_ACCENTED_CHARS_URL') ? $this->context->phenyxConfig->get('EPH_ALLOW_ACCENTED_CHARS_URL') : 0,
-            'bo_imgdir'          => __EPH_BASE_URI__ . 'content/backoffice/' . $this->bo_theme . '/img/',
+            'paragridScript'  => $this->paragridScript,
+            'controller'      => $this->controller_name,
+            'tableName'       => $this->table,
+            'className'       => $this->className,
+            'link'            => $this->context->_link,
+            'id_lang_default' => $this->default_language,
+            'languages'       => Language::getLanguages(false),
+            'tabs'            => $this->ajaxOptions,
+            'allow_acc_char'  => $this->context->phenyxConfig->get('EPH_ALLOW_ACCENTED_CHARS_URL') ? $this->context->phenyxConfig->get('EPH_ALLOW_ACCENTED_CHARS_URL') : 0,
+            'bo_imgdir'       => __EPH_BASE_URI__ . 'content/backoffice/' . $this->bo_theme . '/img/',
         ]);
 
         $this->ajax_content = $data->fetch();
@@ -1888,7 +1896,7 @@ abstract class PhenyxController {
         $this->ajaxDisplay();
 
     }
-    
+
     public function ajaxProcessOpenTargetController() {
 
         if ($this->cachable) {
@@ -1938,28 +1946,31 @@ abstract class PhenyxController {
             }
 
         }
+
         if (method_exists($this, 'get' . $this->className . 'Fields')) {
-            $configurationField = $this->{'get' . $this->className . 'Fields'}();
+            $configurationField = $this->{'get' . $this->className . 'Fields'}
+
+            ();
             $data->assign([
                 'manageHeaderFields' => $this->manageHeaderFields,
                 'customHeaderFields' => $this->manageFieldsVisibility($configurationField),
             ]);
-        } 
+        }
 
         $this->addJsDef([
             'AjaxLink' . $this->controller_name => Link::getInstance()->getAdminLink($this->controller_name),
         ]);
 
         $data->assign([
-            'paragridScript'     => $this->paragridScript,
-            'controller'         => $this->controller_name,
-            'tableName'          => $this->table,
-            'className'          => $this->className,
-            'link'               => $this->context->_link,
-            'id_lang_default'    => $this->default_language,
-            'languages'          => Language::getLanguages(false),
-            'tabs'               => $this->ajaxOptions,
-            'bo_imgdir'          => __EPH_BASE_URI__ . 'content/backoffice/' . $this->bo_theme . '/img/',
+            'paragridScript'  => $this->paragridScript,
+            'controller'      => $this->controller_name,
+            'tableName'       => $this->table,
+            'className'       => $this->className,
+            'link'            => $this->context->_link,
+            'id_lang_default' => $this->default_language,
+            'languages'       => Language::getLanguages(false),
+            'tabs'            => $this->ajaxOptions,
+            'bo_imgdir'       => __EPH_BASE_URI__ . 'content/backoffice/' . $this->bo_theme . '/img/',
         ]);
 
         $this->ajax_li = '<li id="uper' . $this->controller_name . '" data-self="' . $this->link_rewrite . '" data-name="' . $this->page_title . '" data-controller="' . $this->controller_name . '"><a href="#content' . $this->controller_name . '">' . $this->publicName . '</a><button type="button" class="close tabdetail" onClick="closeTabObject(\'' . $this->controller_name . '\');" data-id="uper' . $this->controller_name . '"><i class="fa-duotone fa-circle-xmark"></i></button></li>';
@@ -1968,12 +1979,10 @@ abstract class PhenyxController {
         $this->ajaxDisplay();
 
     }
-    
+
     public function tabDisplay() {
-       
+
         if ($this->ajax_layout) {
-            
-            
 
             $this->context->smarty->assign(
                 [
@@ -1999,14 +2008,14 @@ abstract class PhenyxController {
                     'ajax_footer' => $this->context->smarty->fetch($footerTpl),
                 ]
             );
-            
+
             $content = $this->context->smarty->fetch($this->ajax_layout);
-            
+
             return $this->tabShowContent($content);
         }
 
     }
-    
+
     public function tabShowContent($content) {
 
         $this->context->cookie->write();
@@ -2014,37 +2023,34 @@ abstract class PhenyxController {
         $jsTag = 'js_def';
         $this->context->smarty->assign($jsTag, $jsTag);
         $html = $content;
-        
+
         $html = trim($html);
 
         if (!empty($html)) {
-    
 
             if ($this->_defer && $this->_domAvailable) {
                 $html = $this->context->media->deferInlineScripts($html);
             }
-            
+
             $head = '<div id="content' . $this->controller_name . '" class="panel wpb_text_column  wpb_slideInUp slideInUp wpb_start_animation animated col-lg-12" style="display: content;">' . "\n";
             $foot = '</div></content>';
             $header = $this->context->media->deferTagOutput('ajax_head', $html) . '<content>';
             $html = trim(str_replace($header, '', $html)) . "\n";
 
             $content = $this->context->media->deferIdOutput('content' . $this->controller_name, $html);
-          
 
             $content = str_replace('<input>', '', $content);
-            $content = $head . $header . $content .  $foot;
-          
+            $content = $head . $header . $content . $foot;
+
             return $content;
         }
 
     }
 
     public function ajaxDisplay() {
-        
+
         if ($this->ajax_layout) {
 
-            
             if ($this->cachable) {
 
                 if ($this->context->cache_enable) {
@@ -2061,10 +2067,9 @@ abstract class PhenyxController {
                     }
 
                 }
-                
+
             }
-                        
-            
+
             if (($this->_back_css_cache || $this->_back_js_cache) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
 
                 if ($this->_back_css_cache) {
@@ -2105,7 +2110,7 @@ abstract class PhenyxController {
                     'ajax_footer' => $this->context->smarty->fetch($footerTpl),
                 ]
             );
-            
+
             $content = $this->context->smarty->fetch($this->ajax_layout, $this->php_self);
             $this->ajaxShowContent($content);
         }
@@ -2113,9 +2118,9 @@ abstract class PhenyxController {
     }
 
     public function refeshDisplay() {
-        
 
         if ($this->ajax_layout) {
+
             if ($this->cachable) {
 
                 if ($this->context->cache_enable) {
@@ -2134,8 +2139,6 @@ abstract class PhenyxController {
                 }
 
             }
-
-          
 
             if (($this->_back_css_cache || $this->_back_js_cache) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
 
@@ -2198,7 +2201,7 @@ abstract class PhenyxController {
 
         if (!empty($html)) {
             $javascript = "";
-            
+
             if ($this->_defer && $this->_domAvailable) {
                 $html = $this->context->media->deferInlineScripts($html);
             }
@@ -2261,7 +2264,6 @@ abstract class PhenyxController {
         if (!empty($html)) {
 
             $javascript = "";
-            
 
             if ($this->_defer && $this->_domAvailable) {
                 $html = $this->context->media->deferInlineScripts($html);
@@ -2294,11 +2296,12 @@ abstract class PhenyxController {
                     'js_inline' => $js_inline,
                 ]
             );
-            $javascript = '<cntscript>'.$this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl').'</cntscript>';
+            $javascript = '<cntscript>' . $this->context->smarty->fetch(_EPH_ALL_THEMES_DIR_ . 'javascript.tpl') . '</cntscript>';
 
             if ($this->_defer) {
                 $javascript = $javascript . '</content>';
             }
+
             $content = str_replace('<input>', '', $content);
             $content = $head . $header . $content . $javascript . $foot;
             $result = [
@@ -2378,7 +2381,6 @@ abstract class PhenyxController {
 
         if ($layout) {
 
-            
             if (($this->_back_css_cache || $this->_back_js_cache) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
 
                 if ($this->_back_css_cache) {
@@ -2429,7 +2431,7 @@ abstract class PhenyxController {
     }
 
     public function ajaxShowEditContent($content) {
-        
+
         $this->context->cookie->write();
         $html = '';
         $jsTag = 'js_def';
@@ -2440,11 +2442,10 @@ abstract class PhenyxController {
 
         if (!empty($html)) {
             $javascript = "";
-            
+
             if ($this->_defer && $this->_domAvailable) {
                 $html = $this->context->media->deferInlineScripts($html);
             }
-
 
             if (isset($this->object->id) && $this->object->id > 0) {
                 $head = '<div id="contentEdit' . $this->controller_name . '" class="panel wpb_text_column  wpb_slideInUp slideInUp wpb_start_animation animated col-lg-12" style="display: flow-root;">' . "\n";
@@ -2461,7 +2462,7 @@ abstract class PhenyxController {
             } else {
                 $content = $this->context->media->deferIdOutput('contentAdd' . $this->controller_name, $html);
             }
-            
+
             $js_def = ($this->_defer && $this->_domAvailable) ? $this->js_def : [];
             $js_files = (!is_null($this->extraJs) && $this->_defer) ? array_unique($this->extraJs) : [];
             $js_inline = ($this->_defer && $this->_domAvailable) ? $this->context->media->getInlineScript() : [];
@@ -2500,14 +2501,13 @@ abstract class PhenyxController {
         }
 
     }
-    
+
     public function ajaxModalEditDisplay() {
 
         $layout = $this->getAjaxLayout();
 
         if ($layout) {
 
-            
             if (($this->_back_css_cache || $this->_back_js_cache) && is_writable(_EPH_BO_ALL_THEMES_DIR_ . 'backend/cache')) {
 
                 if ($this->_back_css_cache) {
@@ -2556,9 +2556,9 @@ abstract class PhenyxController {
         }
 
     }
-    
+
     public function ajaxShowModalEditContent($content) {
-        
+
         $this->context->cookie->write();
         $html = '';
         $jsTag = 'js_def';
@@ -2569,11 +2569,10 @@ abstract class PhenyxController {
 
         if (!empty($html)) {
             $javascript = "";
-            
+
             if ($this->_defer && $this->_domAvailable) {
                 $html = $this->context->media->deferInlineScripts($html);
             }
-
 
             $header = $this->context->media->deferTagOutput('ajax_head', $html) . '<content>';
             $html = trim(str_replace($header, '', $html)) . "\n";
@@ -2583,7 +2582,7 @@ abstract class PhenyxController {
             } else {
                 $content = $this->context->media->deferIdOutput('contentAdd' . $this->controller_name, $html);
             }
-            
+
             $js_def = ($this->_defer && $this->_domAvailable) ? $this->js_def : [];
             $js_files = (!is_null($this->extraJs) && $this->_defer) ? array_unique($this->extraJs) : [];
             $js_inline = ($this->_defer && $this->_domAvailable) ? $this->context->media->getInlineScript() : [];
@@ -2602,11 +2601,11 @@ abstract class PhenyxController {
                 $javascript = $javascript . '</content>';
             }
 
-            $content =  $header . $content . $javascript;
+            $content = $header . $content . $javascript;
 
             $result = [
                 'success'    => true,
-                'title'         => $this->dialog_title,
+                'title'      => $this->dialog_title,
                 'html'       => $content,
                 'page_title' => $this->page_title,
                 'load_time'  => sprintf($this->la('Load time %s seconds'), round(microtime(true) - TIME_START, 3)),
@@ -2778,7 +2777,6 @@ abstract class PhenyxController {
         $this->beforeUpdate();
 
         $result = $this->object->update();
-
 
         $this->afterUpdate();
 
@@ -3625,7 +3623,7 @@ abstract class PhenyxController {
 
         return '<span style="color:green">-</span>';
     }
-  
+
     private function getPeakMemoryColor($n) {
 
         $n /= 1048576;
@@ -3851,7 +3849,6 @@ abstract class PhenyxController {
         $this->total_cache_size = $this->getVarSize($cache);
 
         // Retrieve plugin perfs
-        
 
         $queries = Db::getInstance()->queries;
         uasort($queries, 'phenyxshop_querytime_sort');
@@ -4005,36 +4002,33 @@ abstract class PhenyxController {
     protected function displayProfilingHooks() {
 
         $perfs = $this->_session->get('HookPerformance');
-       
+
         $count_hooks = count($perfs);
         $peformances = [];
         $total_hook_time = 0;
         $total_memory_time = 0;
-       
+
         foreach ($perfs as $hook => $value) {
-            
+
             $time = $value['time'];
-            $total_hook_time = $total_hook_time +$value['time'];
+            $total_hook_time = $total_hook_time + $value['time'];
             $memory = $value['memory'];
             $total_memory_time = $total_memory_time + $value['memory'];
             $peformances[$hook] = [
-                'time' => $time,
-                'memory' => $memory
+                'time'   => $time,
+                'memory' => $memory,
             ];
-            
-            
+
         }
-        
-       
-        
+
         $this->content_ajax .= '
         <div id="hooksPerf"><div class="col-lg-12">
         <h2><a name="includedFiles">' . $this->la('Hooks Performance') . '</a></h2>
             <table class="table table-condensed">
                 <tr>
-                    <th>'.$this->la('Hook').'</th>
-                    <th>'.$this->la('Time').'</th>
-                    <th>'.$this->la('Memory Usage').'</th>
+                    <th>' . $this->la('Hook') . '</th>
+                    <th>' . $this->la('Time') . '</th>
+                    <th>' . $this->la('Memory Usage') . '</th>
                 </tr>';
 
         foreach ($peformances as $hook => $perf) {
@@ -4051,8 +4045,6 @@ abstract class PhenyxController {
                     </td>
                 </tr>';
 
-            
-
         }
 
         $this->content_ajax .= '  <tr>
@@ -4067,26 +4059,26 @@ abstract class PhenyxController {
     protected function displayProfilingPlugins() {
 
         $perfs = $this->_session->get('pluginPerformance');
-        
+
         $count_plugins = count($perfs);
-        $peformances = [];     
+        $peformances = [];
         $total_plugin_time = 0;
         $total_plugins_memory = 0;
+
         foreach ($perfs as $plugin => $value) {
-            
+
             $time = $value['time'];
-            $total_plugin_time = $total_plugin_time +$value['time'];
-              
+            $total_plugin_time = $total_plugin_time + $value['time'];
+
             $memory = $value['memory'];
             $total_plugins_memory = $total_plugins_memory + $value['memory'];
-            
+
             $peformances[$plugin] = [
-                'time' => $time,
-                'memory' => $memory
+                'time'   => $time,
+                'memory' => $memory,
             ];
-            
+
         }
-         
 
         $this->content_ajax .= '
         <div id="pluginsPerf"><div class="col-lg-12">
@@ -4112,8 +4104,6 @@ abstract class PhenyxController {
                         ' . $this->getMemoryColor($perf['memory']) . ' Mb
                     </td>
                 </tr>';
-
-            
 
         }
 
@@ -4267,8 +4257,7 @@ abstract class PhenyxController {
         $this->displayProfilingConfiguration();
         $this->displayProfilingRun();
         $this->content_ajax .= '</div><div class="row">';
-        
-        
+
         $this->displayProfilingLinks();
 
         $this->displayProfilingStopwatch();
@@ -4278,6 +4267,7 @@ abstract class PhenyxController {
         if (isset(PhenyxObjectModel::$debug_list)) {
             $this->displayProfilingObjectModel();
         }
+
         $this->displayProfilingHooks();
         $this->displayProfilingPlugins();
         $this->displayProfilingFiles();

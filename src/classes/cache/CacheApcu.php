@@ -95,11 +95,11 @@ class CacheApcu extends CacheApi implements CacheApiInterface {
 	}
 
 	public function removeData($key) {
-        
-        if($this->_exists($key)) {
-            return $this->_delete($this->prefix.$key);
-        }
-		
+
+		if ($this->_exists($key)) {
+			return $this->_delete($this->prefix . $key);
+		}
+
 	}
 
 	protected function _delete($key) {

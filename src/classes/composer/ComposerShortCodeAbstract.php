@@ -3,7 +3,7 @@
 abstract class ComposerShortCodeAbstract {
 
 	public static $config;
-    public $context;
+	public $context;
 	protected $is_plugin = true;
 	protected $is_theme = false;
 	protected $disable_updater = false;
@@ -12,19 +12,20 @@ abstract class ComposerShortCodeAbstract {
 	protected $is_init = false;
 	protected $controls_css_settings = 'cc';
 	protected $controls_list = ['edit', 'clone', 'delete'];
-	
-    
-    public function __construct() {
+
+	public function __construct() {
 
 		$this->context = Context::getContext();
-        if (!isset($this->context->phenyxConfig)) {
-            $this->context->phenyxConfig = Configuration::getInstance();
 
-        }
-        if (!isset($this->context->_composer)) {
-            $this->context->_composer = Composer::getInstance();
+		if (!isset($this->context->phenyxConfig)) {
+			$this->context->phenyxConfig = Configuration::getInstance();
 
-        }
+		}
+
+		if (!isset($this->context->_composer)) {
+			$this->context->_composer = Composer::getInstance();
+
+		}
 
 	}
 

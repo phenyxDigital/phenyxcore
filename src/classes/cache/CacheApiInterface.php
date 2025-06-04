@@ -1,6 +1,5 @@
 <?php
 
-
 interface CacheApiInterface {
 	/**
 	 * Checks whether we can use the cache method performed by this API.
@@ -63,4 +62,6 @@ interface CacheApiInterface {
 }
 
 ?>
+
+
 

@@ -14,7 +14,7 @@ class ConnectionsPage extends PhenyxObjectModel {
     public $id_page;
     public $time_start;
     public $time_end;
-    
+
     public $page;
     // @codingStandardsIgnoreEnd
 
@@ -26,12 +26,12 @@ class ConnectionsPage extends PhenyxObjectModel {
         'primary' => 'id_connections_page',
         'fields'  => [
             'id_connections' => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
-            'id_page'   => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
-            'time_start'    => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
+            'id_page'        => ['type' => self::TYPE_INT, 'validate' => 'isUnsignedId'],
+            'time_start'     => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
             'time_end'       => ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
         ],
     ];
-    
+
     public function __construct($id = null, $idLang = null) {
 
         parent::__construct($id, $idLang);
@@ -42,27 +42,26 @@ class ConnectionsPage extends PhenyxObjectModel {
         }
 
     }
-    
+
     public function getPage() {
-        
+
         return Db::getInstance()->getValue(
-                (new DbQuery())
+            (new DbQuery())
                 ->select('pm.`name`')
                 ->from('page', 'p')
                 ->leftJoin('page_type', 'pm', 'pm.id_page_type = p.id_page_type')
                 ->where('p.`id_page_type` = ' . (int) $this->id_page)
         );
     }
-    
+
     public static function getByIdConnection($id_connections) {
-        
+
         $id_connections_page = Db::getInstance()->getValue(
-                (new DbQuery())
+            (new DbQuery())
                 ->select('id_connections_page')
                 ->from('connections_page')
                 ->where('`id_connections` = ' . (int) id_connections)
         );
     }
 
-    
 }

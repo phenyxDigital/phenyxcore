@@ -38,7 +38,7 @@ class ComposerColumnOffset extends Composer {
 	}
 
 	public function render() {
-		
+
 		$context = Context::getContext();
 
 		$jsDef = [
@@ -49,13 +49,13 @@ class ComposerColumnOffset extends Composer {
 		$data = $this->context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'column_offset/template.tpl');
 		$data->assign(
 			[
-				'settings' => $this->settings,
-				'value'    => $this->value,
-				'data'     => $this->valueData(),
-				'sizes'    => $this->size_types,
-				'param'    => $this,
-                'vc_manager' => $this,
-				'jsDef'    => Tools::jsonEncode($jsDef),
+				'settings'   => $this->settings,
+				'value'      => $this->value,
+				'data'       => $this->valueData(),
+				'sizes'      => $this->size_types,
+				'param'      => $this,
+				'vc_manager' => $this,
+				'jsDef'      => Tools::jsonEncode($jsDef),
 			]
 		);
 		return $data->fetch();

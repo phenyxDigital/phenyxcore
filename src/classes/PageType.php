@@ -9,7 +9,7 @@ class PageType extends PhenyxObjectModel {
 
     public $require_context = false;
     // @codingStandardsIgnoreStart
-   
+
     public $id_page_type;
     public $id_object;
     // @codingStandardsIgnoreEnd
@@ -24,5 +24,4 @@ class PageType extends PhenyxObjectModel {
         ],
     ];
 
-   
 }
