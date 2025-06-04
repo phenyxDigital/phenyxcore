@@ -508,8 +508,10 @@ class Helper {
     
     public function l($string, $class = 'Helper') {
 
-        // if the class is extended by a plugin, use plugins/[plugin_name]/xx.php lang file
         $currentClass = get_class($this);
+        if (strtolower(substr($currentClass, -4)) == 'core') {
+            $currentClass = substr($currentClass, 0, -4);
+        }
 
         return $this->context->translations->getClassTranslation($string, $currentClass);
     }
