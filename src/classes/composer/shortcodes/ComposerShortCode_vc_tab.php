@@ -41,18 +41,3 @@ class ComposerShortCode_vc_tab extends ComposerShortCode_vc_column {
 	}
 
 }
-
-function tab_id_settings_field($settings, $value) {
-
-	$dependency = generate_dependencies_attributes($settings);
-	return '<div class="my_param_block">'
-		. '<input name="' . $settings['param_name']
-		. '" class="wpb_vc_param_value wpb-textinput '
-		. $settings['param_name'] . ' ' . $settings['type'] . '_field" type="hidden" value="'
-		. $value . '" ' . $dependency . ' />'
-		. '<label>' . $value . '</label>'
-		. '</div>';
-	
-}
-
-add_shortcode_param('tab_id', 'tab_id_settings_field');

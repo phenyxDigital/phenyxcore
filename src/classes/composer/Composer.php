@@ -52,9 +52,6 @@ class Composer {
     public $controls = [
         'add_element',
         'templates',
-        'save_backend',
-        'preview',
-        'frontend',
         'custom_css',
     ];
 

@@ -492,6 +492,17 @@ $param_line .= ob_get_clean();
            
 
             break;
+        case 'tab_id':
+
+            $dependency = generate_dependencies_attributes($param);
+	        $param_line .='<div class="my_param_block">';
+		    $param_line .='<input name="' . $param['param_name'];
+            $param_line .='" class="wpb_vc_param_value wpb-textinput ';
+		    $param_line .= $param['param_name'] . ' ' . $param['type'] . '_field" type="hidden" value="'.$param_value . '" ' . $dependency . ' />';
+		    $param_line .= '<label>' . $param_value . '</label>';
+		    $param_line .= '</div>';
+
+            break;
         case 'extra_css':
 
             if (isset($param['param_value']) && is_array($param['param_value'])) {

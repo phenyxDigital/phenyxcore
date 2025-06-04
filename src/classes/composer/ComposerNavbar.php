@@ -16,6 +16,7 @@ class ComposerNavbar {
 	public $post = false;
 	public $idLang = null;
 	public $context;
+    public $composer;
 
 	public function __construct($post = '', $idLang = null) {
 
@@ -23,6 +24,7 @@ class ComposerNavbar {
 		$this->idLang = $idLang;
 		global $smarty;
 		$this->context = Context::getContext();
+        $this->composer = Composer::getInstance();
 	}
 
 	/**
@@ -33,10 +35,9 @@ class ComposerNavbar {
 	public function getControls() {
 
 		$list = [];
-		$composer = Composer::getInstance();
 
 		foreach ($this->controls as $control) {
-			$method = $composer->vc_camel_case('get_control_' . $control);
+			$method = $this->composer->vc_camel_case('get_control_' . $control);
 
 			if (method_exists($this, $method)) {
 				$list[] = [$control, $this->$method() . "\n"];
@@ -70,11 +71,12 @@ class ComposerNavbar {
 		$data = $this->context->smarty->createTemplate(_EPH_COMPOSER_DIR_ . 'editors/navbar/navbar.tpl');
 		$data->assign(
 			[
-				'css_class' => $this->css_class,
+				'languages' => Language::getLanguages(false),
+                'css_class' => $this->css_class,
 				'controls'  => $this->getControls(),
 				'nav_bar'   => $this,
 				'post'      => $this->post,
-				'idLang'      => $this->idLang,
+				'idLang'    => $this->idLang,
 			]
 		);
 
@@ -82,10 +84,9 @@ class ComposerNavbar {
 
 	}
 
-	public function getLogo() {
-		$composer = Composer::getInstance();
+	public function getLogo() {        
 		$output = '<a id="vc_logo" class="vc_navbar-brand" title="' . $this->l('Visual Composer')
-		. '" href="' . $composer->esc_attr($this->brand_url) . '" target="_blank">'
+		. '" href="javascript:void(0)">'
 		. $this->l('Visual Composer') . '</a>';
 		return $output;
 	}

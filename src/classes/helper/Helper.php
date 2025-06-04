@@ -505,5 +505,13 @@ class Helper {
 
         return Context::getContext()->translations->getAdminTranslation($string, get_class($this), $addslashes, $htmlentities);
     }
+    
+    public function l($string, $class = 'Helper') {
+
+        // if the class is extended by a plugin, use plugins/[plugin_name]/xx.php lang file
+        $currentClass = get_class($this);
+
+        return $this->context->translations->getClassTranslation($string, $currentClass);
+    }
 
 }

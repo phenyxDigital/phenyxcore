@@ -243,57 +243,41 @@ class Configuration extends PhenyxObjectModel {
 
         $idLang = (int) $idLang;
 
-       
-        if (!isset(static::$_cache['configuration'][$idLang])) {
-            $idLang = 0;
-        }
-
-        
-        if ($this->hasKey($key, $idLang, $use_cache) && isset(static::$_cache['configuration'][$idLang]['global'][$key])) {
-			
-            $result = purifyFetch(static::$_cache['configuration'][$idLang]['global'][$key]);
-            
-            if(class_exists('Context')) {
-                 $this->context->_session->set('cnfig_'.$key.'_'.$idLang, $result);
-            }		
-           
-            return $result;
-
+        $sql = new DbQuery();
+        if($idLang > 0) {
+            $sql->select('cl.`value_lang`');
         } else {
-            $value = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
-                (new DbQuery())
-                    ->select('`value`')
-                    ->from('configuration')
-                    ->where('`name` LIKE \'' . $key . '\'')
-            );
-            
-            if(class_exists('Context')) {
-                 $this->context->_session->set('cnfig_'.$key.'_'.$idLang, $value);
-            }	
-            
-            static::$_cache['configuration'][$idLang]['global'][$key] = $value;
-            return $value;
+            $sql->select('c.`value`');
         }
-
-        return false;
+        $sql->from('configuration', 'c');
+        if($idLang > 0) {
+            $sql->leftJoin('configuration_lang', 'cl', 'cl.id_configuration = c.id_configuration AND cl.id_lang = '.$idLang);
+        }
+        $sql->where('c.`name` = \''.$key.'\'');
+        $value = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue($sql);
+            
+        if(class_exists('Context')) {
+             $this->context->_session->set('cnfig_'.$key.'_'.$idLang, $value);
+        }	
+            
+        return $value;
     }    
        
-    public function getKey($key, $idLang = null) {
+    public function getKey($key, $idLang = null, $use_cache = true) {
 
         if (defined('_EPH_DO_NOT_LOAD_CONFIGURATION_') && _EPH_DO_NOT_LOAD_CONFIGURATION_) {
             return false;
         }
-		if(!is_object($this->context->_session)) {
-            $this->context->_session = PhenyxSession::getInstance();
-        }
-		
-		
-        $result = $this->context->_session->get('cnfig_'.$key.'-'.$idLang);
-        if(!empty($result)) {
-            return $result;
-        }
+        if ($use_cache) {
+            if(!is_object($this->context->_session)) {
+                $this->context->_session = PhenyxSession::getInstance();
+            }
         
-
+            $result = $this->context->_session->get('cnfig_'.$key.'-'.$idLang);
+            if(!empty($result)) {
+                return $result;
+            }
+        }
         $this->validateKey($key);
 		
 
@@ -302,33 +286,21 @@ class Configuration extends PhenyxObjectModel {
         }
 
         $idLang = (int) $idLang;
-
-       
-        if (!isset(static::$_cache['configuration'][$idLang])) {
-            $idLang = 0;
-        }
-
         
-        if ($this->hasKey($key, $idLang) && isset(static::$_cache['configuration'][$idLang]['global'][$key])) {
-			
-            $result = purifyFetch(static::$_cache['configuration'][$idLang]['global'][$key]);
-			$this->context->_session->set('cnfig_'.$key.'-'.$idLang, $result);
-           
-			
-            return $result;
+        $sql = new DbQuery();
+        if($idLang > 0) {
+            $sql->select('cl.`value_lang`');
         } else {
-            $value = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue(
-                (new DbQuery())
-                    ->select('`value`')
-                    ->from('configuration')
-                    ->where('`name` LIKE \'' . $key . '\'')
-            );
-            $this->context->_session->set('cnfig_'.$key.'-'.$idLang, $result);
-            static::$_cache['configuration'][$idLang]['global'][$key] = $value;
-            return $value;
+            $sql->select('c.`value`');
         }
-
-        return false;
+        $sql->from('configuration', 'c');
+        if($idLang > 0) {
+            $sql->leftJoin('configuration_lang', 'cl', 'cl.id_configuration = c.id_configuration AND cl.id_lang = '.$idLang);
+        }
+        $sql->where('c.`name` = \''.$key.'\'');
+        $value = Db::getInstance(_EPH_USE_SQL_SLAVE_)->getValue($sql);
+        $this->context->_session->set('cnfig_'.$key.'-'.$idLang, $result);
+        return $value;
     }
     
     public function loadConfiguration() {

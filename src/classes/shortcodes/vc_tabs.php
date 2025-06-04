@@ -1,11 +1,12 @@
 <?php
 $vc_manager = ephenyx_manager();
 
-$output = $title = $tabs_mode = $el_class = '';
+$output = $title = $tabs_mode = $el_class = $css_animation ='';
 extract(Composer::shortcode_atts([
     'title'     => '',
     'tabs_mode' => 0,
     'el_class'  => '',
+    'css_animation' => '',
 ], $atts));
 
 $el_class = $this->getExtraClass($el_class);
@@ -40,6 +41,7 @@ case 0:
     $tabs_nav .= '</ul>' . "\n" . '<div id="tabs-content" class="tabs-controller-content">' . "\n";
 
     $css_class = trim($element . ' wpb_content_element ' . $el_class);
+    $css_class .= $this->getCSSAnimation($css_animation);
 
     $output .= "\n\t" . '<div class="' . $css_class . '">';
     $output .= "\n\t\t" . '<div class="wpb_wrapper wpb_tour_tabs_wrapper ui-tabs vc_clearfix">';
@@ -77,6 +79,7 @@ case 1:
 
     $index = Tools::jsonEncode($index);
     $css_class = trim($element . ' wpb_content_element ' . $el_class);
+    $css_class .= $this->getCSSAnimation($css_animation);
 
     $output .= "\n\t" . '<div class="' . $css_class . '">';
     $output .= "\n\t\t" . '<div class="wpb_wrapper wpb_tour_tabs_wrapper ui-tabs vc_clearfix">';
